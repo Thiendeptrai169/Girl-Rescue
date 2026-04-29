@@ -5,10 +5,10 @@ using UnityEngine.Pool;
 using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
 // Temporarily commented out until Steps E and F are complete to prevent Editor errors
-// using DragonRescue.Entities.Cannon;
+using DragonRescue.Entities.Cannon;
 using DragonRescue.Entities.Dragon;
-// using DragonRescue.Entities.Princess;
-// using DragonRescue.UI;
+using DragonRescue.Entities.Princess;
+using DragonRescue.UI;
 
 namespace DragonRescue.Core
 {
@@ -37,8 +37,8 @@ namespace DragonRescue.Core
         [SerializeField] private GameObject _cannonCardPrefab;
 
         // ── Inspector — View References ───────────────────────────────────────
-        // [Header("Views")]
-        // [SerializeField] private SlotBarView _slotBarView; // Temporarily commented out
+        [Header("Views")]
+        [SerializeField] private SlotBarView _slotBarView;
 
         // ── Events ────────────────────────────────────────────────────────────
         /// <summary>Fired after all entities have been spawned and are ready.</summary>
@@ -77,8 +77,7 @@ namespace DragonRescue.Core
                 _princessInstance = null;
             }
 
-            // Temporarily commented out until Step F is complete
-            // _slotBarView.ClearSlots();
+            _slotBarView.ClearSlots();
 
             Debug.Log("[LevelManager] Level cleared.");
         }
@@ -128,8 +127,7 @@ namespace DragonRescue.Core
             {
                 var go = PoolManager.Instance.Get(_cannonSlotPrefab, _slotBarParent);
 
-                // Temporarily commented out until Step F is complete
-                // if (go.TryGetComponent<CannonSlot>(out var slot)) _slotBarView.RegisterSlot(slot);
+                if (go.TryGetComponent<CannonSlot>(out var slot)) _slotBarView.RegisterSlot(slot);
 
                 _activeSlots.Add(go);
             }
@@ -141,8 +139,7 @@ namespace DragonRescue.Core
             {
                 var go = PoolManager.Instance.Get(_cannonCardPrefab, _cannonTrayParent);
 
-                // Temporarily commented out until Step F is complete
-                // if (go.TryGetComponent<CannonCardView>(out var card)) card.Init(cannonDef, _slotBarView);
+                if (go.TryGetComponent<CannonCardView>(out var card)) card.Init(cannonDef, _slotBarView);
 
                 _activeCards.Add(go);
             }
