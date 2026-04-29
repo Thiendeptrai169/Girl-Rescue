@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
 // Temporarily commented out until Steps E and F are complete to prevent Editor errors
 // using DragonRescue.Entities.Cannon;
-// using DragonRescue.Entities.Dragon;
+using DragonRescue.Entities.Dragon;
 // using DragonRescue.Entities.Princess;
 // using DragonRescue.UI;
 
@@ -115,9 +115,8 @@ namespace DragonRescue.Core
 
                 go.transform.position = _dragonSpawnRoot.position + Vector3.right * (i * _segmentSpacing);
                 
-                // Temporarily commented out until Step E is complete
-                // if (go.TryGetComponent<SegmentIdentity>(out var identity)) identity.Init(segData);
-                // if (go.TryGetComponent<SegmentVisual>(out var visual)) visual.Init(segData.Color);
+                if (go.TryGetComponent<SegmentIdentity>(out var identity)) identity.Init(segData);
+                if (go.TryGetComponent<SegmentVisual>(out var visual)) visual.Init(segData.Color);
 
                 _activeSegments.Add(go);
             }
