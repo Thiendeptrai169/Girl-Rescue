@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3820824786191798476}
   - component: {fileID: 2234081603015488778}
-  - component: {fileID: -1925899444256933289}
-  - component: {fileID: 5662247594350349837}
+  - component: {fileID: 1294500693760148337}
+  - component: {fileID: 6587338895633009231}
   m_Layer: 0
   m_Name: DragonSegment
   m_TagString: Untagged
@@ -93,7 +93,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &-1925899444256933289
+--- !u!114 &1294500693760148337
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,10 +102,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6751022149907988061}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b95fc40914f06241b163d621382423f, type: 3}
+  m_Script: {fileID: 11500000, guid: 330aea32744916c448b05f5a8c352872, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.SegmentIdentity
---- !u!114 &5662247594350349837
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.DragonSegmentIdentity
+  _visual: {fileID: 6587338895633009231}
+--- !u!114 &6587338895633009231
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -114,7 +115,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6751022149907988061}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aecc4eaa2d032ed47a692f0f123db633, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f246aa5407593c4eaa1a1d3c8648395, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.SegmentVisual
-  _segmentSprite: {fileID: 2234081603015488778}
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.DragonSegmentVisual
+  _sprite: {fileID: 2234081603015488778}

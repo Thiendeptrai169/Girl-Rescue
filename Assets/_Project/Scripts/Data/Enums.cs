@@ -6,11 +6,23 @@ namespace DragonRescue.Data
     /// </summary>
     public enum CannonColor
     {
-        Red,
         Blue,
         Green,
+        Red,
         Yellow,
-        Purple
+        Purple,
+        Pink,
+        Cyan,
+        Brown
+    }
+
+    /// <summary>
+    /// Types of movement available for the dragon.
+    /// </summary>
+    public enum DragonMovementType
+    {
+        Linear,
+        Waypoint
     }
 
     /// <summary>
@@ -23,5 +35,36 @@ namespace DragonRescue.Data
         Won,
         Lost,
         Paused
+    }
+
+    /// <summary>
+    /// Direction an arrow block faces / moves toward.
+    /// </summary>
+    public enum Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+
+    /// <summary>
+    /// Types of boosters available to the player.
+    /// </summary>
+    public enum BoosterType
+    {
+        Unlock,
+        Remove,
+        Sort,
+        Further
+    }
+
+    /// <summary>
+    /// Modes for the Sort booster.
+    /// </summary>
+    public enum SortMode
+    {
+        BringUsefulColorsUp,
+        ShuffleColumns
     }
 }

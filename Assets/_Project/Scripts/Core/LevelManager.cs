@@ -1,155 +1,139 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
-// Temporarily commented out until Steps E and F are complete to prevent Editor errors
-using DragonRescue.Entities.Cannon;
 using DragonRescue.Entities.Dragon;
-using DragonRescue.Entities.Princess;
-using DragonRescue.UI;
 
 namespace DragonRescue.Core
 {
     /// <summary>
     /// Responsible for spawning and clearing all level entities.
-    /// Uses Unity's built-in ObjectPool to avoid Instantiate/Destroy overhead.
+    /// Uses PoolManager for dragon segments to avoid Instantiate/Destroy overhead.
     /// </summary>
     public class LevelManager : Singleton<LevelManager>
     {
-        // ── Inspector — Spawn Points ──────────────────────────────────────────
-        [Header("Spawn Points")]
-        [SerializeField] private Transform _princessSpawnPoint;
-        [SerializeField] private Transform _dragonSpawnRoot;     // first segment placed here
-        [SerializeField] private float _segmentSpacing = 1.2f;   // gap between segments
-
-        // ── Inspector — UI Parents ────────────────────────────────────────────
-        [Header("UI Parents")]
-        [SerializeField] private Transform _slotBarParent;
-        [SerializeField] private Transform _cannonTrayParent;
+        [SerializeField] private float _segmentSpacing = 1.2f;
 
         // ── Inspector — Prefabs ───────────────────────────────────────────────
         [Header("Prefabs")]
         [SerializeField] private GameObject _princessPrefab;
-        [SerializeField] private GameObject _dragonSegmentPrefab;
-        [SerializeField] private GameObject _cannonSlotPrefab;
-        [SerializeField] private GameObject _cannonCardPrefab;
-
-        // ── Inspector — View References ───────────────────────────────────────
-        [Header("Views")]
-        [SerializeField] private SlotBarView _slotBarView;
+        [SerializeField] private GameObject _dragonPrefab;         // Root with DragonManager + DragonMovement
+        [SerializeField] private GameObject _dragonSegmentPrefab;  // Child with Identity + Visual
 
         // ── Events ────────────────────────────────────────────────────────────
         /// <summary>Fired after all entities have been spawned and are ready.</summary>
-        public event Action<LevelDefinition> OnLevelReady;
-
-        // ── Pools ─────────────────────────────────────────────────────────────
-        private ObjectPool<GameObject> _segmentPool;
-        private ObjectPool<GameObject> _slotPool;
-        private ObjectPool<GameObject> _cardPool;
+        public event System.Action<LevelConfig> OnLevelReady;
 
         // ── Runtime tracking (for ClearLevel) ────────────────────────────────
         private GameObject _princessInstance;
+        private GameObject _dragonInstance;
         private readonly List<GameObject> _activeSegments = new();
-        private readonly List<GameObject> _activeSlots    = new();
-        private readonly List<GameObject> _activeCards    = new();
 
         // ── Public API ────────────────────────────────────────────────────────
-        public void InitLevel(LevelDefinition definition)
+        public void InitLevel(LevelConfig config)
         {
-            InitLevelAsync(definition, this.GetCancellationTokenOnDestroy()).Forget();
+            InitLevelAsync(config, this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         public void ClearLevel()
         {
-            foreach (var seg  in _activeSegments) PoolManager.Instance.Release(_dragonSegmentPrefab, seg);
-            foreach (var slot in _activeSlots)    PoolManager.Instance.Release(_cannonSlotPrefab, slot);
-            foreach (var card in _activeCards)    PoolManager.Instance.Release(_cannonCardPrefab, card);
-
+            // Release pooled segments
+            foreach (var seg in _activeSegments)
+            {
+                if (seg != null)
+                    PoolManager.Instance.Release(_dragonSegmentPrefab, seg);
+            }
             _activeSegments.Clear();
-            _activeSlots.Clear();
-            _activeCards.Clear();
 
+            // Destroy dragon root
+            if (_dragonInstance != null)
+            {
+                Destroy(_dragonInstance);
+                _dragonInstance = null;
+            }
+
+            // Destroy princess
             if (_princessInstance != null)
             {
                 Destroy(_princessInstance);
                 _princessInstance = null;
             }
 
-            _slotBarView.ClearSlots();
+            // Clear stale event subscriptions
+            GameEvents.ClearLevelEvents();
 
             Debug.Log("[LevelManager] Level cleared.");
         }
 
         // ── Private — Async Init ──────────────────────────────────────────────
-        private async UniTask InitLevelAsync(LevelDefinition definition, System.Threading.CancellationToken ct)
+        private async UniTask InitLevelAsync(LevelConfig config, System.Threading.CancellationToken ct)
         {
-            Debug.Log($"[LevelManager] Loading: {definition.LevelName}");
+            Debug.Log($"[LevelManager] Loading Level {config.levelNumber}: {config.levelId}");
 
-            SpawnPrincess();
-            SpawnDragonSegments(definition);
-            SpawnSlots(definition);
-            SpawnCannonCards(definition);
+            SpawnPrincess(config);
+            SpawnDragon(config);
+
+            // TODO Day 2: SpawnBoard(config);
+            // TODO Day 3: SpawnSlots(config);
+            // TODO Day 4: SetupBoosters(config);
 
             await UniTask.Yield(ct);
 
-            Debug.Log($"[LevelManager] {definition.LevelName} ready.");
-            OnLevelReady?.Invoke(definition);
+            Debug.Log($"[LevelManager] Level {config.levelNumber} ready.");
+            OnLevelReady?.Invoke(config);
         }
 
         // ── Private — Spawning ────────────────────────────────────────────────
-        private void SpawnPrincess()
+        private void SpawnPrincess(LevelConfig config)
         {
-            _princessInstance = Instantiate(_princessPrefab, _princessSpawnPoint.position, Quaternion.identity);
+            Vector3 pos = config.princessPosition;
+            _princessInstance = Instantiate(_princessPrefab, pos, Quaternion.identity);
             _princessInstance.name = "Princess";
         }
 
-        private void SpawnDragonSegments(LevelDefinition definition)
+        private void SpawnDragon(LevelConfig config)
         {
-            for (int i = 0; i < definition.DragonSegments.Length; i++)
+            // Spawn dragon root GO with DragonManager
+            Vector3 startPos = config.dragonStartPosition;
+            _dragonInstance = Instantiate(_dragonPrefab, startPos, Quaternion.identity);
+            _dragonInstance.name = "Dragon";
+
+            var dragonManager = _dragonInstance.GetComponent<DragonManager>();
+
+            DragonMovementBase movementStrategy = config.dragonMovementType switch
             {
-                var segData = definition.DragonSegments[i];
-                var go      = PoolManager.Instance.Get(_dragonSegmentPrefab);
+                DragonMovementType.Linear => _dragonInstance.AddComponent<LinearDragonMovement>(),
+                DragonMovementType.Waypoint => _dragonInstance.AddComponent<WaypointDragonMovement>(),
+                _ => _dragonInstance.AddComponent<LinearDragonMovement>()
+            };
 
-                go.transform.position = _dragonSpawnRoot.position + Vector3.right * (i * _segmentSpacing);
-                
-                if (go.TryGetComponent<SegmentIdentity>(out var identity)) identity.Init(segData);
-                if (go.TryGetComponent<SegmentVisual>(out var visual)) visual.Init(segData.Color);
+            var segmentIdentities = new List<DragonSegmentIdentity>();
 
-                _activeSegments.Add(go);
-            }
-        }
-
-        private void SpawnSlots(LevelDefinition definition)
-        {
-            for (int i = 0; i < definition.SlotCount; i++)
+            // Spawn segments as children
+            for (int i = 0; i < config.dragonSegments.Count; i++)
             {
-                var go = PoolManager.Instance.Get(_cannonSlotPrefab, _slotBarParent);
+                var segData = config.dragonSegments[i];
+                var segGO = PoolManager.Instance.Get(_dragonSegmentPrefab, _dragonInstance.transform);
 
-                if (go.TryGetComponent<CannonSlot>(out var slot)) _slotBarView.RegisterSlot(slot);
+                segGO.transform.localPosition = Vector3.right * (i * _segmentSpacing);
+                segGO.name = $"Segment_{i}_{segData.color}";
 
-                _activeSlots.Add(go);
+                var identity = segGO.GetComponent<DragonSegmentIdentity>();
+                identity.Init(segData);
+
+                segmentIdentities.Add(identity);
+                _activeSegments.Add(segGO);
             }
-        }
 
-        private void SpawnCannonCards(LevelDefinition definition)
-        {
-            foreach (var cannonDef in definition.AvailableCannons)
-            {
-                var go = PoolManager.Instance.Get(_cannonCardPrefab, _cannonTrayParent);
-
-                if (go.TryGetComponent<CannonCardView>(out var card)) card.Init(cannonDef, _slotBarView);
-
-                _activeCards.Add(go);
-            }
+            // Init the dragon manager with all segments and strategy
+            dragonManager.Init(config, segmentIdentities, movementStrategy, _segmentSpacing);
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────
         [ContextMenu("Debug / Log Pool Counts")]
         private void DebugLogCounts()
         {
-            Debug.Log($"[LevelManager] Segments: {_activeSegments.Count} | Slots: {_activeSlots.Count} | Cards: {_activeCards.Count}");
+            Debug.Log($"[LevelManager] Segments: {_activeSegments.Count}");
         }
     }
 }
