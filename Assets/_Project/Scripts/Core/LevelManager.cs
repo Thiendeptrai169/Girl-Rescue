@@ -5,6 +5,7 @@ using DragonRescue.Data;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Entities.Board;
 using DragonRescue.Entities.Cannon;
+using DragonRescue.Booster;
 
 namespace DragonRescue.Core
 {
@@ -99,8 +100,7 @@ namespace DragonRescue.Core
             SpawnDragon(config);
             SpawnBoard(config);
             SpawnSlotBar(config);
-
-            // TODO Day 4: SetupBoosters(config);
+            SetupBoosters(config);
 
             await UniTask.Yield(ct);
 
@@ -192,6 +192,17 @@ namespace DragonRescue.Core
 
             var slotBarManager = _slotBarInstance.GetComponent<SlotBarManager>();
             slotBarManager.Init(config, _worldLayout, _projectilePrefab);
+        }
+
+        private void SetupBoosters(LevelConfig config)
+        {
+            if (BoosterManager.Instance == null)
+            {
+                var boosterGO = new GameObject("BoosterManager");
+                boosterGO.AddComponent<BoosterManager>();
+            }
+
+            BoosterManager.Instance.Init(config);
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────

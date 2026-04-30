@@ -80,6 +80,46 @@ namespace DragonRescue.Entities.Dragon
             return true;
         }
 
+        public bool SortSegmentsByColor()
+        {
+            List<DragonSegmentIdentity> aliveSegments = new();
+            HashSet<CannonColor> uniqueColors = new();
+
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                var segment = _segments[i];
+                if (!segment.IsAlive) continue;
+
+                aliveSegments.Add(segment);
+                uniqueColors.Add(segment.Color);
+            }
+
+            if (aliveSegments.Count <= 1 || uniqueColors.Count <= 1)
+            {
+                return false;
+            }
+
+            List<CannonColor> sortedColors = new(aliveSegments.Count);
+            for (int i = 0; i < aliveSegments.Count; i++)
+            {
+                sortedColors.Add(aliveSegments[i].Color);
+            }
+
+            sortedColors.Sort();
+
+            bool changed = false;
+            for (int i = 0; i < aliveSegments.Count; i++)
+            {
+                if (aliveSegments[i].Color != sortedColors[i])
+                {
+                    changed = true;
+                    aliveSegments[i].SetColor(sortedColors[i]);
+                }
+            }
+
+            return changed;
+        }
+
         public void StopDragon()   => _movement.StopMoving();
         public void ResumeDragon() => _movement.ResumeMoving();
 

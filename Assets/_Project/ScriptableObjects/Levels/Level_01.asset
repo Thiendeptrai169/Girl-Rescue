@@ -42,7 +42,7 @@ MonoBehaviour:
     count: 1
   totalSlotCount: 6
   unlockedSlotCount: 3
-  boardViewport: {x: 0.5, y: 0.2}
+  boardViewport: {x: 0.5, y: 0.25}
   boardWidthRatio: 0.9
   boardHeightRatio: 0.5
   boardSize: {x: 7, y: 8}
@@ -177,4 +177,28 @@ MonoBehaviour:
   defaultDamage: 1
   defaultProjectileSpeed: 5
   defaultFireRange: 8
-  boosters: []
+  boosters:
+  - type: 0
+    charges: 1
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 1
+    charges: 1
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 2
+    charges: 1
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 3
+    charges: 1
+    enabled: 1
+    amount: 1
+    duration: 10
+    multiplier: 2

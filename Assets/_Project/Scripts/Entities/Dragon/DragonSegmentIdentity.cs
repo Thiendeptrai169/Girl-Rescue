@@ -35,6 +35,14 @@ namespace DragonRescue.Entities.Dragon
                 _visual.Init(Color);
         }
 
+        public void SetColor(CannonColor color)
+        {
+            Color = color;
+
+            if (_visual != null)
+                _visual.Init(Color);
+        }
+
         public bool IsTargetable(int damage)
         {
             return CanAcceptIncomingDamage(damage);

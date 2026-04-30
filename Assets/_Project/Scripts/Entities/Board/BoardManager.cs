@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DragonRescue.Data;
 using DragonRescue.Core;
 using DragonRescue.Entities.Cannon;
+using DragonRescue.Booster;
 
 namespace DragonRescue.Entities.Board
 {
@@ -87,10 +88,46 @@ namespace DragonRescue.Entities.Board
                     var identity = hit.collider.GetComponent<BlockIdentity>();
                     if (identity != null && !identity.IsMoving)
                     {
+                        if (TryHandleBoosterSelection(identity))
+                        {
+                            return;
+                        }
+
                         TryMoveBlock(identity);
                     }
                 }
             }
+        }
+
+        private bool TryHandleBoosterSelection(BlockIdentity block)
+        {
+            if (BoosterManager.Instance == null ||
+                BoosterManager.Instance.ActiveSelectionMode != BoosterType.Remove)
+            {
+                return false;
+            }
+
+            RemoveBlock(block);
+            BoosterManager.Instance.ConsumeCharge(BoosterType.Remove);
+            return true;
+        }
+
+        private void RemoveBlock(BlockIdentity block)
+        {
+            for (int x = 0; x < block.Size.x; x++)
+            {
+                for (int y = 0; y < block.Size.y; y++)
+                {
+                    Vector2Int cell = new Vector2Int(block.GridPos.x + x, block.GridPos.y + y);
+                    if (IsCellWithinBounds(cell) && _grid[cell.x, cell.y] == block)
+                    {
+                        _grid[cell.x, cell.y] = null;
+                    }
+                }
+            }
+
+            block.ResetData();
+            PoolManager.Instance.Release(_blockPrefab, block.gameObject);
         }
 
         private void TryMoveBlock(BlockIdentity block)
@@ -103,15 +140,6 @@ namespace DragonRescue.Entities.Board
                     return;
                 }
 
-                // Remove from ALL occupied grid cells
-                for (int x = 0; x < block.Size.x; x++)
-                {
-                    for (int y = 0; y < block.Size.y; y++)
-                    {
-                        _grid[block.GridPos.x + x, block.GridPos.y + y] = null;
-                    }
-                }
-                
                 // Fire escape event
                 GameEvents.FireBlockEscaped(new BlockEscapedPayload
                 {
@@ -120,9 +148,7 @@ namespace DragonRescue.Entities.Board
                     ExitPosition = block.transform.position
                 });
 
-                // Release to pool immediately
-                block.ResetData();
-                PoolManager.Instance.Release(_blockPrefab, block.gameObject);
+                RemoveBlock(block);
             }
             else
             {

@@ -50,6 +50,13 @@ namespace DragonRescue.Core
 
         public static void FireProjectileHit(ProjectileHitPayload payload) => OnProjectileHit?.Invoke(payload);
 
+        // ── Booster Events ───────────────────────────────────────────────────
+        public static event Action<BoosterType, int> OnBoosterChargeChanged;
+        public static event Action<BoosterType?> OnBoosterSelectionModeChanged;
+
+        public static void FireBoosterChargeChanged(BoosterType type, int charges) => OnBoosterChargeChanged?.Invoke(type, charges);
+        public static void FireBoosterSelectionModeChanged(BoosterType? type) => OnBoosterSelectionModeChanged?.Invoke(type);
+
         // ── Cleanup ──────────────────────────────────────────────────────────
         /// <summary>
         /// Call when unloading a level to prevent stale subscriptions.
@@ -65,7 +72,6 @@ namespace DragonRescue.Core
             OnCannonDepleted  = null;
             OnProjectileHit   = null;
             RequestSlotCapacity = null;
-            OnProgressUpdated = null;
         }
     }
 

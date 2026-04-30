@@ -9,7 +9,14 @@ namespace DragonRescue.Entities.Cannon
         [SerializeField] private GameObject _slotPrefab;
         [SerializeField] private float _slotSpacing = 1.2f;
 
+        public static SlotBarManager Instance { get; private set; }
+
         private CannonSlot[] _slots;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         public void Init(LevelConfig config, WorldLayout layout, GameObject projectilePrefab)
         {
@@ -88,6 +95,21 @@ namespace DragonRescue.Entities.Cannon
             {
                 if (slot != null) slot.ClearCannon();
             }
+        }
+
+        public bool UnlockNextSlot()
+        {
+            if (_slots == null) return false;
+
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                if (_slots[i] != null && !_slots[i].IsUnlocked)
+                {
+                    _slots[i].Unlock();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

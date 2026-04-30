@@ -63,6 +63,13 @@ namespace DragonRescue.Entities.Cannon
             _visual.SetEmptyState();
         }
 
+        public void Unlock()
+        {
+            if (IsUnlocked) return;
+            IsUnlocked = true;
+            _visual.SetUnlockedState(true);
+        }
+
         private void StartFiring()
         {
             StopFiring();
@@ -123,7 +130,12 @@ namespace DragonRescue.Entities.Cannon
         {
             if (DragonManager.Instance != null)
             {
-                return DragonManager.Instance.FindTargetByColor(CurrentColor, _damage, transform.position, _fireRange);
+                float currentRange = _fireRange;
+                if (DragonRescue.Booster.BoosterManager.Instance != null)
+                {
+                    currentRange *= DragonRescue.Booster.BoosterManager.Instance.FireRangeMultiplier;
+                }
+                return DragonManager.Instance.FindTargetByColor(CurrentColor, _damage, transform.position, currentRange);
             }
 
             Debug.LogWarning($"[CannonSlot {_index}] Cannot fire {CurrentColor}: DragonManager.Instance is null.");
