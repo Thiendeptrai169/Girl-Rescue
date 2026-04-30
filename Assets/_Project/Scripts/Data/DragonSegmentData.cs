@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace DragonRescue.Data
 {
@@ -11,7 +12,7 @@ namespace DragonRescue.Data
     public class DragonSegmentData
     {
         public CannonColor color;
-        public int hp = 1;
-        // public float size = 1f;
+        [Tooltip("How many consecutive segments of this color to spawn")]
+        public int count = 1;
     }
 }

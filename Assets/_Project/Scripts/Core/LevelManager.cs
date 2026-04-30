@@ -123,21 +123,28 @@ namespace DragonRescue.Core
             };
 
             var segmentIdentities = new List<DragonSegmentIdentity>();
+            int globalIndex = 0;
 
             // Spawn segments as children
             for (int i = 0; i < config.dragonSegments.Count; i++)
             {
                 var segData = config.dragonSegments[i];
-                var segGO = PoolManager.Instance.Get(_dragonSegmentPrefab, _dragonInstance.transform);
+                
+                for (int j = 0; j < segData.count; j++)
+                {
+                    var segGO = PoolManager.Instance.Get(_dragonSegmentPrefab, _dragonInstance.transform);
 
-                segGO.transform.localPosition = Vector3.right * (i * _segmentSpacing);
-                segGO.name = $"Segment_{i}_{segData.color}";
+                    segGO.transform.localPosition = Vector3.right * (globalIndex * _segmentSpacing);
+                    segGO.name = $"Segment_{globalIndex}_{segData.color}";
 
-                var identity = segGO.GetComponent<DragonSegmentIdentity>();
-                identity.Init(segData);
+                    var identity = segGO.GetComponent<DragonSegmentIdentity>();
+                    identity.Init(segData.color);
 
-                segmentIdentities.Add(identity);
-                _activeSegments.Add(segGO);
+                    segmentIdentities.Add(identity);
+                    _activeSegments.Add(segGO);
+                    
+                    globalIndex++;
+                }
             }
 
             // Init the dragon manager with all segments and strategy

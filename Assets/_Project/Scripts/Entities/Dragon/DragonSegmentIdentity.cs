@@ -22,11 +22,11 @@ namespace DragonRescue.Entities.Dragon
         public bool        IsAlive  => CurrentHp > 0;
 
         // ── Public API ───────────────────────────────────────────────────────
-        public void Init(DragonSegmentData data)
+        public void Init(CannonColor color)
         {
-            Color     = data.color;
-            MaxHp     = data.hp;
-            CurrentHp = data.hp;
+            Color     = color;
+            MaxHp     = 1;
+            CurrentHp = 1;
 
             if (_visual != null)
                 _visual.Init(Color);
