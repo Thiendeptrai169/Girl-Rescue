@@ -154,6 +154,7 @@ MonoBehaviour:
   _princessPrefab: {fileID: 3527084000299361341, guid: 6f18b20a93958a94bb10b7aa110d2b52, type: 3}
   _dragonPrefab: {fileID: 3601858109009979671, guid: 47fe83952bbf0df48ab40725930a0eb6, type: 3}
   _dragonSegmentPrefab: {fileID: 6751022149907988061, guid: 78b3d4ae7c4434a4b8c1a708755fd35f, type: 3}
+  _boardPrefab: {fileID: 8591611143654311469, guid: 5e256bb34efde274c80ef2d0840562bf, type: 3}
 --- !u!4 &175205537
 Transform:
   m_ObjectHideFlags: 0

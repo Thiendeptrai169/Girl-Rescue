@@ -55,5 +55,14 @@ namespace DragonRescue.Core
                 0f
             );
         }
+
+        public Vector3 GetBlockCenter(Vector2Int position, Vector2Int size)
+        {
+            return Origin + new Vector3(
+                (position.x + size.x * 0.5f) * CellSize,
+                -(position.y + size.y * 0.5f) * CellSize,
+                0f
+            );
+        }
     }
 }

@@ -29,6 +29,12 @@ namespace DragonRescue.Core
         public static void FireSegmentDestroyed(SegmentDestroyedPayload payload)
             => OnSegmentDestroyed?.Invoke(payload);
 
+        // ── Board Events ─────────────────────────────────────────────────────
+        public static event Action<BlockEscapedPayload> OnBlockEscaped;
+
+        public static void FireBlockEscaped(BlockEscapedPayload payload)
+            => OnBlockEscaped?.Invoke(payload);
+
         // ── Cleanup ──────────────────────────────────────────────────────────
         /// <summary>
         /// Call when unloading a level to prevent stale subscriptions.
@@ -39,6 +45,7 @@ namespace DragonRescue.Core
             OnLevelWin        = null;
             OnLevelLose       = null;
             OnSegmentDestroyed = null;
+            OnBlockEscaped    = null;
         }
     }
 
@@ -47,5 +54,12 @@ namespace DragonRescue.Core
     {
         public CannonColor Color;
         public Vector3 Position;
+    }
+
+    public class BlockEscapedPayload
+    {
+        public CannonColor Color;
+        public int Ammo;
+        public Vector3 ExitPosition;
     }
 }

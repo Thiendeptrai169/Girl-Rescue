@@ -69,6 +69,98 @@ namespace DragonRescue.Data
                     dragonPathWaypointsViewport[i].y = Mathf.Clamp01(dragonPathWaypointsViewport[i].y);
                 }
             }
+
+            ValidateBlocks();
+        }
+
+        private void ValidateBlocks()
+        {
+            if (blocks == null || blocks.Count == 0) return;
+            
+            bool[,] occupied = new bool[boardSize.x, boardSize.y];
+
+            for (int i = 0; i < blocks.Count; i++)
+            {
+                var block = blocks[i];
+                if (block == null) continue;
+                
+                // Enforce minimum size
+                block.size.x = Mathf.Max(1, block.size.x);
+                block.size.y = Mathf.Max(1, block.size.y);
+
+                // Enforce start position bounds
+                block.position.x = Mathf.Clamp(block.position.x, 0, boardSize.x - 1);
+                block.position.y = Mathf.Clamp(block.position.y, 0, boardSize.y - 1);
+
+                // Enforce size bounds (cannot stick out of the board)
+                if (block.position.x + block.size.x > boardSize.x) block.size.x = boardSize.x - block.position.x;
+                if (block.position.y + block.size.y > boardSize.y) block.size.y = boardSize.y - block.position.y;
+
+                bool overlap = false;
+                for (int x = 0; x < block.size.x; x++)
+                {
+                    for (int y = 0; y < block.size.y; y++)
+                    {
+                        if (occupied[block.position.x + x, block.position.y + y])
+                        {
+                            overlap = true;
+                            break;
+                        }
+                    }
+                    if (overlap) break;
+                }
+
+                if (overlap)
+                {
+                    // Find first available spot that can fit this block
+                    bool foundSpot = false;
+                    for (int y = 0; y < boardSize.y; y++)
+                    {
+                        for (int x = 0; x < boardSize.x; x++)
+                        {
+                            if (CanPlace(x, y, block.size, occupied))
+                            {
+                                block.position = new Vector2Int(x, y);
+                                foundSpot = true;
+                                break;
+                            }
+                        }
+                        if (foundSpot) break;
+                    }
+
+                    if (!foundSpot)
+                    {
+                        Debug.LogWarning($"[LevelConfig] Cannot fit block {i} on the {boardSize.x}x{boardSize.y} board! It overlaps.");
+                    }
+                }
+
+                // Mark as occupied
+                for (int x = 0; x < block.size.x; x++)
+                {
+                    for (int y = 0; y < block.size.y; y++)
+                    {
+                        if (block.position.x + x < boardSize.x && block.position.y + y < boardSize.y)
+                        {
+                            occupied[block.position.x + x, block.position.y + y] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool CanPlace(int startX, int startY, Vector2Int size, bool[,] occupied)
+        {
+            if (startX + size.x > boardSize.x) return false;
+            if (startY + size.y > boardSize.y) return false;
+
+            for (int x = 0; x < size.x; x++)
+            {
+                for (int y = 0; y < size.y; y++)
+                {
+                    if (occupied[startX + x, startY + y]) return false;
+                }
+            }
+            return true;
         }
 #endif
     }

@@ -3,6 +3,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
 using DragonRescue.Entities.Dragon;
+using DragonRescue.Entities.Board;
 
 namespace DragonRescue.Core
 {
@@ -22,6 +23,7 @@ namespace DragonRescue.Core
         [SerializeField] private GameObject _princessPrefab;
         [SerializeField] private GameObject _dragonPrefab;         // Root with DragonManager + DragonMovement
         [SerializeField] private GameObject _dragonSegmentPrefab;  // Child with Identity + Visual
+        [SerializeField] private GameObject _boardPrefab;          // BoardManager with grid orchestration
 
         // ── Events ────────────────────────────────────────────────────────────
         /// <summary>Fired after all entities have been spawned and are ready.</summary>
@@ -30,6 +32,7 @@ namespace DragonRescue.Core
         // ── Runtime tracking (for ClearLevel) ────────────────────────────────
         private GameObject _princessInstance;
         private GameObject _dragonInstance;
+        private GameObject _boardInstance;
         private readonly List<GameObject> _activeSegments = new();
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -47,6 +50,13 @@ namespace DragonRescue.Core
                     PoolManager.Instance.Release(_dragonSegmentPrefab, seg);
             }
             _activeSegments.Clear();
+            // Clear Board
+            if (_boardInstance != null)
+            {
+                _boardInstance.GetComponent<BoardManager>().ClearBoard();
+                Destroy(_boardInstance);
+                _boardInstance = null;
+            }
 
             // Destroy dragon root
             if (_dragonInstance != null)
@@ -75,8 +85,8 @@ namespace DragonRescue.Core
 
             SpawnPrincess(config);
             SpawnDragon(config);
+            SpawnBoard(config);
 
-            // TODO Day 2: SpawnBoard(config);
             // TODO Day 3: SpawnSlots(config);
             // TODO Day 4: SetupBoosters(config);
 
@@ -132,6 +142,27 @@ namespace DragonRescue.Core
 
             // Init the dragon manager with all segments and strategy
             dragonManager.Init(config, _worldLayout, segmentIdentities, movementStrategy, _segmentSpacing);
+        }
+
+        private void SpawnBoard(LevelConfig config)
+        {
+            if (_worldLayout == null || _boardPrefab == null) return;
+
+            // Use hardcoded 0.5, 0.27 viewport for board center as defined in architecture
+            // In a real scenario, this could be added to WorldLayout inspector fields
+            Vector2 boardCenterVp = new Vector2(0.5f, 0.27f);
+            
+            var boardLayout = new BoardWorldLayout(
+                _worldLayout.MainCamera,
+                _worldLayout.ViewportToWorld(boardCenterVp),
+                config.boardSize
+            );
+
+            _boardInstance = Instantiate(_boardPrefab, Vector3.zero, Quaternion.identity);
+            _boardInstance.name = "BoardManager";
+
+            var boardManager = _boardInstance.GetComponent<BoardManager>();
+            boardManager.Init(config, boardLayout, _worldLayout.MainCamera);
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────
