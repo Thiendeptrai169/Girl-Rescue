@@ -23,6 +23,9 @@ namespace DragonRescue.Core
         public static void FireLevelWin()  => OnLevelWin?.Invoke();
         public static void FireLevelLose() => OnLevelLose?.Invoke();
 
+        public static event Action<float> OnProgressUpdated;
+        public static void FireProgressUpdated(float percent) => OnProgressUpdated?.Invoke(percent);
+
         // ── Dragon Events ────────────────────────────────────────────────────
         public static event Action<SegmentDestroyedPayload> OnSegmentDestroyed;
 
@@ -62,6 +65,7 @@ namespace DragonRescue.Core
             OnCannonDepleted  = null;
             OnProjectileHit   = null;
             RequestSlotCapacity = null;
+            OnProgressUpdated = null;
         }
     }
 

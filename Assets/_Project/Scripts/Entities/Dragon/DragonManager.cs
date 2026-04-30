@@ -19,9 +19,12 @@ namespace DragonRescue.Entities.Dragon
         private DragonMovementBase _movement;
         private readonly List<DragonSegmentIdentity> _segments = new();
 
+        private int _initialTotalBlocks;
+
         private void Awake()
         {
             Instance = this;
+            GameEvents.OnProjectileHit += OnProjectileHit;
         }
 
         // ── Public API ───────────────────────────────────────────────────────
@@ -30,12 +33,21 @@ namespace DragonRescue.Entities.Dragon
             _segments.Clear();
             _segments.AddRange(segments);
 
+            _initialTotalBlocks = 0;
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                _initialTotalBlocks += _segments[i].MaxHp;
+            }
+
             _movement = movementStrategy;
             // Init movement
             _movement.Init(config, worldLayout, _segments.ToArray(), spacing);
 
             // Listen for any segment death via central bus
             GameEvents.OnSegmentDestroyed += OnSegmentDestroyed;
+
+            // Fire initial progress
+            GameEvents.FireProgressUpdated(0f);
         }
 
         /// <summary>
@@ -84,6 +96,30 @@ namespace DragonRescue.Entities.Dragon
         private void OnDestroy()
         {
             GameEvents.OnSegmentDestroyed -= OnSegmentDestroyed;
+            GameEvents.OnProjectileHit -= OnProjectileHit;
+        }
+
+        private void OnProjectileHit(ProjectileHitPayload payload)
+        {
+            RecalculateProgress();
+        }
+
+        private void RecalculateProgress()
+        {
+            if (_initialTotalBlocks <= 0) return;
+
+            int currentTotalBlocks = 0;
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                if (_segments[i].IsAlive)
+                {
+                    currentTotalBlocks += _segments[i].Count;
+                }
+            }
+
+            int destroyedBlocks = _initialTotalBlocks - currentTotalBlocks;
+            float progress = (float)destroyedBlocks / _initialTotalBlocks;
+            GameEvents.FireProgressUpdated(Mathf.Clamp01(progress));
         }
 
         // ── Debug ────────────────────────────────────────────────────────────
