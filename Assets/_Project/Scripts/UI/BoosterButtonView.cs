@@ -74,12 +74,47 @@ namespace DragonRescue.UI
         private void RefreshLabel()
         {
             if (_defText != null)
+            {
                 _defText.text = _type.ToString();
+                _defText.textWrappingMode = TextWrappingModes.NoWrap;
+                _defText.overflowMode = TextOverflowModes.Overflow;
+                _defText.alignment = TextAlignmentOptions.Center;
+            }
+
+            if (_remainUseText != null)
+            {
+                _remainUseText.textWrappingMode = TextWrappingModes.NoWrap;
+                _remainUseText.overflowMode = TextOverflowModes.Overflow;
+                _remainUseText.alignment = TextAlignmentOptions.Center;
+            }
+
+            if (_chargeText != null)
+            {
+                _chargeText.textWrappingMode = TextWrappingModes.NoWrap;
+                _chargeText.overflowMode = TextOverflowModes.Overflow;
+                _chargeText.alignment = TextAlignmentOptions.Center;
+            }
+        }
+
+        public void ApplyRuntimeLayout(Vector2 size)
+        {
+            RectTransform rectTransform = transform as RectTransform;
+            if (rectTransform == null) return;
+
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.sizeDelta = size;
+
+            RefreshLabel();
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            if (_button == null)
+                _button = GetComponent<Button>();
+
             RefreshLabel();
         }
 #endif

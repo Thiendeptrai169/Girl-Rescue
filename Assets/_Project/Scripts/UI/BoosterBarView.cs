@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using DragonRescue.Booster;
 using DragonRescue.Core;
 using DragonRescue.Data;
@@ -9,19 +10,32 @@ namespace DragonRescue.UI
     public class BoosterBarView : MonoBehaviour
     {
         [SerializeField] private BoosterButtonView[] _buttons;
+        [SerializeField] private float _barHeight = 300f;
+        [SerializeField] private float _bottomPadding = 24f;
+        [SerializeField] private Vector2 _buttonSize = new Vector2(150f, 115f);
+        [SerializeField] private float _buttonSpacing = 18f;
 
         private CanvasGroup _canvasGroup;
+        private RectTransform _rectTransform;
+        private HorizontalLayoutGroup _layoutGroup;
 
         private void Awake()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
+            _rectTransform = transform as RectTransform;
+            _layoutGroup = GetComponent<HorizontalLayoutGroup>();
 
             if (_buttons == null || _buttons.Length == 0)
                 _buttons = GetComponentsInChildren<BoosterButtonView>(true);
+
+            ApplyRuntimeLayout();
         }
 
         private void OnEnable()
         {
+            ApplyRuntimeLayout();
+            transform.SetAsLastSibling();
+
             GameEvents.OnBoosterChargeChanged += OnBoosterChargeChanged;
             GameEvents.OnBoosterSelectionModeChanged += OnBoosterSelectionModeChanged;
             GameEvents.OnGameStateChanged += OnGameStateChanged;
@@ -33,6 +47,11 @@ namespace DragonRescue.UI
             }
 
             RefreshAll();
+
+            if (GameManager.Instance != null)
+                OnGameStateChanged(GameManager.Instance.CurrentState);
+            else
+                SetVisible(true);
         }
 
         private void OnDisable()
@@ -50,12 +69,50 @@ namespace DragonRescue.UI
 
         private void OnGameStateChanged(GameState state)
         {
+            SetVisible(state == GameState.Playing);
+        }
+
+        private void SetVisible(bool visible)
+        {
             if (_canvasGroup == null) return;
 
-            bool isPlaying = state == GameState.Playing;
-            _canvasGroup.alpha = isPlaying ? 1f : 0f;
-            _canvasGroup.interactable = isPlaying;
-            _canvasGroup.blocksRaycasts = isPlaying;
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            _canvasGroup.interactable = visible;
+            _canvasGroup.blocksRaycasts = visible;
+        }
+
+        private void ApplyRuntimeLayout()
+        {
+            if (_rectTransform == null)
+                _rectTransform = transform as RectTransform;
+
+            if (_layoutGroup == null)
+                _layoutGroup = GetComponent<HorizontalLayoutGroup>();
+
+            if (_buttons == null || _buttons.Length == 0)
+                _buttons = GetComponentsInChildren<BoosterButtonView>(true);
+
+            if (_rectTransform != null)
+            {
+                _rectTransform.anchorMin = new Vector2(0f, 0f);
+                _rectTransform.anchorMax = new Vector2(1f, 0f);
+                _rectTransform.pivot = new Vector2(0.5f, 0f);
+                _rectTransform.anchoredPosition = Vector2.zero;
+                _rectTransform.sizeDelta = new Vector2(0f, _barHeight);
+            }
+
+            if (_layoutGroup != null)
+            {
+                _layoutGroup.padding = new RectOffset(24, 24, 0, Mathf.RoundToInt(_bottomPadding));
+                _layoutGroup.childAlignment = TextAnchor.MiddleCenter;
+                _layoutGroup.spacing = _buttonSpacing;
+            }
+
+            for (int i = 0; i < _buttons.Length; i++)
+            {
+                if (_buttons[i] != null)
+                    _buttons[i].ApplyRuntimeLayout(_buttonSize);
+            }
         }
 
         private void OnButtonClicked(BoosterType type)
