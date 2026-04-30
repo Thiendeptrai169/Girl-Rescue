@@ -35,6 +35,7 @@ namespace DragonRescue.Core
             => OnBlockEscaped?.Invoke(payload);
 
         // ── Cannon Events ────────────────────────────────────────────────────
+        public static Func<int, bool> RequestSlotCapacity;
         public static event Action<CannonLoadedPayload> OnCannonLoaded;
         public static event Action<CannonDepletedPayload> OnCannonDepleted;
 
@@ -60,6 +61,7 @@ namespace DragonRescue.Core
             OnCannonLoaded    = null;
             OnCannonDepleted  = null;
             OnProjectileHit   = null;
+            RequestSlotCapacity = null;
         }
     }
 

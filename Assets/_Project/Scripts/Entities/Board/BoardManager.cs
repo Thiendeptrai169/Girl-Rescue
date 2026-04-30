@@ -15,14 +15,11 @@ namespace DragonRescue.Entities.Board
         private BoardWorldLayout _layout;
         private Camera _mainCamera;
         private Vector2Int _boardSize;
-        private SlotBarManager _slotBarManager;
-
         public void Init(LevelConfig config, BoardWorldLayout layout, Camera mainCam)
         {
             _layout = layout;
             _mainCamera = mainCam;
             _boardSize = config.boardSize;
-            _slotBarManager = FindObjectOfType<SlotBarManager>();
 
             _grid = new BlockIdentity[_boardSize.x, _boardSize.y];
 
@@ -173,10 +170,16 @@ namespace DragonRescue.Entities.Board
         {
             if (block.Ammo <= 0) return true;
 
-            if (_slotBarManager == null)
-                _slotBarManager = FindObjectOfType<SlotBarManager>();
-
-            return _slotBarManager == null || _slotBarManager.CanAcceptBlock(block.Ammo);
+            // Use the decoupled event bus to check if there is capacity
+            if (GameEvents.RequestSlotCapacity != null)
+            {
+                // In C#, if there are multiple subscribers, it returns the result of the last one.
+                // Since there's only one SlotBarManager, this perfectly decouples the systems.
+                return GameEvents.RequestSlotCapacity.Invoke(block.Ammo);
+            }
+            
+            // If nothing is listening, assume it's fine to release
+            return true;
         }
 
         private Vector2Int GetNextPos(Vector2Int pos, Direction dir)

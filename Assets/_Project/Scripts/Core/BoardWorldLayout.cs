@@ -12,16 +12,18 @@ namespace DragonRescue.Core
         private readonly Vector3 _boardCenter;
         private readonly Vector2Int _boardSize;
         private readonly float _boardWidthRatio;
+        private readonly float _boardHeightRatio;
 
         public float CellSize { get; private set; }
         public Vector3 Origin { get; private set; }
 
-        public BoardWorldLayout(Camera cam, Vector3 boardCenter, Vector2Int boardSize, float boardWidthRatio = 0.86f)
+        public BoardWorldLayout(Camera cam, Vector3 boardCenter, Vector2Int boardSize, float boardWidthRatio = 0.86f, float boardHeightRatio = 0.48f)
         {
             _cam = cam;
             _boardCenter = boardCenter;
             _boardSize = boardSize;
             _boardWidthRatio = boardWidthRatio;
+            _boardHeightRatio = boardHeightRatio;
 
             Calculate();
         }
@@ -31,10 +33,11 @@ namespace DragonRescue.Core
             float worldHeight = _cam.orthographicSize * 2f;
             float worldWidth = worldHeight * _cam.aspect;
 
-            // Make the board take up 86% of the screen width
-            float boardWorldWidth = worldWidth * _boardWidthRatio;
-            CellSize = boardWorldWidth / _boardSize.x;
+            float maxBoardWorldWidth = worldWidth * _boardWidthRatio;
+            float maxBoardWorldHeight = worldHeight * _boardHeightRatio;
+            CellSize = Mathf.Min(maxBoardWorldWidth / _boardSize.x, maxBoardWorldHeight / _boardSize.y);
 
+            float boardWorldWidth = CellSize * _boardSize.x;
             float boardWorldHeight = CellSize * _boardSize.y;
 
             // Matrix Style: Origin is TOP-LEFT of the board

@@ -37,6 +37,12 @@ namespace DragonRescue.Data
         public int unlockedSlotCount = 3;
 
         [Header("Board")]
+        [Tooltip("Viewport coords for board center. X=0 is left, Y=0 is bottom.")]
+        public Vector2 boardViewport = new(0.5f, 0.28f);
+        [Range(0.1f, 1f)]
+        public float boardWidthRatio = 0.88f;
+        [Range(0.1f, 1f)]
+        public float boardHeightRatio = 0.5f;
         public Vector2Int boardSize = new(4, 4);
         public List<NormalArrowBlockData> blocks = new();
 
@@ -61,6 +67,8 @@ namespace DragonRescue.Data
 
             dragonEndViewport.x = Mathf.Clamp01(dragonEndViewport.x);
             dragonEndViewport.y = Mathf.Clamp01(dragonEndViewport.y);
+            boardViewport.x = Mathf.Clamp01(boardViewport.x);
+            boardViewport.y = Mathf.Clamp01(boardViewport.y);
 
             if (dragonPathWaypointsViewport != null)
             {

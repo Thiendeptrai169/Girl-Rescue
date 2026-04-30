@@ -42,68 +42,137 @@ MonoBehaviour:
     count: 1
   totalSlotCount: 6
   unlockedSlotCount: 3
-  boardSize: {x: 4, y: 4}
+  boardViewport: {x: 0.5, y: 0.2}
+  boardWidthRatio: 0.9
+  boardHeightRatio: 0.5
+  boardSize: {x: 7, y: 8}
   blocks:
   - id: 
     position: {x: 0, y: 0}
     size: {x: 1, y: 1}
-    color: 2
+    color: 6
     direction: 2
     ammo: 6
   - id: 
     position: {x: 1, y: 0}
     size: {x: 1, y: 1}
-    color: 2
-    direction: 0
-    ammo: 6
-  - id: 
-    position: {x: 3, y: 1}
-    size: {x: 1, y: 1}
     color: 3
-    direction: 3
-    ammo: 6
-  - id: 
-    position: {x: 2, y: 1}
-    size: {x: 1, y: 1}
-    color: 0
-    direction: 3
-    ammo: 6
-  - id: 
-    position: {x: 0, y: 3}
-    size: {x: 1, y: 1}
-    color: 2
     direction: 2
-    ammo: 6
-  - id: 
-    position: {x: 0, y: 1}
-    size: {x: 1, y: 1}
-    color: 1
-    direction: 0
     ammo: 6
   - id: 
     position: {x: 2, y: 0}
     size: {x: 1, y: 1}
-    color: 0
-    direction: 0
+    color: 5
+    direction: 3
     ammo: 6
   - id: 
     position: {x: 3, y: 0}
-    size: {x: 1, y: 1}
-    color: 0
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 3
+    ammo: 6
+  - id: 
+    position: {x: 5, y: 0}
+    size: {x: 1, y: 2}
+    color: 3
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 0, y: 1}
+    size: {x: 1, y: 2}
+    color: 1
     direction: 0
     ammo: 6
   - id: 
     position: {x: 1, y: 1}
-    size: {x: 1, y: 1}
+    size: {x: 2, y: 1}
     color: 2
+    direction: 3
+    ammo: 6
+  - id: 
+    position: {x: 3, y: 1}
+    size: {x: 1, y: 2}
+    color: 7
     direction: 0
     ammo: 6
   - id: 
-    position: {x: 0, y: 2}
+    position: {x: 4, y: 1}
     size: {x: 1, y: 1}
     color: 1
     direction: 0
-    ammo: 0
+    ammo: 6
+  - id: 
+    position: {x: 6, y: 1}
+    size: {x: 1, y: 1}
+    color: 5
+    direction: 3
+    ammo: 6
+  - id: 
+    position: {x: 1, y: 2}
+    size: {x: 2, y: 1}
+    color: 3
+    direction: 2
+    ammo: 6
+  - id: 
+    position: {x: 4, y: 2}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 5, y: 2}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 2
+    ammo: 6
+  - id: 
+    position: {x: 0, y: 3}
+    size: {x: 1, y: 1}
+    color: 5
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 1, y: 3}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 2, y: 3}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 3, y: 3}
+    size: {x: 1, y: 2}
+    color: 6
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 4, y: 3}
+    size: {x: 1, y: 2}
+    color: 3
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 5, y: 3}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 3
+    ammo: 6
+  - id: 
+    position: {x: 0, y: 4}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 2
+    ammo: 6
+  - id: 
+    position: {x: 1, y: 4}
+    size: {x: 1, y: 2}
+    color: 0
+    direction: 0
+    ammo: 6
   defaultFireRate: 1
   defaultDamage: 1
   defaultProjectileSpeed: 5

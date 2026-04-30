@@ -168,14 +168,12 @@ namespace DragonRescue.Core
         {
             if (_worldLayout == null || _boardPrefab == null) return;
 
-            // Use hardcoded 0.5, 0.27 viewport for board center as defined in architecture
-            // In a real scenario, this could be added to WorldLayout inspector fields
-            Vector2 boardCenterVp = new Vector2(0.5f, 0.27f);
-            
             var boardLayout = new BoardWorldLayout(
                 _worldLayout.MainCamera,
-                _worldLayout.ViewportToWorld(boardCenterVp),
-                config.boardSize
+                _worldLayout.ViewportToWorld(config.boardViewport),
+                config.boardSize,
+                config.boardWidthRatio,
+                config.boardHeightRatio
             );
 
             _boardInstance = Instantiate(_boardPrefab, Vector3.zero, Quaternion.identity);

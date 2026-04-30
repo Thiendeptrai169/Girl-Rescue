@@ -36,11 +36,13 @@ namespace DragonRescue.Entities.Cannon
             }
 
             GameEvents.OnBlockEscaped += OnBlockEscaped;
+            GameEvents.RequestSlotCapacity += CanAcceptBlock;
         }
 
         private void OnDestroy()
         {
             GameEvents.OnBlockEscaped -= OnBlockEscaped;
+            GameEvents.RequestSlotCapacity -= CanAcceptBlock;
         }
 
         private void OnBlockEscaped(BlockEscapedPayload payload)
