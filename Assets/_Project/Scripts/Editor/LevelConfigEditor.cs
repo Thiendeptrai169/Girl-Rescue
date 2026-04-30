@@ -34,12 +34,12 @@ namespace DragonRescue.EditorScripts
                     if (moveType == DragonMovementType.Linear)
                     {
                         // Hide Waypoint fields if Linear is selected
-                        if (prop.name == "dragonPathWaypoints") continue;
+                        if (prop.name == "dragonPathWaypointsViewport") continue;
                     }
                     else if (moveType == DragonMovementType.Waypoint)
                     {
                         // Hide Linear fields if Waypoint is selected
-                        if (prop.name == "dragonStartPosition" || prop.name == "dragonEndPosition") continue;
+                        if (prop.name == "dragonStartViewport" || prop.name == "dragonEndViewport") continue;
                     }
 
                     // Draw the property normally (preserves headers and tooltips!)

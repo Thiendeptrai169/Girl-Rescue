@@ -18,14 +18,14 @@ namespace DragonRescue.Entities.Dragon
         private readonly List<DragonSegmentIdentity> _segments = new();
 
         // ── Public API ───────────────────────────────────────────────────────
-        public void Init(LevelConfig config, List<DragonSegmentIdentity> segments, DragonMovementBase movementStrategy, float spacing)
+        public void Init(LevelConfig config, WorldLayout worldLayout, List<DragonSegmentIdentity> segments, DragonMovementBase movementStrategy, float spacing)
         {
             _segments.Clear();
             _segments.AddRange(segments);
 
             _movement = movementStrategy;
             // Init movement
-            _movement.Init(config, _segments.ToArray(), spacing);
+            _movement.Init(config, worldLayout, _segments.ToArray(), spacing);
 
             // Listen for any segment death via central bus
             GameEvents.OnSegmentDestroyed += OnSegmentDestroyed;

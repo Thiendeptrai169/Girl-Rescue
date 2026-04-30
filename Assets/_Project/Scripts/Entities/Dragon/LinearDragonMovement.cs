@@ -17,10 +17,10 @@ namespace DragonRescue.Entities.Dragon
         private bool _isMoving;
 
         // ── Public API ───────────────────────────────────────────────────────
-        public override void Init(LevelConfig config, DragonSegmentIdentity[] segments, float spacing)
+        public override void Init(LevelConfig config, WorldLayout worldLayout, DragonSegmentIdentity[] segments, float spacing)
         {
-            _startPos  = config.dragonStartPosition;
-            _endPos    = config.dragonEndPosition;
+            _startPos  = worldLayout.ViewportToWorld(config.dragonStartViewport);
+            _endPos    = worldLayout.ViewportToWorld(config.dragonEndViewport);
             _moveSpeed = config.dragonMoveSpeed;
             Progress   = 0f;
             _isMoving  = true;

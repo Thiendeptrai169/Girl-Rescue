@@ -20,20 +20,27 @@ namespace DragonRescue.Entities.Dragon
         private float[] _distances;
         private float _totalLength;
 
-        public override void Init(LevelConfig config, DragonSegmentIdentity[] segments, float spacing)
+        public override void Init(LevelConfig config, WorldLayout worldLayout, DragonSegmentIdentity[] segments, float spacing)
         {
-            _waypoints = config.dragonPathWaypoints;
+            var vps = config.dragonPathWaypointsViewport;
             _speed = config.dragonMoveSpeed;
             _segments = segments;
             _spacing = spacing;
             _isMoving = true;
             Progress = 0f;
 
-            if (_waypoints == null || _waypoints.Length < 2)
+            if (vps == null || vps.Length < 2)
             {
                 Debug.LogError("[WaypointDragonMovement] Not enough waypoints set in LevelConfig!");
                 _isMoving = false;
                 return;
+            }
+
+            // Convert viewports to world points
+            _waypoints = new Vector2[vps.Length];
+            for (int i = 0; i < vps.Length; i++)
+            {
+                _waypoints[i] = worldLayout.ViewportToWorld(vps[i]);
             }
 
             // Precalculate distances between waypoints to normalize progress

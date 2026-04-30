@@ -14,18 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
   levelId: level_01
   levelNumber: 1
-  princessPosition: {x: -2.5, y: 0.5}
+  princessViewport: {x: 0.18, y: 0.66}
   princessHearts: 1
   dragonMovementType: 1
-  dragonStartPosition: {x: 3.5, y: 3.5}
-  dragonEndPosition: {x: -2.5, y: 3.5}
-  dragonPathWaypoints:
-  - {x: 2.5, y: 4.5}
-  - {x: -2.5, y: 4.5}
-  - {x: -2.5, y: 2.5}
-  - {x: 2.5, y: 2.5}
-  - {x: 2.5, y: 0.5}
-  - {x: -2.5, y: 0.5}
+  dragonStartViewport: {x: 0.88, y: 0.68}
+  dragonEndViewport: {x: 0.22, y: 0.68}
+  dragonPathWaypointsViewport:
+  - {x: 0.85, y: 0.7}
+  - {x: 0.6, y: 0.75}
+  - {x: 0.4, y: 0.65}
+  - {x: 0.25, y: 0.7}
   dragonMoveSpeed: 0.1
   loseDistance: 0.5
   dragonSegments:

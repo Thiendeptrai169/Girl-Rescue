@@ -1,5 +1,6 @@
 using UnityEngine;
 using DragonRescue.Data;
+using DragonRescue.Core;
 
 namespace DragonRescue.Entities.Dragon
 {
@@ -12,7 +13,7 @@ namespace DragonRescue.Entities.Dragon
     {
         public float Progress { get; protected set; }
 
-        public abstract void Init(LevelConfig config, DragonSegmentIdentity[] segments, float spacing);
+        public abstract void Init(LevelConfig config, WorldLayout worldLayout, DragonSegmentIdentity[] segments, float spacing);
         public abstract void StopMoving();
         public abstract void ResumeMoving();
     }

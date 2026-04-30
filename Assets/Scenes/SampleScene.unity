@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Core.LevelManager
   _persistent: 0
   _segmentSpacing: 1.2
+  _worldLayout: {fileID: 1068226562}
   _princessPrefab: {fileID: 3527084000299361341, guid: 6f18b20a93958a94bb10b7aa110d2b52, type: 3}
   _dragonPrefab: {fileID: 3601858109009979671, guid: 47fe83952bbf0df48ab40725930a0eb6, type: 3}
   _dragonSegmentPrefab: {fileID: 6751022149907988061, guid: 78b3d4ae7c4434a4b8c1a708755fd35f, type: 3}
@@ -274,7 +275,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -384,6 +385,51 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1068226561
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1068226563}
+  - component: {fileID: 1068226562}
+  m_Layer: 0
+  m_Name: WordLayout
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1068226562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068226561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c7c826ce58b954787b34acbc0aad91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Core.WorldLayout
+  _mainCamera: {fileID: 519420031}
+--- !u!4 &1068226563
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068226561}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.10315, y: 0.8058, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -768,3 +814,4 @@ SceneRoots:
   - {fileID: 175205537}
   - {fileID: 1538117614}
   - {fileID: 1790665039768805656}
+  - {fileID: 1068226563}

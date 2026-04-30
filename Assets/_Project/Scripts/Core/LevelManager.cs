@@ -14,6 +14,9 @@ namespace DragonRescue.Core
     {
         [SerializeField] private float _segmentSpacing = 1.2f;
 
+        [Header("Layout")]
+        [SerializeField] private WorldLayout _worldLayout;
+
         // ── Inspector — Prefabs ───────────────────────────────────────────────
         [Header("Prefabs")]
         [SerializeField] private GameObject _princessPrefab;
@@ -86,15 +89,17 @@ namespace DragonRescue.Core
         // ── Private — Spawning ────────────────────────────────────────────────
         private void SpawnPrincess(LevelConfig config)
         {
-            Vector3 pos = config.princessPosition;
+            if (_worldLayout == null) return;
+            Vector3 pos = _worldLayout.ViewportToWorld(config.princessViewport);
             _princessInstance = Instantiate(_princessPrefab, pos, Quaternion.identity);
             _princessInstance.name = "Princess";
         }
 
         private void SpawnDragon(LevelConfig config)
         {
+            if (_worldLayout == null) return;
             // Spawn dragon root GO with DragonManager
-            Vector3 startPos = config.dragonStartPosition;
+            Vector3 startPos = _worldLayout.ViewportToWorld(config.dragonStartViewport);
             _dragonInstance = Instantiate(_dragonPrefab, startPos, Quaternion.identity);
             _dragonInstance.name = "Dragon";
 
@@ -126,7 +131,7 @@ namespace DragonRescue.Core
             }
 
             // Init the dragon manager with all segments and strategy
-            dragonManager.Init(config, segmentIdentities, movementStrategy, _segmentSpacing);
+            dragonManager.Init(config, _worldLayout, segmentIdentities, movementStrategy, _segmentSpacing);
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────
