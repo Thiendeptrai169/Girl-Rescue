@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using DragonRescue.Data;
 using DragonRescue.Core;
+using DragonRescue.Entities.Cannon;
 
 namespace DragonRescue.Entities.Board
 {
@@ -14,12 +15,14 @@ namespace DragonRescue.Entities.Board
         private BoardWorldLayout _layout;
         private Camera _mainCamera;
         private Vector2Int _boardSize;
+        private SlotBarManager _slotBarManager;
 
         public void Init(LevelConfig config, BoardWorldLayout layout, Camera mainCam)
         {
             _layout = layout;
             _mainCamera = mainCam;
             _boardSize = config.boardSize;
+            _slotBarManager = FindObjectOfType<SlotBarManager>();
 
             _grid = new BlockIdentity[_boardSize.x, _boardSize.y];
 
@@ -97,6 +100,12 @@ namespace DragonRescue.Entities.Board
         {
             if (IsPathClear(block))
             {
+                if (!CanReleaseBlockToSlot(block))
+                {
+                    Debug.Log("[BoardManager] Cannon slots are full. Block stays on the board.");
+                    return;
+                }
+
                 // Remove from ALL occupied grid cells
                 for (int x = 0; x < block.Size.x; x++)
                 {
@@ -158,6 +167,16 @@ namespace DragonRescue.Entities.Board
                 // If all cells checked were outside bounds, the block successfully left the board
                 if (fullyEscaped) return true;
             }
+        }
+
+        private bool CanReleaseBlockToSlot(BlockIdentity block)
+        {
+            if (block.Ammo <= 0) return true;
+
+            if (_slotBarManager == null)
+                _slotBarManager = FindObjectOfType<SlotBarManager>();
+
+            return _slotBarManager == null || _slotBarManager.CanAcceptBlock(block.Ammo);
         }
 
         private Vector2Int GetNextPos(Vector2Int pos, Direction dir)

@@ -29,11 +29,22 @@ namespace DragonRescue.Core
         public static void FireSegmentDestroyed(SegmentDestroyedPayload payload)
             => OnSegmentDestroyed?.Invoke(payload);
 
-        // ── Board Events ─────────────────────────────────────────────────────
         public static event Action<BlockEscapedPayload> OnBlockEscaped;
 
         public static void FireBlockEscaped(BlockEscapedPayload payload)
             => OnBlockEscaped?.Invoke(payload);
+
+        // ── Cannon Events ────────────────────────────────────────────────────
+        public static event Action<CannonLoadedPayload> OnCannonLoaded;
+        public static event Action<CannonDepletedPayload> OnCannonDepleted;
+
+        public static void FireCannonLoaded(CannonLoadedPayload payload) => OnCannonLoaded?.Invoke(payload);
+        public static void FireCannonDepleted(CannonDepletedPayload payload) => OnCannonDepleted?.Invoke(payload);
+
+        // ── Projectile Events ────────────────────────────────────────────────
+        public static event Action<ProjectileHitPayload> OnProjectileHit;
+
+        public static void FireProjectileHit(ProjectileHitPayload payload) => OnProjectileHit?.Invoke(payload);
 
         // ── Cleanup ──────────────────────────────────────────────────────────
         /// <summary>
@@ -46,6 +57,9 @@ namespace DragonRescue.Core
             OnLevelLose       = null;
             OnSegmentDestroyed = null;
             OnBlockEscaped    = null;
+            OnCannonLoaded    = null;
+            OnCannonDepleted  = null;
+            OnProjectileHit   = null;
         }
     }
 
@@ -61,5 +75,23 @@ namespace DragonRescue.Core
         public CannonColor Color;
         public int Ammo;
         public Vector3 ExitPosition;
+    }
+
+    public class CannonLoadedPayload
+    {
+        public CannonColor Color;
+        public int SlotIndex;
+    }
+
+    public class CannonDepletedPayload
+    {
+        public int SlotIndex;
+    }
+
+    public class ProjectileHitPayload
+    {
+        public CannonColor Color;
+        public int Damage;
+        public Vector3 HitPosition;
     }
 }

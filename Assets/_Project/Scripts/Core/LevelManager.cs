@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Entities.Board;
+using DragonRescue.Entities.Cannon;
 
 namespace DragonRescue.Core
 {
@@ -24,6 +25,8 @@ namespace DragonRescue.Core
         [SerializeField] private GameObject _dragonPrefab;         // Root with DragonManager + DragonMovement
         [SerializeField] private GameObject _dragonSegmentPrefab;  // Child with Identity + Visual
         [SerializeField] private GameObject _boardPrefab;          // BoardManager with grid orchestration
+        [SerializeField] private GameObject _slotBarPrefab;        // Manages all Cannon Slots
+        [SerializeField] private GameObject _projectilePrefab;     // Fired by cannons
 
         // ── Events ────────────────────────────────────────────────────────────
         /// <summary>Fired after all entities have been spawned and are ready.</summary>
@@ -33,6 +36,7 @@ namespace DragonRescue.Core
         private GameObject _princessInstance;
         private GameObject _dragonInstance;
         private GameObject _boardInstance;
+        private GameObject _slotBarInstance;
         private readonly List<GameObject> _activeSegments = new();
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -56,6 +60,14 @@ namespace DragonRescue.Core
                 _boardInstance.GetComponent<BoardManager>().ClearBoard();
                 Destroy(_boardInstance);
                 _boardInstance = null;
+            }
+
+            // Clear Slot Bar
+            if (_slotBarInstance != null)
+            {
+                _slotBarInstance.GetComponent<SlotBarManager>().ClearAllSlots();
+                Destroy(_slotBarInstance);
+                _slotBarInstance = null;
             }
 
             // Destroy dragon root
@@ -86,8 +98,8 @@ namespace DragonRescue.Core
             SpawnPrincess(config);
             SpawnDragon(config);
             SpawnBoard(config);
+            SpawnSlotBar(config);
 
-            // TODO Day 3: SpawnSlots(config);
             // TODO Day 4: SetupBoosters(config);
 
             await UniTask.Yield(ct);
@@ -125,12 +137,13 @@ namespace DragonRescue.Core
             var segmentIdentities = new List<DragonSegmentIdentity>();
             int globalIndex = 0;
 
-            // Spawn segments as children
+            // Spawn segments as children. Each config row spawns count blocks of that color.
             for (int i = 0; i < config.dragonSegments.Count; i++)
             {
                 var segData = config.dragonSegments[i];
-                
-                for (int j = 0; j < segData.count; j++)
+                int segmentCount = Mathf.Max(1, segData.count);
+
+                for (int j = 0; j < segmentCount; j++)
                 {
                     var segGO = PoolManager.Instance.Get(_dragonSegmentPrefab, _dragonInstance.transform);
 
@@ -138,11 +151,11 @@ namespace DragonRescue.Core
                     segGO.name = $"Segment_{globalIndex}_{segData.color}";
 
                     var identity = segGO.GetComponent<DragonSegmentIdentity>();
-                    identity.Init(segData.color);
+                    identity.Init(segData.color, 1);
 
                     segmentIdentities.Add(identity);
                     _activeSegments.Add(segGO);
-                    
+
                     globalIndex++;
                 }
             }
@@ -170,6 +183,17 @@ namespace DragonRescue.Core
 
             var boardManager = _boardInstance.GetComponent<BoardManager>();
             boardManager.Init(config, boardLayout, _worldLayout.MainCamera);
+        }
+
+        private void SpawnSlotBar(LevelConfig config)
+        {
+            if (_worldLayout == null || _slotBarPrefab == null) return;
+
+            _slotBarInstance = Instantiate(_slotBarPrefab, Vector3.zero, Quaternion.identity);
+            _slotBarInstance.name = "SlotBarManager";
+
+            var slotBarManager = _slotBarInstance.GetComponent<SlotBarManager>();
+            slotBarManager.Init(config, _worldLayout, _projectilePrefab);
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ namespace DragonRescue.Data
     public class DragonSegmentData
     {
         public CannonColor color;
-        [Tooltip("How many consecutive segments of this color to spawn")]
+        [Tooltip("How many dragon blocks of this color to spawn")]
         public int count = 1;
     }
 }

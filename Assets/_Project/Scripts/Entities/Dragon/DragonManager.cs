@@ -14,8 +14,15 @@ namespace DragonRescue.Entities.Dragon
     public class DragonManager : MonoBehaviour
     {
         // ── Runtime State ────────────────────────────────────────────────────
+        public static DragonManager Instance { get; private set; }
+
         private DragonMovementBase _movement;
         private readonly List<DragonSegmentIdentity> _segments = new();
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         // ── Public API ───────────────────────────────────────────────────────
         public void Init(LevelConfig config, WorldLayout worldLayout, List<DragonSegmentIdentity> segments, DragonMovementBase movementStrategy, float spacing)
@@ -35,13 +42,19 @@ namespace DragonRescue.Entities.Dragon
         /// Find the nearest alive segment matching the given color.
         /// Used by cannons for auto-targeting.
         /// </summary>
-        public DragonSegmentIdentity FindTargetByColor(CannonColor color)
+        public DragonSegmentIdentity FindTargetByColor(CannonColor color, int damage, Vector3 position, float range)
         {
+            float rangeSq = range * range;
             for (int i = 0; i < _segments.Count; i++)
             {
                 var seg = _segments[i];
-                if (seg.IsAlive && seg.Color == color)
-                    return seg;
+                if (seg.IsAlive && seg.Color == color && seg.CanAcceptIncomingDamage(damage))
+                {
+                    if ((seg.transform.position - position).sqrMagnitude <= rangeSq)
+                    {
+                        return seg;
+                    }
+                }
             }
             return null;
         }
@@ -90,7 +103,7 @@ namespace DragonRescue.Entities.Dragon
             for (int i = 0; i < _segments.Count; i++)
             {
                 var s = _segments[i];
-                Debug.Log($"Segment {i}: {s.Color} | HP: {s.CurrentHp}/{s.MaxHp} | Alive: {s.IsAlive}");
+                Debug.Log($"Segment {i}: {s.Color} | Count: {s.Count}/{s.MaxHp} | Incoming: {s.IncomingDamage} | Alive: {s.IsAlive}");
             }
         }
     }

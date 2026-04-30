@@ -68,9 +68,8 @@ namespace DragonRescue.Entities.Dragon
             
             UpdatePositions();
 
-            if (Progress >= 1f)
+            if (HasAliveSegmentReachedEnd())
             {
-                Progress = 1f;
                 _isMoving = false;
                 Debug.Log("[WaypointDragonMovement] Dragon reached the end of the path!");
                 GameEvents.FireLevelLose();
@@ -83,13 +82,34 @@ namespace DragonRescue.Entities.Dragon
             float headDist = Progress * _totalLength;
             transform.position = EvaluatePath(headDist);
 
-            // Move each segment along the path
+            // Move alive segments as a compact visible body. Dead segments no longer keep empty spacing.
+            int aliveIndex = 0;
             for (int i = 0; i < _segments.Length; i++)
             {
+                if (!_segments[i].IsAlive) continue;
+
                 // Distance along the curve = HeadDistance - (Offset based on segment index)
-                float segDist = headDist - ((i + 1) * _spacing);
+                float segDist = headDist - ((aliveIndex + 1) * _spacing);
                 _segments[i].transform.position = EvaluatePath(segDist);
+                aliveIndex++;
             }
+        }
+
+        private bool HasAliveSegmentReachedEnd()
+        {
+            float headDist = Progress * _totalLength;
+            return GetAliveSegmentCount() > 0 && headDist - _spacing >= _totalLength;
+        }
+
+        private int GetAliveSegmentCount()
+        {
+            int aliveCount = 0;
+            for (int i = 0; i < _segments.Length; i++)
+            {
+                if (_segments[i].IsAlive)
+                    aliveCount++;
+            }
+            return aliveCount;
         }
 
         private Vector3 EvaluatePath(float distance)

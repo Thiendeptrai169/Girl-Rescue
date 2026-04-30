@@ -44,6 +44,7 @@ namespace DragonRescue.Data
         public float defaultFireRate = 1f;
         public int defaultDamage = 1;
         public float defaultProjectileSpeed = 8f;
+        public float defaultFireRange = 10f;
 
         [Header("Boosters")]
         public List<BoosterData> boosters = new();
@@ -67,6 +68,15 @@ namespace DragonRescue.Data
                 {
                     dragonPathWaypointsViewport[i].x = Mathf.Clamp01(dragonPathWaypointsViewport[i].x);
                     dragonPathWaypointsViewport[i].y = Mathf.Clamp01(dragonPathWaypointsViewport[i].y);
+                }
+            }
+
+            if (dragonSegments != null)
+            {
+                for (int i = 0; i < dragonSegments.Count; i++)
+                {
+                    if (dragonSegments[i] != null)
+                        dragonSegments[i].count = Mathf.Max(1, dragonSegments[i].count);
                 }
             }
 

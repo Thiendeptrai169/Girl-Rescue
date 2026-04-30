@@ -20,23 +20,26 @@ MonoBehaviour:
   dragonStartViewport: {x: 0.88, y: 0.68}
   dragonEndViewport: {x: 0.22, y: 0.68}
   dragonPathWaypointsViewport:
-  - {x: 0.85, y: 0.7}
-  - {x: 0.6, y: 0.75}
-  - {x: 0.4, y: 0.65}
-  - {x: 0.25, y: 0.7}
-  dragonMoveSpeed: 0.1
+  - {x: 1, y: 1}
+  - {x: 0.1, y: 1}
+  - {x: 0.1, y: 0.85}
+  - {x: 0.9, y: 0.85}
+  - {x: 0.9, y: 0.7}
+  - {x: 0.1, y: 0.7}
+  - {x: 0.18, y: 0.66}
+  dragonMoveSpeed: 0.05
   loseDistance: 0.5
   dragonSegments:
   - color: 0
-    hp: 1
+    count: 3
   - color: 1
-    hp: 1
+    count: 3
   - color: 2
-    hp: 1
+    count: 2
   - color: 3
-    hp: 1
+    count: 1
   - color: 4
-    hp: 1
+    count: 1
   totalSlotCount: 6
   unlockedSlotCount: 3
   boardSize: {x: 4, y: 4}
@@ -49,13 +52,13 @@ MonoBehaviour:
     ammo: 6
   - id: 
     position: {x: 1, y: 0}
-    size: {x: 2, y: 1}
+    size: {x: 1, y: 1}
     color: 2
     direction: 0
     ammo: 6
   - id: 
     position: {x: 3, y: 1}
-    size: {x: 1, y: 2}
+    size: {x: 1, y: 1}
     color: 3
     direction: 3
     ammo: 6
@@ -76,8 +79,33 @@ MonoBehaviour:
     size: {x: 1, y: 1}
     color: 1
     direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 2, y: 0}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 3, y: 0}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 1, y: 1}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 0
+    ammo: 6
+  - id: 
+    position: {x: 0, y: 2}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 0
     ammo: 0
   defaultFireRate: 1
   defaultDamage: 1
-  defaultProjectileSpeed: 8
+  defaultProjectileSpeed: 5
+  defaultFireRange: 8
   boosters: []

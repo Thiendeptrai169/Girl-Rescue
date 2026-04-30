@@ -19,17 +19,40 @@ namespace DragonRescue.Entities.Dragon
         public CannonColor Color     { get; private set; }
         public int         MaxHp    { get; private set; }
         public int         CurrentHp { get; private set; }
-        public bool        IsAlive  => CurrentHp > 0;
+        public int         Count => CurrentHp;
+        public int         IncomingDamage { get; private set; }
+        public bool        IsAlive  => Count > 0;
 
         // ── Public API ───────────────────────────────────────────────────────
-        public void Init(CannonColor color)
+        public void Init(CannonColor color, int count)
         {
             Color     = color;
-            MaxHp     = 1;
-            CurrentHp = 1;
+            MaxHp     = Mathf.Max(1, count);
+            CurrentHp = MaxHp;
+            IncomingDamage = 0;
 
             if (_visual != null)
                 _visual.Init(Color);
+        }
+
+        public bool IsTargetable(int damage)
+        {
+            return CanAcceptIncomingDamage(damage);
+        }
+
+        public bool CanAcceptIncomingDamage(int damage)
+        {
+            return IsAlive && Count - IncomingDamage >= damage;
+        }
+
+        public void AddIncomingDamage(int damage)
+        {
+            IncomingDamage += damage;
+        }
+
+        public void ReleaseIncomingDamage(int damage)
+        {
+            IncomingDamage = Mathf.Max(0, IncomingDamage - damage);
         }
 
         public void TakeDamage(int damage)
@@ -50,6 +73,7 @@ namespace DragonRescue.Entities.Dragon
             Color     = CannonColor.Blue;
             MaxHp     = 0;
             CurrentHp = 0;
+            IncomingDamage = 0;
         }
 
         // ── Private ──────────────────────────────────────────────────────────
