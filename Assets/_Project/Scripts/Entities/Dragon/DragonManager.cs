@@ -71,6 +71,38 @@ namespace DragonRescue.Entities.Dragon
             return null;
         }
 
+        public string BuildTargetDebugSummary(CannonColor color, int damage, Vector3 position, float range)
+        {
+            int aliveMatching = 0;
+            int inRange = 0;
+            int blockedByIncoming = 0;
+            float nearestDistance = float.PositiveInfinity;
+            float rangeSq = range * range;
+
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment == null || !segment.IsAlive || segment.Color != color)
+                    continue;
+
+                aliveMatching++;
+
+                float sqrDistance = (segment.transform.position - position).sqrMagnitude;
+                nearestDistance = Mathf.Min(nearestDistance, Mathf.Sqrt(sqrDistance));
+
+                if (sqrDistance <= rangeSq)
+                {
+                    inRange++;
+
+                    if (!segment.CanAcceptIncomingDamage(damage))
+                        blockedByIncoming++;
+                }
+            }
+
+            string nearest = float.IsPositiveInfinity(nearestDistance) ? "none" : nearestDistance.ToString("0.###");
+            return $"color={color} aliveMatching={aliveMatching} inRange={inRange} blockedByIncoming={blockedByIncoming} nearest={nearest} range={range:0.###}";
+        }
+
         public bool AreAllSegmentsDestroyed()
         {
             for (int i = 0; i < _segments.Count; i++)
@@ -135,7 +167,7 @@ namespace DragonRescue.Entities.Dragon
                 return;
             }
 
-            Debug.Log("[DragonManager] All segments destroyed — WIN!");
+            DebugSystem.Log(DebugCategory.Dragon, "All segments destroyed — WIN!", this);
             if (_movement != null)
                 _movement.StopMoving();
             GameEvents.FireLevelWin();
@@ -187,7 +219,7 @@ namespace DragonRescue.Entities.Dragon
             for (int i = 0; i < _segments.Count; i++)
             {
                 var s = _segments[i];
-                Debug.Log($"Segment {i}: {s.Color} | Count: {s.Count}/{s.MaxHp} | Incoming: {s.IncomingDamage} | Alive: {s.IsAlive}");
+                DebugSystem.Log(DebugCategory.Dragon, $"Segment {i}: {s.Color} | Count: {s.Count}/{s.MaxHp} | Incoming: {s.IncomingDamage} | Alive: {s.IsAlive}", this);
             }
         }
     }

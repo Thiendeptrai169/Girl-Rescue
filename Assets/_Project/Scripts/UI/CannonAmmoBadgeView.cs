@@ -1,10 +1,13 @@
 using TMPro;
 using UnityEngine;
+using DragonRescue.Core;
+using DragonRescue.Entities.Cannon;
 
 namespace DragonRescue.UI
 {
     public class CannonAmmoBadgeView : MonoBehaviour
     {
+        [SerializeField] private CannonSlot _slot;
         [SerializeField] private TMP_Text _ammoText;
         [SerializeField] private GameObject _root;
         [SerializeField] private CanvasGroup _canvasGroup;
@@ -19,11 +22,27 @@ namespace DragonRescue.UI
 
             if (_canvasGroup == null)
                 _canvasGroup = GetComponent<CanvasGroup>();
+
+            if (_slot == null)
+                _slot = GetComponentInParent<CannonSlot>();
         }
 
-        public void Init(int slotIndex, bool isUnlocked)
+        private void OnEnable()
         {
-            SetVisible(false);
+            GameEvents.OnCannonAmmoChanged += OnCannonAmmoChanged;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnCannonAmmoChanged -= OnCannonAmmoChanged;
+        }
+
+        private void OnCannonAmmoChanged(CannonAmmoChangedPayload payload)
+        {
+            if (_slot == null || payload == null || payload.SlotIndex != _slot.Index)
+                return;
+
+            SetAmmo(payload.Ammo, payload.IsLoaded);
         }
 
         public void SetAmmo(int ammo, bool isLoaded)
@@ -46,7 +65,7 @@ namespace DragonRescue.UI
 
         private void SetVisible(bool visible)
         {
-            if (_root != null)
+            if (_root != null && _root != gameObject)
                 _root.SetActive(visible);
 
             if (_canvasGroup != null)

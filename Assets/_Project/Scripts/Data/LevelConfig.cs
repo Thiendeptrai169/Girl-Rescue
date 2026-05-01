@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DragonRescue.Core;
 
 namespace DragonRescue.Data
 {
@@ -153,13 +154,13 @@ namespace DragonRescue.Data
 
             if (allowedHeight <= 0f)
             {
-                Debug.LogWarning("[LevelConfig] Board viewport limits are invalid: booster safe zone reaches or passes the slot bar. Reduce boosterBarHeightPixels/padding or raise slotBarViewportY.", this);
+                DebugSystem.Warning(DebugCategory.Data, "Board viewport limits are invalid: booster safe zone reaches or passes the slot bar. Reduce boosterBarHeightPixels/padding or raise slotBarViewportY.", this);
                 return;
             }
 
             if (boardHeightRatio > allowedHeight)
             {
-                Debug.LogWarning($"[LevelConfig] Clamped boardHeightRatio from {boardHeightRatio:0.###} to {allowedHeight:0.###} so board fits between slot bar and booster bar.", this);
+                DebugSystem.Warning(DebugCategory.Data, $"Clamped boardHeightRatio from {boardHeightRatio:0.###} to {allowedHeight:0.###} so board fits between slot bar and booster bar.", this);
                 boardHeightRatio = allowedHeight;
             }
 
@@ -172,7 +173,7 @@ namespace DragonRescue.Data
 
             if (!Mathf.Approximately(oldBoardY, boardViewport.y))
             {
-                Debug.LogWarning($"[LevelConfig] Clamped boardViewport.y from {oldBoardY:0.###} to {boardViewport.y:0.###} so board stays below slot bar and above booster bar.", this);
+                DebugSystem.Warning(DebugCategory.Data, $"Clamped boardViewport.y from {oldBoardY:0.###} to {boardViewport.y:0.###} so board stays below slot bar and above booster bar.", this);
             }
         }
 
@@ -189,7 +190,7 @@ namespace DragonRescue.Data
 
                 if (!dragonColorCounts.ContainsKey(block.color))
                 {
-                    Debug.LogWarning($"[LevelConfig] Removed block '{GetBlockLabel(block, i)}' because dragon has no {block.color} segment.", this);
+                    DebugSystem.Warning(DebugCategory.Data, $"Removed block '{GetBlockLabel(block, i)}' because dragon has no {block.color} segment.", this);
                     blocks.RemoveAt(i);
                 }
             }
@@ -221,7 +222,7 @@ namespace DragonRescue.Data
                 {
                     if (block.ammo > 0)
                     {
-                        Debug.LogWarning($"[LevelConfig] Clamped '{GetBlockLabel(block, i)}' ammo to 0 because {block.color} ammo already matches dragon count {dragonCount}.", this);
+                        DebugSystem.Warning(DebugCategory.Data, $"Clamped '{GetBlockLabel(block, i)}' ammo to 0 because {block.color} ammo already matches dragon count {dragonCount}.", this);
                     }
 
                     block.ammo = 0;
@@ -230,7 +231,7 @@ namespace DragonRescue.Data
 
                 if (block.ammo > remainingAllowedAmmo)
                 {
-                    Debug.LogWarning($"[LevelConfig] Clamped '{GetBlockLabel(block, i)}' ammo from {block.ammo} to {remainingAllowedAmmo}. Total {block.color} ammo cannot exceed dragon count {dragonCount}.", this);
+                    DebugSystem.Warning(DebugCategory.Data, $"Clamped '{GetBlockLabel(block, i)}' ammo from {block.ammo} to {remainingAllowedAmmo}. Total {block.color} ammo cannot exceed dragon count {dragonCount}.", this);
                     block.ammo = remainingAllowedAmmo;
                 }
 
@@ -242,7 +243,7 @@ namespace DragonRescue.Data
                 usedAmmoByColor.TryGetValue(pair.Key, out int availableAmmo);
                 if (availableAmmo < pair.Value)
                 {
-                    Debug.LogWarning($"[LevelConfig] Level may be unwinnable: {pair.Key} dragon count is {pair.Value}, but board only has {availableAmmo} matching ammo.", this);
+                    DebugSystem.Warning(DebugCategory.Data, $"Level may be unwinnable: {pair.Key} dragon count is {pair.Value}, but board only has {availableAmmo} matching ammo.", this);
                 }
             }
         }
@@ -304,7 +305,7 @@ namespace DragonRescue.Data
 
                     if (!foundSpot)
                     {
-                        Debug.LogWarning($"[LevelConfig] Cannot fit block {i} on the {boardSize.x}x{boardSize.y} board! It overlaps.");
+                        DebugSystem.Warning(DebugCategory.Data, $"Cannot fit block {i} on the {boardSize.x}x{boardSize.y} board! It overlaps.", this);
                     }
                 }
 
@@ -369,7 +370,7 @@ namespace DragonRescue.Data
                 stuckBlocks += GetBlockLabel(blocks[i], i);
             }
 
-            Debug.LogWarning($"[LevelConfig] Board has no full release solution. Stuck blocks: {stuckBlocks}. Move or rotate blocks until at least one valid release order exists.", this);
+            DebugSystem.Warning(DebugCategory.Data, $"Board has no full release solution. Stuck blocks: {stuckBlocks}. Move or rotate blocks until at least one valid release order exists.", this);
         }
 
         private int[,] BuildBlockIndexGrid(out bool hasInvalidFootprint)
@@ -393,7 +394,7 @@ namespace DragonRescue.Data
                 if (!IsBlockWithinBounds(block.position, block.size))
                 {
                     hasInvalidFootprint = true;
-                    Debug.LogWarning($"[LevelConfig] Cannot solve-check '{GetBlockLabel(block, i)}' because its footprint is outside the board.", this);
+                    DebugSystem.Warning(DebugCategory.Data, $"Cannot solve-check '{GetBlockLabel(block, i)}' because its footprint is outside the board.", this);
                     continue;
                 }
 
@@ -406,7 +407,7 @@ namespace DragonRescue.Data
                         if (grid[cell.x, cell.y] != -1 && grid[cell.x, cell.y] != i)
                         {
                             hasInvalidFootprint = true;
-                            Debug.LogWarning($"[LevelConfig] Cannot solve-check because '{GetBlockLabel(block, i)}' overlaps another block at {cell}.", this);
+                            DebugSystem.Warning(DebugCategory.Data, $"Cannot solve-check because '{GetBlockLabel(block, i)}' overlaps another block at {cell}.", this);
                         }
 
                         grid[cell.x, cell.y] = i;

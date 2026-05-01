@@ -32,7 +32,7 @@ namespace DragonRescue.Core
 
             if (_allLevels == null || _allLevels.Length == 0)
             {
-                Debug.LogError("[GameManager] No LevelConfig assets assigned!");
+                DebugSystem.Error(DebugCategory.Game, "No LevelConfig assets assigned!", this);
                 return;
             }
 
@@ -56,6 +56,7 @@ namespace DragonRescue.Core
         public void StartLevel()
         {
             CurrentLevelConfig = _allLevels[_currentLevelIndex];
+            DebugSystem.Log(DebugCategory.Game, $"StartLevel index={_currentLevelIndex} levelNumber={CurrentLevelConfig.levelNumber} id={CurrentLevelConfig.levelId}", this);
             HideResultScreen();
             SetState(GameState.Playing);
             LevelManager.Instance.InitLevel(CurrentLevelConfig);
@@ -64,6 +65,7 @@ namespace DragonRescue.Core
         public void WinLevel()
         {
             if (CurrentState != GameState.Playing) return;
+            DebugSystem.Log(DebugCategory.Game, $"WinLevel index={_currentLevelIndex}", this);
             SetState(GameState.Won);
             ShowResultScreen(true);
         }
@@ -71,18 +73,21 @@ namespace DragonRescue.Core
         public void LoseLevel()
         {
             if (CurrentState != GameState.Playing) return;
+            DebugSystem.Log(DebugCategory.Game, $"LoseLevel index={_currentLevelIndex}", this);
             SetState(GameState.Lost);
             ShowResultScreen(false);
         }
 
         public void NextLevel()
         {
+            int previousIndex = _currentLevelIndex;
             _currentLevelIndex++;
             if (_currentLevelIndex >= _allLevels.Length)
             {
-                Debug.Log("[GameManager] All levels completed — looping.");
+                DebugSystem.Log(DebugCategory.Game, "All levels completed — looping.", this);
                 _currentLevelIndex = 0;
             }
+            DebugSystem.Log(DebugCategory.Game, $"NextLevel previousIndex={previousIndex} nextIndex={_currentLevelIndex}", this);
             LevelManager.Instance.ClearLevel();
             StartLevel();
         }
@@ -100,6 +105,7 @@ namespace DragonRescue.Core
 
         public void RetryLevel()
         {
+            DebugSystem.Log(DebugCategory.Game, $"RetryLevel index={_currentLevelIndex}", this);
             LevelManager.Instance.ClearLevel();
             StartLevel();
         }
@@ -121,7 +127,7 @@ namespace DragonRescue.Core
         {
             if (CurrentState == newState) return;
             CurrentState = newState;
-            Debug.Log($"[GameManager] State → {newState}");
+            DebugSystem.Log(DebugCategory.Game, $"State → {newState}", this);
             GameEvents.FireGameStateChanged(newState);
         }
 
@@ -129,7 +135,7 @@ namespace DragonRescue.Core
         {
             if (_resultPopup == null)
             {
-                Debug.LogWarning("[GameManager] Cannot show result screen: no ResultPopupView assigned.");
+                DebugSystem.Warning(DebugCategory.Game, "Cannot show result screen: no ResultPopupView assigned.", this);
                 return;
             }
 
@@ -142,7 +148,10 @@ namespace DragonRescue.Core
         private void HideResultScreen()
         {
             if (_resultPopup != null)
+            {
+                DebugSystem.Log(DebugCategory.UI, "Hide result screen.", this);
                 _resultPopup.Hide();
+            }
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────

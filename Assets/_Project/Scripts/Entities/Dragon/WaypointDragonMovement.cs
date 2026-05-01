@@ -32,7 +32,7 @@ namespace DragonRescue.Entities.Dragon
 
             if (vps == null || vps.Length < 2)
             {
-                Debug.LogError("[WaypointDragonMovement] Not enough waypoints set in LevelConfig!");
+                DebugSystem.Error(DebugCategory.Dragon, "Not enough waypoints set in LevelConfig!", this);
                 _isMoving = false;
                 return;
             }
@@ -78,7 +78,7 @@ namespace DragonRescue.Entities.Dragon
             if (HasAliveSegmentReachedEnd())
             {
                 _isMoving = false;
-                Debug.Log("[WaypointDragonMovement] Dragon reached the end of the path!");
+                DebugSystem.Log(DebugCategory.Dragon, "Dragon reached the end of the path!", this);
                 GameEvents.FireLevelLose();
             }
         }

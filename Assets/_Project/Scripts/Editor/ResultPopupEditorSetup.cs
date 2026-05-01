@@ -42,7 +42,7 @@ namespace DragonRescue.EditorScripts
             GameObject root = GameObject.Find(RootName);
             if (root == null)
             {
-                Debug.LogWarning($"[ResultPopupEditorSetup] Could not find {RootName} in the open scene.");
+                DebugSystem.Warning(DebugCategory.UI, $"Could not find {RootName} in the open scene.");
                 return false;
             }
 
@@ -101,7 +101,7 @@ namespace DragonRescue.EditorScripts
 
             EditorUtility.SetDirty(root);
             EditorSceneManager.MarkSceneDirty(root.scene);
-            Debug.Log("[ResultPopupEditorSetup] Result popup created and wired. Save the scene to keep the changes.");
+            DebugSystem.Log(DebugCategory.UI, "Result popup created and wired. Save the scene to keep the changes.");
             return true;
         }
 
@@ -127,7 +127,7 @@ namespace DragonRescue.EditorScripts
             GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
             if (gameManager == null)
             {
-                Debug.LogWarning("[ResultPopupEditorSetup] Result popup built, but no GameManager was found to wire.");
+                DebugSystem.Warning(DebugCategory.UI, "Result popup built, but no GameManager was found to wire.");
                 return;
             }
 

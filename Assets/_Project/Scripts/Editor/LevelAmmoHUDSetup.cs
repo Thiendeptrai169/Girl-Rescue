@@ -1,4 +1,5 @@
 using DragonRescue.Entities.Cannon;
+using DragonRescue.Core;
 using DragonRescue.UI;
 using TMPro;
 using UnityEditor;
@@ -27,7 +28,7 @@ namespace DragonRescue.EditorScripts
             Canvas canvas = Object.FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
-                Debug.LogWarning("[LevelAmmoHUDSetup] No Canvas found in the open scene. Canvas prefab setup will still run.");
+                DebugSystem.Warning(DebugCategory.UI, "No Canvas found in the open scene. Canvas prefab setup will still run.");
                 return;
             }
 
@@ -42,7 +43,7 @@ namespace DragonRescue.EditorScripts
             GameObject prefabRoot = PrefabUtility.LoadPrefabContents(CanvasPrefabPath);
             if (prefabRoot == null)
             {
-                Debug.LogWarning($"[LevelAmmoHUDSetup] Could not load {CanvasPrefabPath}.");
+                DebugSystem.Warning(DebugCategory.UI, $"Could not load {CanvasPrefabPath}.");
                 return;
             }
 
@@ -105,14 +106,14 @@ namespace DragonRescue.EditorScripts
             GameObject prefabRoot = PrefabUtility.LoadPrefabContents(CannonSlotPrefabPath);
             if (prefabRoot == null)
             {
-                Debug.LogWarning($"[LevelAmmoHUDSetup] Could not load {CannonSlotPrefabPath}.");
+                DebugSystem.Warning(DebugCategory.UI, $"Could not load {CannonSlotPrefabPath}.");
                 return;
             }
 
             CannonSlot cannonSlot = prefabRoot.GetComponent<CannonSlot>();
             if (cannonSlot == null)
             {
-                Debug.LogWarning("[LevelAmmoHUDSetup] CannonSlot prefab has no CannonSlot component.");
+                DebugSystem.Warning(DebugCategory.UI, "CannonSlot prefab has no CannonSlot component.");
                 PrefabUtility.UnloadPrefabContents(prefabRoot);
                 return;
             }
@@ -152,20 +153,17 @@ namespace DragonRescue.EditorScripts
                 textRect.sizeDelta = new Vector2(3f, 1.4f);
 
             SerializedObject badgeSerialized = new SerializedObject(badgeView);
+            badgeSerialized.FindProperty("_slot").objectReferenceValue = cannonSlot;
             badgeSerialized.FindProperty("_ammoText").objectReferenceValue = ammoText;
             badgeSerialized.FindProperty("_root").objectReferenceValue = badgeRoot;
             badgeSerialized.FindProperty("_canvasGroup").objectReferenceValue = ammoCanvasGroup;
             badgeSerialized.ApplyModifiedPropertiesWithoutUndo();
 
-            SerializedObject slotSerialized = new SerializedObject(cannonSlot);
-            slotSerialized.FindProperty("_ammoBadge").objectReferenceValue = badgeView;
-            slotSerialized.ApplyModifiedPropertiesWithoutUndo();
-
             badgeView.Clear();
             PrefabUtility.SaveAsPrefabAsset(prefabRoot, CannonSlotPrefabPath);
             PrefabUtility.UnloadPrefabContents(prefabRoot);
 
-            Debug.Log("[LevelAmmoHUDSetup] Level HUD and cannon ammo badge setup complete.");
+            DebugSystem.Log(DebugCategory.UI, "Level HUD and cannon ammo badge setup complete.");
         }
 
         private static TMP_Text CreateUGUIText(string name, Transform parent, string value, float fontSize, FontStyles style, Color color)

@@ -35,17 +35,30 @@ namespace DragonRescue.Core
             => OnSegmentDestroyed?.Invoke(payload);
 
         public static event Action<BlockEscapedPayload> OnBlockEscaped;
+        public static event Action<BlockSpawnedPayload> OnBlockSpawned;
+        public static event Action<BlockFeedbackPayload> OnBlockBlocked;
+        public static event Action<BlockFeedbackPayload> OnBlockSlotFull;
 
         public static void FireBlockEscaped(BlockEscapedPayload payload)
             => OnBlockEscaped?.Invoke(payload);
+        public static void FireBlockSpawned(BlockSpawnedPayload payload)
+            => OnBlockSpawned?.Invoke(payload);
+        public static void FireBlockBlocked(BlockFeedbackPayload payload)
+            => OnBlockBlocked?.Invoke(payload);
+        public static void FireBlockSlotFull(BlockFeedbackPayload payload)
+            => OnBlockSlotFull?.Invoke(payload);
 
         // ── Cannon Events ────────────────────────────────────────────────────
         public static Func<int, bool> RequestSlotCapacity;
         public static event Action<CannonLoadedPayload> OnCannonLoaded;
         public static event Action<CannonDepletedPayload> OnCannonDepleted;
+        public static event Action<CannonSlotStatePayload> OnCannonSlotStateChanged;
+        public static event Action<CannonAmmoChangedPayload> OnCannonAmmoChanged;
 
         public static void FireCannonLoaded(CannonLoadedPayload payload) => OnCannonLoaded?.Invoke(payload);
         public static void FireCannonDepleted(CannonDepletedPayload payload) => OnCannonDepleted?.Invoke(payload);
+        public static void FireCannonSlotStateChanged(CannonSlotStatePayload payload) => OnCannonSlotStateChanged?.Invoke(payload);
+        public static void FireCannonAmmoChanged(CannonAmmoChangedPayload payload) => OnCannonAmmoChanged?.Invoke(payload);
 
         // ── Projectile Events ────────────────────────────────────────────────
         public static event Action<ProjectileHitPayload> OnProjectileHit;
@@ -68,8 +81,13 @@ namespace DragonRescue.Core
         {
             OnSegmentDestroyed = null;
             OnBlockEscaped    = null;
+            OnBlockSpawned    = null;
+            OnBlockBlocked    = null;
+            OnBlockSlotFull   = null;
             OnCannonLoaded    = null;
             OnCannonDepleted  = null;
+            OnCannonSlotStateChanged = null;
+            OnCannonAmmoChanged = null;
             OnProjectileHit   = null;
             RequestSlotCapacity = null;
         }
@@ -89,6 +107,21 @@ namespace DragonRescue.Core
         public Vector3 ExitPosition;
     }
 
+    public class BlockSpawnedPayload
+    {
+        public DragonRescue.Entities.Board.BlockIdentity Block;
+        public CannonColor Color;
+        public Direction Direction;
+        public Vector2Int Size;
+        public float CellSize;
+    }
+
+    public class BlockFeedbackPayload
+    {
+        public DragonRescue.Entities.Board.BlockIdentity Block;
+        public float Duration;
+    }
+
     public class CannonLoadedPayload
     {
         public CannonColor Color;
@@ -98,6 +131,21 @@ namespace DragonRescue.Core
     public class CannonDepletedPayload
     {
         public int SlotIndex;
+    }
+
+    public class CannonSlotStatePayload
+    {
+        public int SlotIndex;
+        public bool IsUnlocked;
+        public bool IsLoaded;
+        public CannonColor Color;
+    }
+
+    public class CannonAmmoChangedPayload
+    {
+        public int SlotIndex;
+        public int Ammo;
+        public bool IsLoaded;
     }
 
     public class ProjectileHitPayload

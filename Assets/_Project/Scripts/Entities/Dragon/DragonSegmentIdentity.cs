@@ -87,7 +87,7 @@ namespace DragonRescue.Entities.Dragon
         // ── Private ──────────────────────────────────────────────────────────
         private void Die()
         {
-            Debug.Log($"[DragonSegment] {Color} segment destroyed.");
+            DebugSystem.Log(DebugCategory.Dragon, $"{Color} segment destroyed.", this);
 
             GameEvents.FireSegmentDestroyed(new SegmentDestroyedPayload
             {

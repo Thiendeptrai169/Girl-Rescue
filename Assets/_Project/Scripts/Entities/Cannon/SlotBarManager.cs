@@ -62,7 +62,7 @@ namespace DragonRescue.Entities.Cannon
             if (payload.Ammo <= 0) return;
 
             if (!TryLoadBlock(payload.Color, payload.Ammo))
-                LogSlotFullWarning();
+                LogSlotFullWarning("No empty unlocked cannon slot available.");
         }
 
         public bool TryLoadBlock(CannonColor color, int ammo)
@@ -73,10 +73,12 @@ namespace DragonRescue.Entities.Cannon
 
             if (targetSlot != null)
             {
+                DebugSystem.Log(DebugCategory.Cannon, $"TryLoadBlock accepted color={color} ammo={ammo} slot={targetSlot.Index}", targetSlot);
                 targetSlot.LoadCannon(color, ammo);
                 return true;
             }
 
+            LogSlotFullWarning($"TryLoadBlock failed no empty unlocked slot for color={color} ammo={ammo}. slots={BuildDebugState()}");
             return false;
         }
 
@@ -98,6 +100,30 @@ namespace DragonRescue.Entities.Cannon
             }
 
             return null;
+        }
+
+        public string BuildDebugState()
+        {
+            if (_slots == null)
+                return "slots=null";
+
+            string result = "";
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                CannonSlot slot = _slots[i];
+                if (result.Length > 0)
+                    result += " | ";
+
+                if (slot == null)
+                {
+                    result += $"{i}:null";
+                    continue;
+                }
+
+                result += $"{i}:unlocked={slot.IsUnlocked},loaded={slot.IsLoaded},color={slot.CurrentColor},ammo={slot.RemainingAmmo}";
+            }
+
+            return result;
         }
 
         public void ClearAllSlots()
@@ -124,13 +150,13 @@ namespace DragonRescue.Entities.Cannon
             return false;
         }
 
-        private void LogSlotFullWarning()
+        private void LogSlotFullWarning(string message)
         {
             if (Time.unscaledTime - _lastSlotFullWarningTime < SlotFullWarningCooldown)
                 return;
 
             _lastSlotFullWarningTime = Time.unscaledTime;
-            Debug.LogWarning("[SlotBarManager] No empty unlocked cannon slot available.");
+            DebugSystem.Warning(DebugCategory.Cannon, message, this);
         }
     }
 }

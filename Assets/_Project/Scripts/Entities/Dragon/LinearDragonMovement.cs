@@ -57,7 +57,7 @@ namespace DragonRescue.Entities.Dragon
             {
                 Progress = 1f;
                 _isMoving = false;
-                Debug.Log("[LinearDragonMovement] Dragon reached princess!");
+                DebugSystem.Log(DebugCategory.Dragon, "Dragon reached princess!", this);
                 GameEvents.FireLevelLose();
             }
         }
@@ -103,7 +103,7 @@ namespace DragonRescue.Entities.Dragon
         [ContextMenu("Debug / Log Dragon Progress")]
         private void DebugLogProgress()
         {
-            Debug.Log($"[LinearDragonMovement] Progress: {Progress:P1} | Moving: {_isMoving}");
+            DebugSystem.Log(DebugCategory.Dragon, $"Linear progress: {Progress:P1} | Moving: {_isMoving}", this);
         }
     }
 }

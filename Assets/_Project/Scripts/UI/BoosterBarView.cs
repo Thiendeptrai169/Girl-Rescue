@@ -119,7 +119,7 @@ namespace DragonRescue.UI
         {
             if (BoosterManager.Instance == null)
             {
-                Debug.LogWarning($"[BoosterBarView] Cannot activate {type}: BoosterManager.Instance is null.");
+                DebugSystem.Warning(DebugCategory.UI, $"Cannot activate {type}: BoosterManager.Instance is null.", this);
                 return;
             }
 
