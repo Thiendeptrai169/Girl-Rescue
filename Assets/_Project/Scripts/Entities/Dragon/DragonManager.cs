@@ -126,10 +126,18 @@ namespace DragonRescue.Entities.Dragon
         // ── Private ──────────────────────────────────────────────────────────
         private void OnSegmentDestroyed(SegmentDestroyedPayload payload)
         {
-            if (!AreAllSegmentsDestroyed()) return;
+            if (!AreAllSegmentsDestroyed())
+            {
+                if (_movement != null)
+                    _movement.ApplyRecoil();
+
+                RecalculateProgress();
+                return;
+            }
 
             Debug.Log("[DragonManager] All segments destroyed — WIN!");
-            _movement.StopMoving();
+            if (_movement != null)
+                _movement.StopMoving();
             GameEvents.FireLevelWin();
         }
 

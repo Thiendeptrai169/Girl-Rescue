@@ -31,6 +31,14 @@ namespace DragonRescue.Data
         public float loseDistance = 0.5f;
         public List<DragonSegmentData> dragonSegments = new();
 
+        [Header("Dragon Recoil")]
+        [Tooltip("How far the dragon is pushed back when a segment is destroyed. This is normalized path progress, so 0.025 means 2.5% of the path.")]
+        [Range(0f, 0.2f)]
+        public float dragonRecoilProgress = 0.025f;
+        [Tooltip("Short pause after recoil so the hit feels like it interrupts the dragon.")]
+        [Range(0f, 0.5f)]
+        public float dragonRecoilPauseSeconds = 0.08f;
+
         [Header("Slots")]
         public int totalSlotCount = 6;
         [Range(1, 6)]
@@ -79,6 +87,8 @@ namespace DragonRescue.Data
 
             dragonEndViewport.x = Mathf.Clamp01(dragonEndViewport.x);
             dragonEndViewport.y = Mathf.Clamp01(dragonEndViewport.y);
+            dragonRecoilProgress = Mathf.Max(0f, dragonRecoilProgress);
+            dragonRecoilPauseSeconds = Mathf.Max(0f, dragonRecoilPauseSeconds);
             boardViewport.x = Mathf.Clamp01(boardViewport.x);
             boardViewport.y = Mathf.Clamp01(boardViewport.y);
             boardSize.x = Mathf.Max(1, boardSize.x);

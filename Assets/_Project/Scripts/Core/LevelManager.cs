@@ -106,6 +106,7 @@ namespace DragonRescue.Core
 
             Debug.Log($"[LevelManager] Level {config.levelNumber} ready.");
             OnLevelReady?.Invoke(config);
+            GameEvents.FireLevelStarted(config);
         }
 
         // ── Private — Spawning ────────────────────────────────────────────────

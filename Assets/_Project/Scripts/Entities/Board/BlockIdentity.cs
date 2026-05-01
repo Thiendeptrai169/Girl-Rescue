@@ -13,10 +13,11 @@ namespace DragonRescue.Entities.Board
         public Vector2Int GridPos { get; private set; }
         public Vector2Int Size { get; private set; }
         public bool IsMoving { get; private set; }
+        public BoardManager Owner { get; private set; }
 
         public BlockVisual Visual => _visual;
 
-        public void Init(NormalArrowBlockData data, Vector2Int gridPos)
+        public void Init(NormalArrowBlockData data, Vector2Int gridPos, BoardManager owner)
         {
             Color = data.color;
             Direction = data.direction;
@@ -24,6 +25,7 @@ namespace DragonRescue.Entities.Board
             GridPos = gridPos;
             Size = data.size;
             IsMoving = false;
+            Owner = owner;
 
             _visual.Init(Color, Direction);
         }
@@ -41,6 +43,7 @@ namespace DragonRescue.Entities.Board
         public void ResetData()
         {
             IsMoving = false;
+            Owner = null;
         }
     }
 }

@@ -5,6 +5,7 @@ using DragonRescue.Data;
 using DragonRescue.Core;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Entities.Projectile;
+using DragonRescue.UI;
 
 namespace DragonRescue.Entities.Cannon
 {
@@ -12,10 +13,12 @@ namespace DragonRescue.Entities.Cannon
     {
         [SerializeField] private CannonVisual _visual;
         [SerializeField] private Transform _firePoint; // Optional: specific spawn point
+        [SerializeField] private CannonAmmoBadgeView _ammoBadge;
 
         public bool IsUnlocked { get; private set; }
         public bool IsLoaded { get; private set; }
         public CannonColor CurrentColor { get; private set; }
+        public int RemainingAmmo => _remainingAmmo;
 
         private int _index;
         private int _remainingAmmo;
@@ -38,7 +41,11 @@ namespace DragonRescue.Entities.Cannon
             _projSpeed = config.defaultProjectileSpeed;
             _fireRange = config.defaultFireRange;
 
+            if (_ammoBadge == null)
+                _ammoBadge = GetComponentInChildren<CannonAmmoBadgeView>(true);
+
             _visual.SetUnlockedState(isUnlocked);
+            _ammoBadge?.Init(index, isUnlocked);
         }
 
         public void LoadCannon(CannonColor color, int ammo)
@@ -50,6 +57,7 @@ namespace DragonRescue.Entities.Cannon
             IsLoaded = true;
 
             _visual.SetLoadedState(color);
+            RefreshAmmoBadge();
             GameEvents.FireCannonLoaded(new CannonLoadedPayload { Color = color, SlotIndex = _index });
 
             StartFiring();
@@ -61,6 +69,7 @@ namespace DragonRescue.Entities.Cannon
             IsLoaded = false;
             _remainingAmmo = 0;
             _visual.SetEmptyState();
+            RefreshAmmoBadge();
         }
 
         public void Unlock()
@@ -68,6 +77,7 @@ namespace DragonRescue.Entities.Cannon
             if (IsUnlocked) return;
             IsUnlocked = true;
             _visual.SetUnlockedState(true);
+            RefreshAmmoBadge();
         }
 
         private void StartFiring()
@@ -107,6 +117,7 @@ namespace DragonRescue.Entities.Cannon
                     }
 
                     _remainingAmmo--;
+                    RefreshAmmoBadge();
 
                     if (_remainingAmmo <= 0)
                     {
@@ -124,6 +135,12 @@ namespace DragonRescue.Entities.Cannon
                     await UniTask.Delay(System.TimeSpan.FromSeconds(0.1f), cancellationToken: ct);
                 }
             }
+        }
+
+        private void RefreshAmmoBadge()
+        {
+            if (_ammoBadge != null)
+                _ammoBadge.SetAmmo(_remainingAmmo, IsLoaded);
         }
 
         private DragonSegmentIdentity FindTarget()

@@ -19,9 +19,11 @@ namespace DragonRescue.Core
         // ── Level Events ─────────────────────────────────────────────────────
         public static event Action OnLevelWin;
         public static event Action OnLevelLose;
+        public static event Action<LevelConfig> OnLevelStarted;
 
         public static void FireLevelWin()  => OnLevelWin?.Invoke();
         public static void FireLevelLose() => OnLevelLose?.Invoke();
+        public static void FireLevelStarted(LevelConfig config) => OnLevelStarted?.Invoke(config);
 
         public static event Action<float> OnProgressUpdated;
         public static void FireProgressUpdated(float percent) => OnProgressUpdated?.Invoke(percent);
@@ -64,8 +66,6 @@ namespace DragonRescue.Core
         /// </summary>
         public static void ClearLevelEvents()
         {
-            OnLevelWin        = null;
-            OnLevelLose       = null;
             OnSegmentDestroyed = null;
             OnBlockEscaped    = null;
             OnCannonLoaded    = null;

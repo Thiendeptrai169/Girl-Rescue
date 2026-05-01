@@ -1,6 +1,7 @@
-using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using DragonRescue.Data;
+using DragonRescue.UI;
 
 namespace DragonRescue.Core
 {
@@ -14,6 +15,8 @@ namespace DragonRescue.Core
         // ── Inspector ────────────────────────────────────────────────────────
         [Header("Level Progression")]
         [SerializeField] private LevelConfig[] _allLevels;
+        [SerializeField] private ResultPopupView _resultPopup;
+        [SerializeField] private string _homeSceneName;
 
         // ── State ─────────────────────────────────────────────────────────────
         public GameState CurrentState { get; private set; } = GameState.Loading;
@@ -24,6 +27,9 @@ namespace DragonRescue.Core
         // ── Lifecycle ─────────────────────────────────────────────────────────
         private void Start()
         {
+            if (_resultPopup != null)
+                _resultPopup.Init(HomeLevel);
+
             if (_allLevels == null || _allLevels.Length == 0)
             {
                 Debug.LogError("[GameManager] No LevelConfig assets assigned!");
@@ -50,6 +56,7 @@ namespace DragonRescue.Core
         public void StartLevel()
         {
             CurrentLevelConfig = _allLevels[_currentLevelIndex];
+            HideResultScreen();
             SetState(GameState.Playing);
             LevelManager.Instance.InitLevel(CurrentLevelConfig);
         }
@@ -58,12 +65,14 @@ namespace DragonRescue.Core
         {
             if (CurrentState != GameState.Playing) return;
             SetState(GameState.Won);
+            ShowResultScreen(true);
         }
 
         public void LoseLevel()
         {
             if (CurrentState != GameState.Playing) return;
             SetState(GameState.Lost);
+            ShowResultScreen(false);
         }
 
         public void NextLevel()
@@ -76,6 +85,17 @@ namespace DragonRescue.Core
             }
             LevelManager.Instance.ClearLevel();
             StartLevel();
+        }
+
+        public void HomeLevel()
+        {
+            if (!string.IsNullOrWhiteSpace(_homeSceneName))
+            {
+                SceneManager.LoadScene(_homeSceneName);
+                return;
+            }
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         public void RetryLevel()
@@ -103,6 +123,26 @@ namespace DragonRescue.Core
             CurrentState = newState;
             Debug.Log($"[GameManager] State → {newState}");
             GameEvents.FireGameStateChanged(newState);
+        }
+
+        private void ShowResultScreen(bool won)
+        {
+            if (_resultPopup == null)
+            {
+                Debug.LogWarning("[GameManager] Cannot show result screen: no ResultPopupView assigned.");
+                return;
+            }
+
+            if (won)
+                _resultPopup.ShowWin(NextLevel);
+            else
+                _resultPopup.ShowLose(RetryLevel);
+        }
+
+        private void HideResultScreen()
+        {
+            if (_resultPopup != null)
+                _resultPopup.Hide();
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────

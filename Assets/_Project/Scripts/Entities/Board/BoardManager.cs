@@ -12,12 +12,20 @@ namespace DragonRescue.Entities.Board
     {
         [SerializeField] private GameObject _blockPrefab;
         
+        public static BoardManager ActiveInstance { get; private set; }
+
         private BlockIdentity[,] _grid;
         private BoardWorldLayout _layout;
         private Camera _mainCamera;
         private Vector2Int _boardSize;
+        private bool _acceptsInput;
+        private float _lastSlotFullLogTime = -999f;
+        private const float SlotFullLogCooldown = 1f;
+
         public void Init(LevelConfig config, BoardWorldLayout layout, Camera mainCam)
         {
+            ActiveInstance = this;
+            _acceptsInput = true;
             _layout = layout;
             _mainCamera = mainCam;
             _boardSize = config.boardSize;
@@ -33,7 +41,7 @@ namespace DragonRescue.Entities.Board
                     blockGO.name = $"Block_{blockData.position.x}_{blockData.position.y}";
 
                     var identity = blockGO.GetComponent<BlockIdentity>();
-                    identity.Init(blockData, blockData.position);
+                    identity.Init(blockData, blockData.position, this);
 
                     // Scale block to fit its total cell area precisely
                     Vector2 spriteSize = identity.Visual.GetSpriteSize();
@@ -62,6 +70,9 @@ namespace DragonRescue.Entities.Board
 
         private void Update()
         {
+            if (!_acceptsInput || ActiveInstance != this || _grid == null || _mainCamera == null)
+                return;
+
             bool isPressed = false;
             Vector2 screenPosition = Vector2.zero;
 
@@ -81,22 +92,33 @@ namespace DragonRescue.Entities.Board
                 Vector3 worldPos = _mainCamera.ScreenToWorldPoint(screenPosition);
                 worldPos.z = 0; // Ensure 2D
                 
-                // Physics2D raycast to detect tapped block
-                RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
-                if (hit.collider != null)
+                BlockIdentity identity = FindOwnedBlockAt(worldPos);
+                if (identity != null && !identity.IsMoving)
                 {
-                    var identity = hit.collider.GetComponent<BlockIdentity>();
-                    if (identity != null && !identity.IsMoving)
+                    if (TryHandleBoosterSelection(identity))
                     {
-                        if (TryHandleBoosterSelection(identity))
-                        {
-                            return;
-                        }
-
-                        TryMoveBlock(identity);
+                        return;
                     }
+
+                    TryMoveBlock(identity);
                 }
             }
+        }
+
+        private BlockIdentity FindOwnedBlockAt(Vector3 worldPos)
+        {
+            RaycastHit2D[] hits = Physics2D.RaycastAll(worldPos, Vector2.zero);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                if (hits[i].collider == null) continue;
+
+                var identity = hits[i].collider.GetComponentInParent<BlockIdentity>();
+                if (identity != null && identity.Owner == this)
+                    return identity;
+            }
+
+            return null;
         }
 
         private bool TryHandleBoosterSelection(BlockIdentity block)
@@ -134,19 +156,11 @@ namespace DragonRescue.Entities.Board
         {
             if (IsPathClear(block))
             {
-                if (!CanReleaseBlockToSlot(block))
+                if (!TryCommitBlockToSlot(block))
                 {
-                    Debug.Log("[BoardManager] Cannon slots are full. Block stays on the board.");
+                    PlaySlotFullFeedback(block);
                     return;
                 }
-
-                // Fire escape event
-                GameEvents.FireBlockEscaped(new BlockEscapedPayload
-                {
-                    Color = block.Color,
-                    Ammo = block.Ammo,
-                    ExitPosition = block.transform.position
-                });
 
                 RemoveBlock(block);
             }
@@ -192,20 +206,33 @@ namespace DragonRescue.Entities.Board
             }
         }
 
-        private bool CanReleaseBlockToSlot(BlockIdentity block)
+        private bool TryCommitBlockToSlot(BlockIdentity block)
         {
             if (block.Ammo <= 0) return true;
 
-            // Use the decoupled event bus to check if there is capacity
-            if (GameEvents.RequestSlotCapacity != null)
+            SlotBarManager slotBar = SlotBarManager.Instance;
+            if (slotBar == null)
             {
-                // In C#, if there are multiple subscribers, it returns the result of the last one.
-                // Since there's only one SlotBarManager, this perfectly decouples the systems.
-                return GameEvents.RequestSlotCapacity.Invoke(block.Ammo);
+                LogSlotFullOnce("[BoardManager] Cannot release block: SlotBarManager.Instance is null.");
+                return false;
             }
-            
-            // If nothing is listening, assume it's fine to release
-            return true;
+
+            return slotBar.TryLoadBlock(block.Color, block.Ammo);
+        }
+
+        private void PlaySlotFullFeedback(BlockIdentity block)
+        {
+            block.Visual.PlayBlockedFeedback();
+            LogSlotFullOnce("[BoardManager] Cannon slots are full. Block stays on the board.");
+        }
+
+        private void LogSlotFullOnce(string message)
+        {
+            if (Time.unscaledTime - _lastSlotFullLogTime < SlotFullLogCooldown)
+                return;
+
+            _lastSlotFullLogTime = Time.unscaledTime;
+            Debug.Log(message);
         }
 
         private Vector2Int GetNextPos(Vector2Int pos, Direction dir)
@@ -233,6 +260,8 @@ namespace DragonRescue.Entities.Board
 
         public void ClearBoard()
         {
+            _acceptsInput = false;
+
             if (_grid == null) return;
 
             HashSet<BlockIdentity> releasedBlocks = new HashSet<BlockIdentity>();
@@ -252,6 +281,14 @@ namespace DragonRescue.Entities.Board
                     _grid[x, y] = null;
                 }
             }
+        }
+
+        private void OnDestroy()
+        {
+            _acceptsInput = false;
+
+            if (ActiveInstance == this)
+                ActiveInstance = null;
         }
         
         [ContextMenu("Debug / Print Grid")]

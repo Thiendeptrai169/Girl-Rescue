@@ -12,6 +12,8 @@ namespace DragonRescue.Entities.Cannon
         public static SlotBarManager Instance { get; private set; }
 
         private CannonSlot[] _slots;
+        private float _lastSlotFullWarningTime = -999f;
+        private const float SlotFullWarningCooldown = 1f;
 
         private void Awake()
         {
@@ -50,22 +52,32 @@ namespace DragonRescue.Entities.Cannon
         {
             GameEvents.OnBlockEscaped -= OnBlockEscaped;
             GameEvents.RequestSlotCapacity -= CanAcceptBlock;
+
+            if (Instance == this)
+                Instance = null;
         }
 
         private void OnBlockEscaped(BlockEscapedPayload payload)
         {
             if (payload.Ammo <= 0) return;
 
+            if (!TryLoadBlock(payload.Color, payload.Ammo))
+                LogSlotFullWarning();
+        }
+
+        public bool TryLoadBlock(CannonColor color, int ammo)
+        {
+            if (ammo <= 0) return true;
+
             CannonSlot targetSlot = FindEmptyUnlockedSlot();
 
             if (targetSlot != null)
             {
-                targetSlot.LoadCannon(payload.Color, payload.Ammo);
+                targetSlot.LoadCannon(color, ammo);
+                return true;
             }
-            else
-            {
-                Debug.LogWarning("[SlotBarManager] No empty slots available! Block wasted.");
-            }
+
+            return false;
         }
 
         public bool CanAcceptBlock(int ammo)
@@ -110,6 +122,15 @@ namespace DragonRescue.Entities.Cannon
                 }
             }
             return false;
+        }
+
+        private void LogSlotFullWarning()
+        {
+            if (Time.unscaledTime - _lastSlotFullWarningTime < SlotFullWarningCooldown)
+                return;
+
+            _lastSlotFullWarningTime = Time.unscaledTime;
+            Debug.LogWarning("[SlotBarManager] No empty unlocked cannon slot available.");
         }
     }
 }

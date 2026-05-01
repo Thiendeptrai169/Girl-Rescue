@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e487e467fd366114085005aba2166a71, type: 3}
-  m_Name: Level_01
+  m_Name: Level_02
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
-  levelId: level_01
-  levelNumber: 1
+  levelId: level_02
+  levelNumber: 2
   princessViewport: {x: 0.18, y: 0.66}
   princessHearts: 1
   dragonMovementType: 1
-  dragonStartViewport: {x: 0.88, y: 0.68}
-  dragonEndViewport: {x: 0.22, y: 0.68}
+  dragonStartViewport: {x: 0.9, y: 0.7}
+  dragonEndViewport: {x: 0.2, y: 0.65}
   dragonPathWaypointsViewport:
   - {x: 1, y: 1}
-  - {x: 0.1, y: 1}
-  - {x: 0.1, y: 0.82}
-  - {x: 0.9, y: 0.82}
-  - {x: 0.9, y: 0.68}
+  - {x: 0.08, y: 1}
+  - {x: 0.08, y: 0.82}
+  - {x: 0.92, y: 0.82}
+  - {x: 0.92, y: 0.66}
   - {x: 0.18, y: 0.66}
-  dragonMoveSpeed: 0.045
-  loseDistance: 0.55
+  dragonMoveSpeed: 0.052
+  loseDistance: 0.5
   dragonSegments:
   - color: 0
     count: 9
@@ -35,65 +35,85 @@ MonoBehaviour:
     count: 9
   - color: 2
     count: 9
+  - color: 3
+    count: 9
   totalSlotCount: 5
   unlockedSlotCount: 3
   boardViewport: {x: 0.5, y: 0.348125}
-  boardWidthRatio: 0.78
+  boardWidthRatio: 0.82
   boardHeightRatio: 0.34375
-  boardSize: {x: 3, y: 3}
+  boardSize: {x: 4, y: 3}
   blocks:
-  - id: L1_B_0_0
+  - id: L2_B_0_0
     position: {x: 0, y: 0}
     size: {x: 1, y: 1}
     color: 0
     direction: 0
     ammo: 3
-  - id: L1_B_1_0
+  - id: L2_B_1_0
     position: {x: 1, y: 0}
     size: {x: 1, y: 1}
     color: 1
     direction: 0
     ammo: 3
-  - id: L1_B_2_0
+  - id: L2_B_2_0
     position: {x: 2, y: 0}
     size: {x: 1, y: 1}
     color: 2
     direction: 0
     ammo: 3
-  - id: L1_B_0_1
+  - id: L2_B_3_0
+    position: {x: 3, y: 0}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 0
+    ammo: 3
+  - id: L2_B_0_1
     position: {x: 0, y: 1}
     size: {x: 1, y: 1}
     color: 0
     direction: 2
     ammo: 3
-  - id: L1_B_1_1
+  - id: L2_B_1_1
     position: {x: 1, y: 1}
     size: {x: 1, y: 1}
     color: 1
     direction: 0
     ammo: 3
-  - id: L1_B_2_1
+  - id: L2_B_2_1
     position: {x: 2, y: 1}
     size: {x: 1, y: 1}
     color: 2
+    direction: 0
+    ammo: 3
+  - id: L2_B_3_1
+    position: {x: 3, y: 1}
+    size: {x: 1, y: 1}
+    color: 3
     direction: 3
     ammo: 3
-  - id: L1_B_0_2
+  - id: L2_B_0_2
     position: {x: 0, y: 2}
     size: {x: 1, y: 1}
     color: 0
     direction: 1
     ammo: 3
-  - id: L1_B_1_2
+  - id: L2_B_1_2
     position: {x: 1, y: 2}
     size: {x: 1, y: 1}
     color: 1
     direction: 1
     ammo: 3
-  - id: L1_B_2_2
+  - id: L2_B_2_2
     position: {x: 2, y: 2}
     size: {x: 1, y: 1}
     color: 2
+    direction: 1
+    ammo: 3
+  - id: L2_B_3_2
+    position: {x: 3, y: 2}
+    size: {x: 1, y: 1}
+    color: 3
     direction: 1
     ammo: 3
   slotBarViewportY: 0.55
@@ -101,10 +121,10 @@ MonoBehaviour:
   boosterBarHeightPixels: 300
   uiReferenceHeightPixels: 1920
   boosterBarTopPaddingViewport: 0.02
-  defaultFireRate: 1
+  defaultFireRate: 0.95
   defaultDamage: 1
-  defaultProjectileSpeed: 5
-  defaultFireRange: 8
+  defaultProjectileSpeed: 5.5
+  defaultFireRange: 7.8
   boosters:
   - type: 0
     charges: 1
@@ -129,4 +149,4 @@ MonoBehaviour:
     enabled: 1
     amount: 1
     duration: 8
-    multiplier: 1.5
+    multiplier: 1.6

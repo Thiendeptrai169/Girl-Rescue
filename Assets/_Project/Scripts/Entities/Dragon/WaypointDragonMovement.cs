@@ -28,6 +28,7 @@ namespace DragonRescue.Entities.Dragon
             _spacing = spacing;
             _isMoving = true;
             Progress = 0f;
+            ConfigureRecoil(config);
 
             if (vps == null || vps.Length < 2)
             {
@@ -62,6 +63,12 @@ namespace DragonRescue.Entities.Dragon
         private void Update()
         {
             if (!_isMoving || _totalLength <= 0f) return;
+
+            if (IsRecoilPausing())
+            {
+                UpdatePositions();
+                return;
+            }
 
             // Use speed as a percentage (0.05 = 5% of path per second) to match Linear movement
             Progress += _speed * Time.deltaTime;

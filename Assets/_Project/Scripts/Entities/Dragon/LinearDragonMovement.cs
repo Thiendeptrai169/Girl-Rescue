@@ -28,6 +28,7 @@ namespace DragonRescue.Entities.Dragon
             _spacing   = spacing;
             Progress   = 0f;
             _isMoving  = true;
+            ConfigureRecoil(config);
 
             transform.position = _startPos;
             UpdateSegmentOffsets();
@@ -41,8 +42,15 @@ namespace DragonRescue.Entities.Dragon
         {
             if (!_isMoving) return;
 
+            if (IsRecoilPausing())
+            {
+                UpdateRootPosition();
+                UpdateSegmentOffsets();
+                return;
+            }
+
             Progress += _moveSpeed * Time.deltaTime;
-            transform.position = Vector3.Lerp(_startPos, _endPos, Progress);
+            UpdateRootPosition();
             UpdateSegmentOffsets();
 
             if (HasAliveSegmentReachedEnd())
@@ -66,6 +74,11 @@ namespace DragonRescue.Entities.Dragon
                 _segments[i].transform.localPosition = Vector3.right * (aliveIndex * _spacing);
                 aliveIndex++;
             }
+        }
+
+        private void UpdateRootPosition()
+        {
+            transform.position = Vector3.Lerp(_startPos, _endPos, Progress);
         }
 
         private bool HasAliveSegmentReachedEnd()
