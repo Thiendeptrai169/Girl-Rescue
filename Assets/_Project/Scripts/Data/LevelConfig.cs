@@ -422,33 +422,33 @@ namespace DragonRescue.Data
         {
             var block = blocks[blockIndex];
             Vector2Int currentPos = block.position;
+            int guard = Mathf.Max(1, boardSize.x + boardSize.y + block.size.x + block.size.y + 4);
 
-            while (true)
+            for (int step = 0; step < guard; step++)
             {
-                currentPos = GetNextBoardPosition(currentPos, block.direction);
-                bool fullyEscaped = true;
-
-                for (int x = 0; x < block.size.x; x++)
+                if (IsDiagonalDirection(block.direction))
                 {
-                    for (int y = 0; y < block.size.y; y++)
-                    {
-                        Vector2Int checkCell = new(currentPos.x + x, currentPos.y + y);
+                    GetDiagonalComponents(block.direction, out Direction horizontal, out Direction vertical);
 
-                        if (IsCellWithinBounds(checkCell))
-                        {
-                            fullyEscaped = false;
+                    Vector2Int horizontalPos = GetNextBoardPosition(currentPos, horizontal);
+                    if (IsFootprintBlockedInSimulation(blockIndex, horizontalPos, grid))
+                        return false;
 
-                            int occupant = grid[checkCell.x, checkCell.y];
-                            if (occupant != -1 && occupant != blockIndex)
-                            {
-                                return false;
-                            }
-                        }
-                    }
+                    Vector2Int verticalPos = GetNextBoardPosition(currentPos, vertical);
+                    if (IsFootprintBlockedInSimulation(blockIndex, verticalPos, grid))
+                        return false;
                 }
 
-                if (fullyEscaped) return true;
+                currentPos = GetNextBoardPosition(currentPos, block.direction);
+
+                if (IsFootprintFullyOutside(block, currentPos))
+                    return true;
+
+                if (IsFootprintBlockedInSimulation(blockIndex, currentPos, grid))
+                    return false;
             }
+
+            return false;
         }
 
         private void ClearBlockFromSimulation(int blockIndex, int[,] grid)
@@ -476,8 +476,83 @@ namespace DragonRescue.Data
                 Direction.Down => new Vector2Int(pos.x, pos.y + 1),
                 Direction.Left => new Vector2Int(pos.x - 1, pos.y),
                 Direction.Right => new Vector2Int(pos.x + 1, pos.y),
+                Direction.UpLeft => new Vector2Int(pos.x - 1, pos.y - 1),
+                Direction.UpRight => new Vector2Int(pos.x + 1, pos.y - 1),
+                Direction.DownLeft => new Vector2Int(pos.x - 1, pos.y + 1),
+                Direction.DownRight => new Vector2Int(pos.x + 1, pos.y + 1),
                 _ => pos
             };
+        }
+
+        private bool IsFootprintBlockedInSimulation(int blockIndex, Vector2Int candidatePos, int[,] grid)
+        {
+            var block = blocks[blockIndex];
+
+            for (int x = 0; x < block.size.x; x++)
+            {
+                for (int y = 0; y < block.size.y; y++)
+                {
+                    Vector2Int checkCell = new(candidatePos.x + x, candidatePos.y + y);
+                    if (!IsCellWithinBounds(checkCell))
+                        continue;
+
+                    int occupant = grid[checkCell.x, checkCell.y];
+                    if (occupant != -1 && occupant != blockIndex)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsFootprintFullyOutside(NormalArrowBlockData block, Vector2Int candidatePos)
+        {
+            for (int x = 0; x < block.size.x; x++)
+            {
+                for (int y = 0; y < block.size.y; y++)
+                {
+                    Vector2Int cell = new(candidatePos.x + x, candidatePos.y + y);
+                    if (IsCellWithinBounds(cell))
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool IsDiagonalDirection(Direction direction)
+        {
+            return direction == Direction.UpLeft ||
+                   direction == Direction.UpRight ||
+                   direction == Direction.DownLeft ||
+                   direction == Direction.DownRight;
+        }
+
+        private void GetDiagonalComponents(Direction direction, out Direction horizontal, out Direction vertical)
+        {
+            switch (direction)
+            {
+                case Direction.UpLeft:
+                    horizontal = Direction.Left;
+                    vertical = Direction.Up;
+                    break;
+                case Direction.UpRight:
+                    horizontal = Direction.Right;
+                    vertical = Direction.Up;
+                    break;
+                case Direction.DownLeft:
+                    horizontal = Direction.Left;
+                    vertical = Direction.Down;
+                    break;
+                case Direction.DownRight:
+                    horizontal = Direction.Right;
+                    vertical = Direction.Down;
+                    break;
+                default:
+                    horizontal = Direction.Left;
+                    vertical = Direction.Up;
+                    break;
+            }
         }
 
         private bool IsCellWithinBounds(Vector2Int pos)

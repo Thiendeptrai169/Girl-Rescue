@@ -29,172 +29,510 @@ MonoBehaviour:
   dragonMoveSpeed: 0.058
   loseDistance: 0.46
   dragonSegments:
-  - color: 0
-    count: 15
-  - color: 1
-    count: 15
   - color: 2
-    count: 15
-  - color: 3
-    count: 15
+    count: 4
+  - color: 0
+    count: 4
+  - color: 2
+    count: 4
+  - color: 0
+    count: 4
+  - color: 2
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 2
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
   - color: 4
-    count: 15
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 5
+  - color: 1
+    count: 3
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 5
+    count: 3
+  - color: 6
+    count: 6
+  - color: 7
+    count: 3
   totalSlotCount: 6
-  unlockedSlotCount: 3
+  unlockedSlotCount: 4
   boardViewport: {x: 0.5, y: 0.348125}
   boardWidthRatio: 0.84
   boardHeightRatio: 0.34375
-  boardSize: {x: 5, y: 5}
+  boardSize: {x: 14, y: 9}
   blocks:
-  - id: L3_B_0_0
+  - id: L03_B_0_0
     position: {x: 0, y: 0}
-    size: {x: 1, y: 1}
-    color: 0
-    direction: 0
-    ammo: 3
-  - id: L3_B_1_0
-    position: {x: 1, y: 0}
-    size: {x: 1, y: 1}
-    color: 1
-    direction: 0
-    ammo: 3
-  - id: L3_B_2_0
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 5
+  - id: L03_B_1_0
     position: {x: 2, y: 0}
     size: {x: 1, y: 1}
-    color: 2
-    direction: 0
+    color: 6
+    direction: 2
     ammo: 3
-  - id: L3_B_3_0
+  - id: L03_B_2_0
     position: {x: 3, y: 0}
+    size: {x: 2, y: 1}
+    color: 0
+    direction: 2
+    ammo: 4
+  - id: L03_B_3_0
+    position: {x: 5, y: 0}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 2
+    ammo: 5
+  - id: L03_B_4_0
+    position: {x: 7, y: 0}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 2
+    ammo: 4
+  - id: L03_B_5_0
+    position: {x: 9, y: 0}
     size: {x: 1, y: 1}
-    color: 3
-    direction: 0
+    color: 6
+    direction: 2
     ammo: 3
-  - id: L3_B_4_0
-    position: {x: 4, y: 0}
+  - id: L03_B_6_0
+    position: {x: 10, y: 0}
     size: {x: 1, y: 1}
-    color: 4
-    direction: 0
+    color: 7
+    direction: 2
     ammo: 3
-  - id: L3_B_0_1
+  - id: L03_B_7_0
+    position: {x: 11, y: 0}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 2
+    ammo: 4
+  - id: L03_B_8_0
     position: {x: 0, y: 1}
-    size: {x: 1, y: 1}
-    color: 0
-    direction: 2
-    ammo: 3
-  - id: L3_B_1_1
-    position: {x: 1, y: 1}
-    size: {x: 1, y: 1}
-    color: 1
-    direction: 0
-    ammo: 3
-  - id: L3_B_2_1
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 3
+    ammo: 4
+  - id: L03_B_0_1
     position: {x: 2, y: 1}
-    size: {x: 1, y: 1}
-    color: 2
-    direction: 0
-    ammo: 3
-  - id: L3_B_3_1
-    position: {x: 3, y: 1}
-    size: {x: 1, y: 1}
-    color: 3
-    direction: 0
-    ammo: 3
-  - id: L3_B_4_1
-    position: {x: 4, y: 1}
-    size: {x: 1, y: 1}
-    color: 4
+    size: {x: 3, y: 1}
+    color: 0
     direction: 3
-    ammo: 3
-  - id: L3_B_0_2
+    ammo: 6
+  - id: L03_B_1_1
+    position: {x: 5, y: 1}
+    size: {x: 3, y: 1}
+    color: 1
+    direction: 3
+    ammo: 6
+  - id: L03_B_2_1
+    position: {x: 8, y: 1}
+    size: {x: 3, y: 1}
+    color: 2
+    direction: 3
+    ammo: 6
+  - id: L03_B_3_1
+    position: {x: 11, y: 1}
+    size: {x: 3, y: 1}
+    color: 7
+    direction: 3
+    ammo: 6
+  - id: L03_B_5_1
     position: {x: 0, y: 2}
-    size: {x: 1, y: 1}
-    color: 0
+    size: {x: 3, y: 1}
+    color: 6
     direction: 2
-    ammo: 3
-  - id: L3_B_1_2
-    position: {x: 1, y: 2}
-    size: {x: 1, y: 1}
-    color: 1
-    direction: 2
-    ammo: 3
-  - id: L3_B_2_2
-    position: {x: 2, y: 2}
-    size: {x: 1, y: 1}
-    color: 2
-    direction: 0
-    ammo: 3
-  - id: L3_B_3_2
+    ammo: 6
+  - id: L03_B_6_1
     position: {x: 3, y: 2}
-    size: {x: 1, y: 1}
-    color: 3
-    direction: 3
-    ammo: 3
-  - id: L3_B_4_2
-    position: {x: 4, y: 2}
-    size: {x: 1, y: 1}
-    color: 4
-    direction: 3
-    ammo: 3
-  - id: L3_B_0_3
-    position: {x: 0, y: 3}
-    size: {x: 1, y: 1}
+    size: {x: 3, y: 1}
+    color: 7
+    direction: 2
+    ammo: 6
+  - id: L03_B_7_1
+    position: {x: 6, y: 2}
+    size: {x: 3, y: 1}
     color: 0
     direction: 2
-    ammo: 3
-  - id: L3_B_1_3
-    position: {x: 1, y: 3}
-    size: {x: 1, y: 1}
+    ammo: 6
+  - id: L03_B_0_2
+    position: {x: 9, y: 2}
+    size: {x: 3, y: 1}
+    color: 2
+    direction: 2
+    ammo: 6
+  - id: L03_B_1_2
+    position: {x: 12, y: 2}
+    size: {x: 2, y: 1}
     color: 1
-    direction: 1
-    ammo: 3
-  - id: L3_B_2_3
+    direction: 2
+    ammo: 4
+  - id: L03_B_2_2
+    position: {x: 0, y: 3}
+    size: {x: 2, y: 1}
+    color: 6
+    direction: 3
+    ammo: 4
+  - id: L03_B_3_2
     position: {x: 2, y: 3}
     size: {x: 1, y: 1}
     color: 2
-    direction: 1
+    direction: 3
     ammo: 3
-  - id: L3_B_3_3
+  - id: L03_B_4_2
     position: {x: 3, y: 3}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 3
+    ammo: 4
+  - id: L03_B_6_2
+    position: {x: 5, y: 3}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 3
+    ammo: 5
+  - id: L03_B_7_2
+    position: {x: 7, y: 3}
+    size: {x: 2, y: 1}
+    color: 0
+    direction: 3
+    ammo: 4
+  - id: L03_B_8_2
+    position: {x: 9, y: 3}
+    size: {x: 2, y: 1}
+    color: 6
+    direction: 3
+    ammo: 5
+  - id: L03_B_0_3
+    position: {x: 11, y: 3}
     size: {x: 1, y: 1}
-    color: 3
-    direction: 1
+    color: 0
+    direction: 3
     ammo: 3
-  - id: L3_B_4_3
-    position: {x: 4, y: 3}
+  - id: L03_B_1_3
+    position: {x: 12, y: 3}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 3
+    ammo: 3
+  - id: L03_B_2_3
+    position: {x: 13, y: 3}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 3
+    ammo: 3
+  - id: L03_B_3_3
+    position: {x: 0, y: 4}
+    size: {x: 3, y: 1}
+    color: 6
+    direction: 2
+    ammo: 6
+  - id: L03_B_4_3
+    position: {x: 3, y: 4}
+    size: {x: 3, y: 1}
+    color: 7
+    direction: 2
+    ammo: 6
+  - id: L03_B_6_3
+    position: {x: 6, y: 4}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 2
+    ammo: 4
+  - id: L03_B_7_3
+    position: {x: 8, y: 4}
+    size: {x: 2, y: 1}
+    color: 6
+    direction: 2
+    ammo: 5
+  - id: L03_B_0_4
+    position: {x: 10, y: 4}
+    size: {x: 3, y: 1}
+    color: 1
+    direction: 2
+    ammo: 6
+  - id: L03_B_1_4
+    position: {x: 13, y: 4}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 2
+    ammo: 3
+  - id: L03_B_2_4
+    position: {x: 2, y: 5}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 3
+    ammo: 5
+  - id: L03_B_3_4
+    position: {x: 4, y: 5}
+    size: {x: 3, y: 1}
+    color: 0
+    direction: 3
+    ammo: 6
+  - id: L03_B_4_4
+    position: {x: 7, y: 5}
+    size: {x: 2, y: 1}
+    color: 0
+    direction: 3
+    ammo: 5
+  - id: L03_B_5_4
+    position: {x: 9, y: 5}
+    size: {x: 3, y: 1}
+    color: 2
+    direction: 3
+    ammo: 6
+  - id: L03_B_6_4
+    position: {x: 12, y: 5}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 3
+    ammo: 3
+  - id: L03_B_8_4
+    position: {x: 13, y: 5}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 3
+    ammo: 3
+  - id: L03_B_0_5
+    position: {x: 0, y: 6}
+    size: {x: 3, y: 1}
+    color: 6
+    direction: 2
+    ammo: 6
+  - id: L03_B_1_5
+    position: {x: 3, y: 6}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 2
+    ammo: 4
+  - id: L03_B_3_5
+    position: {x: 5, y: 6}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 2
+    ammo: 5
+  - id: L03_B_4_5
+    position: {x: 7, y: 6}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 2
+    ammo: 3
+  - id: L03_B_5_5
+    position: {x: 8, y: 6}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 2
+    ammo: 4
+  - id: L03_B_6_5
+    position: {x: 10, y: 6}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 2
+    ammo: 3
+  - id: L03_B_8_5
+    position: {x: 11, y: 6}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 5
+  - id: L03_B_0_6
+    position: {x: 0, y: 7}
+    size: {x: 3, y: 1}
+    color: 0
+    direction: 3
+    ammo: 6
+  - id: L03_B_1_6
+    position: {x: 3, y: 7}
+    size: {x: 2, y: 1}
+    color: 3
+    direction: 3
+    ammo: 4
+  - id: L03_B_2_6
+    position: {x: 5, y: 7}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 3
+    ammo: 3
+  - id: L03_B_3_6
+    position: {x: 6, y: 7}
     size: {x: 1, y: 1}
     color: 4
     direction: 3
     ammo: 3
-  - id: L3_B_0_4
-    position: {x: 0, y: 4}
+  - id: L03_B_4_6
+    position: {x: 7, y: 7}
+    size: {x: 3, y: 1}
+    color: 4
+    direction: 3
+    ammo: 6
+  - id: L03_B_6_6
+    position: {x: 10, y: 7}
     size: {x: 1, y: 1}
     color: 0
-    direction: 1
+    direction: 3
     ammo: 3
-  - id: L3_B_1_4
-    position: {x: 1, y: 4}
+  - id: L03_B_7_6
+    position: {x: 11, y: 7}
+    size: {x: 2, y: 1}
+    color: 6
+    direction: 3
+    ammo: 4
+  - id: L03_B_0_7
+    position: {x: 13, y: 7}
     size: {x: 1, y: 1}
-    color: 1
-    direction: 1
+    color: 7
+    direction: 3
     ammo: 3
-  - id: L3_B_2_4
-    position: {x: 2, y: 4}
-    size: {x: 1, y: 1}
-    color: 2
-    direction: 1
-    ammo: 3
-  - id: L3_B_3_4
-    position: {x: 3, y: 4}
-    size: {x: 1, y: 1}
-    color: 3
-    direction: 1
-    ammo: 3
-  - id: L3_B_4_4
-    position: {x: 4, y: 4}
+  - id: L03_B_1_7
+    position: {x: 0, y: 8}
     size: {x: 1, y: 1}
     color: 4
-    direction: 1
+    direction: 2
+    ammo: 3
+  - id: L03_B_2_7
+    position: {x: 1, y: 8}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 2
+    ammo: 3
+  - id: L03_B_3_7
+    position: {x: 2, y: 8}
+    size: {x: 2, y: 1}
+    color: 3
+    direction: 2
+    ammo: 4
+  - id: L03_B_4_7
+    position: {x: 4, y: 8}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 2
+    ammo: 4
+  - id: L03_B_5_7
+    position: {x: 6, y: 8}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 2
+    ammo: 3
+  - id: L03_B_6_7
+    position: {x: 7, y: 8}
+    size: {x: 1, y: 1}
+    color: 5
+    direction: 2
+    ammo: 3
+  - id: L03_B_7_7
+    position: {x: 8, y: 8}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 2
     ammo: 3
   slotBarViewportY: 0.55
   slotBarBottomPaddingViewport: 0.03
@@ -207,25 +545,25 @@ MonoBehaviour:
   defaultFireRange: 7.4
   boosters:
   - type: 0
-    charges: 1
+    charges: 3
     enabled: 1
     amount: 1
     duration: 0
     multiplier: 0
   - type: 1
-    charges: 1
+    charges: 3
     enabled: 1
     amount: 1
     duration: 0
     multiplier: 0
   - type: 2
-    charges: 1
+    charges: 3
     enabled: 1
     amount: 1
     duration: 0
     multiplier: 0
   - type: 3
-    charges: 1
+    charges: 3
     enabled: 1
     amount: 1
     duration: 9

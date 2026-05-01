@@ -45,7 +45,11 @@ namespace DragonRescue.Data
         Up,
         Down,
         Left,
-        Right
+        Right,
+        UpLeft,
+        UpRight,
+        DownLeft,
+        DownRight
     }
 
     /// <summary>

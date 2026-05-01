@@ -114,6 +114,11 @@ namespace DragonRescue.Entities.Dragon
 
         public bool SortSegmentsByColor()
         {
+            return SortLeadingSegmentsByColor(4);
+        }
+
+        public bool SortLeadingSegmentsByColor(int maxSegmentCount)
+        {
             List<DragonSegmentIdentity> aliveSegments = new();
             HashSet<CannonColor> uniqueColors = new();
 
@@ -124,6 +129,9 @@ namespace DragonRescue.Entities.Dragon
 
                 aliveSegments.Add(segment);
                 uniqueColors.Add(segment.Color);
+
+                if (aliveSegments.Count >= maxSegmentCount)
+                    break;
             }
 
             if (aliveSegments.Count <= 1 || uniqueColors.Count <= 1)

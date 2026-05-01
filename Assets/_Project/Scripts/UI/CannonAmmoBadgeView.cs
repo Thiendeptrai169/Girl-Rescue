@@ -30,6 +30,7 @@ namespace DragonRescue.UI
         private void OnEnable()
         {
             GameEvents.OnCannonAmmoChanged += OnCannonAmmoChanged;
+            Clear();
         }
 
         private void OnDisable()
@@ -73,6 +74,15 @@ namespace DragonRescue.UI
                 _canvasGroup.alpha = visible ? 1f : 0f;
                 _canvasGroup.interactable = false;
                 _canvasGroup.blocksRaycasts = false;
+            }
+
+            if (_ammoText != null)
+            {
+                _ammoText.enabled = visible;
+
+                Renderer textRenderer = _ammoText.GetComponent<Renderer>();
+                if (textRenderer != null)
+                    textRenderer.enabled = visible;
             }
         }
 

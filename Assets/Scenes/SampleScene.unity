@@ -150,12 +150,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Core.DebugSystem
   _persistent: 0
   _enableLogs: 1
-  _debugBoard: 1
+  _debugBoard: 0
   _debugCannon: 0
   _debugProjectile: 0
   _debugDragon: 0
   _debugBooster: 0
-  _debugInput: 1
+  _debugInput: 0
   _debugUI: 0
   _debugPooling: 0
   _debugGame: 0

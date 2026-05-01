@@ -592,9 +592,10 @@ namespace DragonRescue.Entities.Board
 
         private async UniTask TryMoveBlockAsync(BlockIdentity block, CancellationToken ct)
         {
-            if (IsPathClear(block))
+            BoardEscapeResult escapeResult = BoardEscapeResolver.Resolve(block, _grid, _boardSize);
+            if (escapeResult.CanEscape)
             {
-                LogMovementTraceOnce($"Path clear block={block.name} ammo={block.Ammo}", block);
+                LogMovementTraceOnce($"Path clear block={block.name} dir={block.Direction} ammo={block.Ammo} lastPos={escapeResult.LastPosition}", block);
                 if (!TryCommitBlockToSlot(block))
                 {
                     LogSlotFullOnce($"[BoardManager] Slot commit failed block={block.name}; keeping on board.");
@@ -607,49 +608,9 @@ namespace DragonRescue.Entities.Board
             }
             else
             {
-                LogMovementTraceOnce($"Path blocked block={block.name}", block);
+                string blocker = escapeResult.BlockingBlock != null ? escapeResult.BlockingBlock.name : "none";
+                LogMovementTraceOnce($"Path blocked block={block.name} dir={block.Direction} checked={escapeResult.CheckedDirection} blocker={blocker} cell={escapeResult.BlockingCell}", block);
                 await FireBlockedFeedbackAsync(block, ct);
-            }
-        }
-
-        private bool IsPathClear(BlockIdentity block)
-        {
-            Vector2Int currentPos = block.GridPos;
-
-            while (true)
-            {
-                // Move the entire footprint one step in the direction
-                currentPos = GetNextPos(currentPos, block.Direction);
-                bool fullyEscaped = true;
-
-                // Check every cell in the new footprint
-                for (int x = 0; x < block.Size.x; x++)
-                {
-                    for (int y = 0; y < block.Size.y; y++)
-                    {
-                        Vector2Int checkCell = new Vector2Int(currentPos.x + x, currentPos.y + y);
-
-                        if (IsCellWithinBounds(checkCell))
-                        {
-                            fullyEscaped = false; // At least one cell is still on the board
-
-                            BlockIdentity occupant = _grid[checkCell.x, checkCell.y];
-                            // If there is an occupant and it's NOT this same block itself, we hit something!
-                            if (occupant != null && occupant != block)
-                            {
-                                LogMovementTraceOnce($"Path blocked by occupant={occupant.name} at cell={checkCell} movingBlock={block.name}", block);
-                                return false;
-                            }
-                        }
-                    }
-                }
-
-                // If all cells checked were outside bounds, the block successfully left the board
-                if (fullyEscaped)
-                {
-                    LogMovementTraceOnce($"Path fully escaped block={block.name} lastPos={currentPos}", block);
-                    return true;
-                }
             }
         }
 
@@ -748,18 +709,6 @@ namespace DragonRescue.Entities.Board
 
             _lastSlotFullLogTime = Time.unscaledTime;
             DebugSystem.Log(DebugCategory.Board, message, this);
-        }
-
-        private Vector2Int GetNextPos(Vector2Int pos, Direction dir)
-        {
-            return dir switch
-            {
-                Direction.Up => new Vector2Int(pos.x, pos.y - 1),    // Y decreases going up
-                Direction.Down => new Vector2Int(pos.x, pos.y + 1),  // Y increases going down
-                Direction.Left => new Vector2Int(pos.x - 1, pos.y),
-                Direction.Right => new Vector2Int(pos.x + 1, pos.y),
-                _ => pos
-            };
         }
 
         private bool IsCellWithinBounds(Vector2Int pos)

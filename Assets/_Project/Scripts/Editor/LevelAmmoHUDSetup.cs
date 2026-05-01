@@ -120,6 +120,7 @@ namespace DragonRescue.EditorScripts
 
             Transform existing = prefabRoot.transform.Find(CannonAmmoBadgeName);
             GameObject badgeRoot = existing != null ? existing.gameObject : new GameObject(CannonAmmoBadgeName, typeof(CanvasGroup), typeof(CannonAmmoBadgeView));
+            badgeRoot.SetActive(true);
             badgeRoot.transform.SetParent(prefabRoot.transform, false);
             badgeRoot.transform.localPosition = new Vector3(-0.18f, -0.16f, -0.05f);
             badgeRoot.transform.localRotation = Quaternion.identity;
