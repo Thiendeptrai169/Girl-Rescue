@@ -17,16 +17,17 @@ MonoBehaviour:
   princessViewport: {x: 0.16, y: 0.66}
   princessHearts: 1
   dragonMovementType: 1
+  dragonSpawnViewport: {x: 1.2, y: 0.88}
   dragonStartViewport: {x: 0.94, y: 0.72}
   dragonEndViewport: {x: 0.16, y: 0.66}
   dragonPathWaypointsViewport:
-  - {x: 1, y: 1}
-  - {x: 0.06, y: 1}
-  - {x: 0.06, y: 0.86}
-  - {x: 0.94, y: 0.86}
+  - {x: 0.98, y: 0.88}
+  - {x: 0.06, y: 0.88}
+  - {x: 0.06, y: 0.76}
+  - {x: 0.94, y: 0.76}
   - {x: 0.94, y: 0.7}
   - {x: 0.16, y: 0.66}
-  dragonMoveSpeed: 0.065
+  dragonMoveSpeed: 0.03
   loseDistance: 0.42
   dragonSegments:
   - color: 0
@@ -115,6 +116,8 @@ MonoBehaviour:
     count: 5
   - color: 7
     count: 6
+  dragonRecoilProgress: 0.025
+  dragonRecoilPauseSeconds: 0.08
   totalSlotCount: 6
   unlockedSlotCount: 4
   boardViewport: {x: 0.5, y: 0.348125}

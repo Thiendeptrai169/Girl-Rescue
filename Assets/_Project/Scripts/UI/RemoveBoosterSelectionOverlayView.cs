@@ -9,6 +9,8 @@ namespace DragonRescue.UI
     public class RemoveBoosterSelectionOverlayView : MonoBehaviour
     {
         [SerializeField] private Color _dimColor = new Color(0f, 0f, 0f, 0.58f);
+        [SerializeField] private Color _promptBackgroundColor = new Color(1f, 0.94f, 0.78f, 1f);
+        [SerializeField] private Color _promptBorderColor = new Color(1f, 0.56f, 0.1f, 1f);
         [SerializeField] private string _prompt = "Please select the box";
 
         private RectTransform _rectTransform;
@@ -16,13 +18,17 @@ namespace DragonRescue.UI
         private Image _bottomPanel;
         private Image _leftPanel;
         private Image _rightPanel;
+        private Image _promptBackground;
+        private Image _promptBorder;
         private TMP_Text _promptText;
+        private CanvasGroup _canvasGroup;
         private float _previousTimeScale = 1f;
         private bool _showing;
 
         private void Awake()
         {
             _rectTransform = transform as RectTransform;
+            _canvasGroup = GetComponent<CanvasGroup>();
             EnsureBuilt();
             HideImmediate();
         }
@@ -61,9 +67,10 @@ namespace DragonRescue.UI
         {
             EnsureBuilt();
             _showing = true;
-            gameObject.SetActive(true);
             transform.SetAsLastSibling();
             LayoutAroundBoard();
+
+            SetCanvasVisible(true);
 
             if (!Mathf.Approximately(Time.timeScale, 0f))
                 _previousTimeScale = Time.timeScale;
@@ -89,6 +96,14 @@ namespace DragonRescue.UI
 
             if (_promptText != null)
                 _promptText.gameObject.SetActive(false);
+
+            if (_promptBackground != null)
+                _promptBackground.gameObject.SetActive(false);
+
+            if (_promptBorder != null)
+                _promptBorder.gameObject.SetActive(false);
+
+            SetCanvasVisible(false);
         }
 
         private void ResumeTimeIfNeeded()
@@ -101,6 +116,9 @@ namespace DragonRescue.UI
         {
             if (_rectTransform == null)
                 _rectTransform = transform as RectTransform;
+
+            if (_canvasGroup == null)
+                _canvasGroup = GetComponent<CanvasGroup>();
 
             if (_rectTransform != null)
             {
@@ -122,17 +140,25 @@ namespace DragonRescue.UI
             if (_rightPanel == null)
                 _rightPanel = CreatePanel("RightDim");
 
+            if (_promptBorder == null)
+                _promptBorder = CreatePromptImage("PromptBorder", _promptBorderColor);
+
+            if (_promptBackground == null)
+                _promptBackground = CreatePromptImage("PromptBackground", _promptBackgroundColor);
+
             if (_promptText == null)
             {
                 GameObject textObject = new GameObject("Prompt", typeof(RectTransform), typeof(TextMeshProUGUI));
                 textObject.transform.SetParent(transform, false);
                 _promptText = textObject.GetComponent<TMP_Text>();
                 _promptText.text = _prompt;
-                _promptText.fontSize = 42f;
+                _promptText.fontSize = 46f;
                 _promptText.fontStyle = FontStyles.Bold;
                 _promptText.alignment = TextAlignmentOptions.Center;
                 _promptText.color = new Color(0.43f, 0.25f, 0.13f, 1f);
                 _promptText.raycastTarget = false;
+                _promptText.textWrappingMode = TextWrappingModes.NoWrap;
+                _promptText.overflowMode = TextOverflowModes.Ellipsis;
             }
         }
 
@@ -144,6 +170,17 @@ namespace DragonRescue.UI
             Image image = panel.GetComponent<Image>();
             image.color = _dimColor;
             image.raycastTarget = true;
+            return image;
+        }
+
+        private Image CreatePromptImage(string imageName, Color color)
+        {
+            GameObject panel = new GameObject(imageName, typeof(RectTransform), typeof(Image));
+            panel.transform.SetParent(transform, false);
+
+            Image image = panel.GetComponent<Image>();
+            image.color = color;
+            image.raycastTarget = false;
             return image;
         }
 
@@ -164,11 +201,29 @@ namespace DragonRescue.UI
 
             if (_promptText != null)
             {
+                RectTransform borderRect = _promptBorder.rectTransform;
+                borderRect.anchorMin = new Vector2(hole.xMin, Mathf.Clamp01(hole.yMax + 0.008f));
+                borderRect.anchorMax = new Vector2(hole.xMax, Mathf.Clamp01(hole.yMax + 0.085f));
+                borderRect.offsetMin = Vector2.zero;
+                borderRect.offsetMax = Vector2.zero;
+
+                RectTransform backgroundRect = _promptBackground.rectTransform;
+                backgroundRect.anchorMin = borderRect.anchorMin;
+                backgroundRect.anchorMax = borderRect.anchorMax;
+                backgroundRect.offsetMin = new Vector2(8f, 8f);
+                backgroundRect.offsetMax = new Vector2(-8f, -8f);
+
                 RectTransform promptRect = _promptText.rectTransform;
-                promptRect.anchorMin = new Vector2(hole.xMin, Mathf.Clamp01(hole.yMax + 0.01f));
-                promptRect.anchorMax = new Vector2(hole.xMax, Mathf.Clamp01(hole.yMax + 0.08f));
-                promptRect.offsetMin = Vector2.zero;
-                promptRect.offsetMax = Vector2.zero;
+                promptRect.anchorMin = backgroundRect.anchorMin;
+                promptRect.anchorMax = backgroundRect.anchorMax;
+                promptRect.offsetMin = new Vector2(16f, 0f);
+                promptRect.offsetMax = new Vector2(-16f, 0f);
+
+                _promptBorder.transform.SetAsLastSibling();
+                _promptBackground.transform.SetAsLastSibling();
+                _promptText.transform.SetAsLastSibling();
+                _promptBorder.gameObject.SetActive(true);
+                _promptBackground.gameObject.SetActive(true);
                 _promptText.gameObject.SetActive(true);
             }
         }
@@ -202,6 +257,16 @@ namespace DragonRescue.UI
         {
             if (panel != null)
                 panel.gameObject.SetActive(visible);
+        }
+
+        private void SetCanvasVisible(bool visible)
+        {
+            if (_canvasGroup == null)
+                return;
+
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            _canvasGroup.interactable = visible;
+            _canvasGroup.blocksRaycasts = visible;
         }
     }
 }

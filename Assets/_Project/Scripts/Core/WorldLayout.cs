@@ -3,8 +3,8 @@ using UnityEngine;
 namespace DragonRescue.Core
 {
     /// <summary>
-    /// Translates viewport coordinates to world space coordinates safely.
-    /// This guarantees objects never spawn outside the camera bounds.
+    /// Translates viewport coordinates to world space coordinates.
+    /// Values outside 0..1 are allowed for intentional offscreen entry/exit points.
     /// </summary>
     public class WorldLayout : MonoBehaviour
     {

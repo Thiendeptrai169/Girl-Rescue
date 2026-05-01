@@ -14,8 +14,6 @@ namespace DragonRescue.UI
         [SerializeField] private float _bottomPadding = 24f;
         [SerializeField] private Vector2 _buttonSize = new Vector2(150f, 115f);
         [SerializeField] private float _buttonSpacing = 18f;
-        [SerializeField] private RemoveBoosterSelectionOverlayView _removeSelectionOverlay;
-
         private CanvasGroup _canvasGroup;
         private RectTransform _rectTransform;
         private HorizontalLayoutGroup _layoutGroup;
@@ -29,7 +27,6 @@ namespace DragonRescue.UI
             if (_buttons == null || _buttons.Length == 0)
                 _buttons = GetComponentsInChildren<BoosterButtonView>(true);
 
-            EnsureRemoveSelectionOverlay();
             ApplyRuntimeLayout();
         }
 
@@ -37,7 +34,6 @@ namespace DragonRescue.UI
         {
             ApplyRuntimeLayout();
             transform.SetAsLastSibling();
-            EnsureRemoveSelectionOverlay();
 
             GameEvents.OnBoosterChargeChanged += OnBoosterChargeChanged;
             GameEvents.OnBoosterSelectionModeChanged += OnBoosterSelectionModeChanged;
@@ -116,22 +112,6 @@ namespace DragonRescue.UI
                 if (_buttons[i] != null)
                     _buttons[i].ApplyRuntimeLayout(_buttonSize);
             }
-        }
-
-        private void EnsureRemoveSelectionOverlay()
-        {
-            if (_removeSelectionOverlay != null)
-                return;
-
-            Transform canvasRoot = transform.parent != null ? transform.parent : transform;
-            _removeSelectionOverlay = canvasRoot.GetComponentInChildren<RemoveBoosterSelectionOverlayView>(true);
-
-            if (_removeSelectionOverlay != null)
-                return;
-
-            GameObject overlayObject = new GameObject("UI_RemoveSelectionOverlay", typeof(RectTransform), typeof(RemoveBoosterSelectionOverlayView));
-            overlayObject.transform.SetParent(canvasRoot, false);
-            _removeSelectionOverlay = overlayObject.GetComponent<RemoveBoosterSelectionOverlayView>();
         }
 
         private void OnButtonClicked(BoosterType type)

@@ -16,6 +16,7 @@ namespace DragonRescue.Entities.Dragon
         private DragonSegmentIdentity[] _segments;
         private float _spacing;
         private bool _isMoving;
+        private DragonEndpointVisual _endpointVisual;
         
         private float[] _distances;
         private float _totalLength;
@@ -28,20 +29,26 @@ namespace DragonRescue.Entities.Dragon
             _spacing = spacing;
             _isMoving = true;
             Progress = 0f;
+            _endpointVisual = GetComponent<DragonEndpointVisual>();
+            if (_endpointVisual == null)
+                _endpointVisual = gameObject.AddComponent<DragonEndpointVisual>();
+            _endpointVisual.Init(_spacing);
             ConfigureRecoil(config);
 
-            if (vps == null || vps.Length < 2)
+            if (vps == null || vps.Length < 1)
             {
                 DebugSystem.Error(DebugCategory.Dragon, "Not enough waypoints set in LevelConfig!", this);
                 _isMoving = false;
                 return;
             }
 
-            // Convert viewports to world points
-            _waypoints = new Vector2[vps.Length];
+            // Spawn is separate from the authored movement route. The first waypoint is the
+            // first target the dragon moves toward after spawning.
+            _waypoints = new Vector2[vps.Length + 1];
+            _waypoints[0] = worldLayout.ViewportToWorld(config.dragonSpawnViewport);
             for (int i = 0; i < vps.Length; i++)
             {
-                _waypoints[i] = worldLayout.ViewportToWorld(vps[i]);
+                _waypoints[i + 1] = worldLayout.ViewportToWorld(vps[i]);
             }
 
             // Precalculate distances between waypoints to normalize progress
@@ -59,6 +66,11 @@ namespace DragonRescue.Entities.Dragon
 
         public override void StopMoving()   => _isMoving = false;
         public override void ResumeMoving() => _isMoving = true;
+
+        public override void RefreshVisuals()
+        {
+            UpdatePositions();
+        }
 
         private void Update()
         {
@@ -87,7 +99,10 @@ namespace DragonRescue.Entities.Dragon
         {
             // Move Head (Root)
             float headDist = Progress * _totalLength;
-            transform.position = EvaluatePath(headDist);
+            Vector3 headPosition = EvaluatePath(headDist);
+            Vector3 headDirection = GetPathDirection(headDist);
+            transform.position = headPosition;
+            _endpointVisual.SetHeadPosition(headPosition, headDirection);
 
             // Move alive segments as a compact visible body. Dead segments no longer keep empty spacing.
             int aliveIndex = 0;
@@ -100,12 +115,16 @@ namespace DragonRescue.Entities.Dragon
                 _segments[i].transform.position = EvaluatePath(segDist);
                 aliveIndex++;
             }
+
+            float tailDist = headDist - ((aliveIndex + 1) * _spacing);
+            Vector3 tailPosition = aliveIndex > 0 ? EvaluatePath(tailDist) : headPosition;
+            _endpointVisual.SetTailPosition(tailPosition, GetPathDirection(tailDist));
         }
 
         private bool HasAliveSegmentReachedEnd()
         {
             float headDist = Progress * _totalLength;
-            return GetAliveSegmentCount() > 0 && headDist - _spacing >= _totalLength;
+            return GetAliveSegmentCount() > 0 && headDist >= _totalLength;
         }
 
         private int GetAliveSegmentCount()
@@ -129,11 +148,29 @@ namespace DragonRescue.Entities.Dragon
                 if (distance >= _distances[i] && distance <= _distances[i + 1])
                 {
                     float segmentLength = _distances[i + 1] - _distances[i];
+                    if (segmentLength <= 0f)
+                        continue;
+
                     float t = (distance - _distances[i]) / segmentLength;
                     return Vector3.Lerp(_waypoints[i], _waypoints[i + 1], t);
                 }
             }
             return _waypoints[_waypoints.Length - 1];
+        }
+
+        private Vector3 GetPathDirection(float distance)
+        {
+            const float sampleDistance = 0.05f;
+            Vector3 from = EvaluatePath(distance);
+            Vector3 to = EvaluatePath(distance + sampleDistance);
+            Vector3 direction = to - from;
+
+            if (direction.sqrMagnitude > 0.0001f)
+                return direction.normalized;
+
+            from = EvaluatePath(distance - sampleDistance);
+            direction = to - from;
+            return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.right;
         }
     }
 }

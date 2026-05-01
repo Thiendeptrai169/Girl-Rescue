@@ -720,6 +720,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2297068481943863952, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2297068481943863952, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
+      propertyPath: m_IgnoreParentGroups
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5241627185743193439, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -879,6 +887,10 @@ PrefabInstance:
     - target: {fileID: 7739099516951444273, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8298043407414406261, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8600039946827369744, guid: 10c1d1a0e4e9f854aad3fc32efef9ce7, type: 3}
       propertyPath: m_overflowMode

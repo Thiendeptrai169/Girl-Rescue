@@ -159,9 +159,9 @@ namespace DragonRescue.Core
         {
             if (_worldLayout == null) return;
             // Spawn dragon root GO with DragonManager
-            Vector3 startPos = _worldLayout.ViewportToWorld(config.dragonStartViewport);
-            DebugSystem.Log(DebugCategory.Level, $"SpawnDragon startViewport={config.dragonStartViewport} world={startPos} movement={config.dragonMovementType}", this);
-            _dragonInstance = Instantiate(_dragonPrefab, startPos, Quaternion.identity);
+            Vector3 spawnPos = _worldLayout.ViewportToWorld(config.dragonSpawnViewport);
+            DebugSystem.Log(DebugCategory.Level, $"SpawnDragon spawnViewport={config.dragonSpawnViewport} world={spawnPos} movement={config.dragonMovementType}", this);
+            _dragonInstance = Instantiate(_dragonPrefab, spawnPos, Quaternion.identity);
             _dragonInstance.name = "Dragon";
 
             var dragonManager = _dragonInstance.GetComponent<DragonManager>();

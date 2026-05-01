@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using DragonRescue.Data;
 using DragonRescue.Core;
 using DragonRescue.Entities.Cannon;
+using DragonRescue.Entities.Dragon;
 using DragonRescue.Booster;
 
 namespace DragonRescue.Entities.Board
@@ -567,7 +568,21 @@ namespace DragonRescue.Entities.Board
                 return false;
             }
 
+            CannonColor removedColor = block.Color;
+            int removedAmmo = block.Ammo;
+
             RemoveBlock(block);
+
+            if (DragonManager.Instance != null)
+            {
+                int destroyed = DragonManager.Instance.DestroyLeadingSegmentsByColor(removedColor, removedAmmo);
+                DebugSystem.Log(DebugCategory.Booster, $"Remove booster selected color={removedColor} ammo={removedAmmo} destroyedDragonSegments={destroyed}.", this);
+            }
+            else
+            {
+                DebugSystem.Warning(DebugCategory.Booster, "Remove booster could not destroy matching dragon segments because DragonManager.Instance is null.", this);
+            }
+
             BoosterManager.Instance.ConsumeCharge(BoosterType.Remove);
             return true;
         }

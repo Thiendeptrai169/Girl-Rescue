@@ -160,6 +160,30 @@ namespace DragonRescue.Entities.Dragon
             return changed;
         }
 
+        public int DestroyLeadingSegmentsByColor(CannonColor color, int count)
+        {
+            if (count <= 0)
+                return 0;
+
+            int destroyed = 0;
+
+            for (int i = 0; i < _segments.Count && destroyed < count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment == null || !segment.IsAlive || segment.Color != color)
+                    continue;
+
+                segment.TakeDamage(999);
+                destroyed++;
+            }
+
+            if (destroyed > 0)
+                RecalculateProgress();
+
+            DebugSystem.Log(DebugCategory.Dragon, $"Remove booster destroyed {destroyed}/{count} {color} dragon segments.", this);
+            return destroyed;
+        }
+
         public void StopDragon()   => _movement.StopMoving();
         public void ResumeDragon() => _movement.ResumeMoving();
 
@@ -176,6 +200,9 @@ namespace DragonRescue.Entities.Dragon
             }
 
             DebugSystem.Log(DebugCategory.Dragon, "All segments destroyed — WIN!", this);
+            if (_movement != null)
+                _movement.RefreshVisuals();
+
             if (_movement != null)
                 _movement.StopMoving();
             GameEvents.FireLevelWin();

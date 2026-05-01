@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3e6cf46e519e7b8478af27614f47584d
+guid: dbe891ecce76e3d4ebfd7bea58aa1707
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3887782371920749848
-    second: princess_0
+      213: -765150924802650856
+    second: arrow_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: princess_0
+      name: arrow_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 405
-        height: 617
+        x: 225
+        y: 54
+        width: 222
+        height: 270
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8ea53a5f782db0ac0800000000000000
-      internalID: -3887782371920749848
+      spriteID: 81d839fa943a165f0800000000000000
+      internalID: -765150924802650856
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      princess_0: -3887782371920749848
+      arrow_0: -765150924802650856
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

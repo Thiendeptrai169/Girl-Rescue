@@ -21,6 +21,10 @@ namespace DragonRescue.Entities.Dragon
         public abstract void StopMoving();
         public abstract void ResumeMoving();
 
+        public virtual void RefreshVisuals()
+        {
+        }
+
         public virtual void ApplyRecoil()
         {
             if (_recoilProgress <= 0f && _recoilPauseSeconds <= 0f) return;

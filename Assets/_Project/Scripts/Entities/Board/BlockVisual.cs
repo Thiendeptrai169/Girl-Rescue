@@ -14,14 +14,23 @@ namespace DragonRescue.Entities.Board
         [SerializeField] private Vector2 _singleHorizontalFill = new Vector2(0.95f, 0.68f);
         [SerializeField] private Vector2 _singleVerticalFill = new Vector2(0.68f, 0.95f);
         [SerializeField] private Vector2 _singleDiagonalFill = new Vector2(0.82f, 0.82f);
+        [SerializeField] private float _arrowWorldHeightRatio = 0.36f;
 
         private Coroutine _feedbackRoutine;
         private Color _originalColor;
+        private Vector3 _arrowBaseLocalScale = Vector3.one;
+        private Transform _arrowScaleAnchor;
 
         private void Awake()
         {
             if (_identity == null)
                 _identity = GetComponentInParent<BlockIdentity>();
+
+            if (_arrowSprite != null)
+            {
+                _arrowBaseLocalScale = _arrowSprite.transform.localScale;
+                SetupArrowScaleAnchor();
+            }
         }
 
         private void OnEnable()
@@ -78,7 +87,7 @@ namespace DragonRescue.Entities.Board
             };
 
             if (_arrowSprite != null)
-                _arrowSprite.transform.rotation = Quaternion.Euler(0, 0, angle);
+                _arrowSprite.transform.localRotation = Quaternion.Euler(0, 0, angle);
         }
 
         private void FitToCells(Vector2Int size, float cellSize, Direction direction)
@@ -95,7 +104,7 @@ namespace DragonRescue.Entities.Board
             float scaleY = (targetHeight / spriteSize.y) * 0.95f;
             transform.localScale = new Vector3(scaleX, scaleY, 1f);
 
-            FitArrowToBlock(scaleX, scaleY);
+            FitArrowToBlock(scaleX, scaleY, targetHeight);
         }
 
         private Vector2 GetVisualFill(Vector2Int size, Direction direction)
@@ -112,16 +121,43 @@ namespace DragonRescue.Entities.Board
             return _singleDiagonalFill;
         }
 
-        private void FitArrowToBlock(float blockScaleX, float blockScaleY)
+        private void SetupArrowScaleAnchor()
         {
-            if (_arrowSprite == null || blockScaleX <= 0f || blockScaleY <= 0f)
+            if (_arrowScaleAnchor != null)
                 return;
 
-            float inverseCompensation = Mathf.Min(blockScaleX, blockScaleY);
+            Transform arrowTransform = _arrowSprite.transform;
+            GameObject anchor = new GameObject("ArrowScaleAnchor");
+            _arrowScaleAnchor = anchor.transform;
+            _arrowScaleAnchor.SetParent(transform, false);
+            _arrowScaleAnchor.localPosition = arrowTransform.localPosition;
+            _arrowScaleAnchor.localRotation = Quaternion.identity;
+            _arrowScaleAnchor.localScale = Vector3.one;
+
+            arrowTransform.SetParent(_arrowScaleAnchor, false);
+            arrowTransform.localPosition = Vector3.zero;
+            arrowTransform.localRotation = Quaternion.identity;
+            arrowTransform.localScale = _arrowBaseLocalScale;
+        }
+
+        private void FitArrowToBlock(float blockScaleX, float blockScaleY, float targetBlockHeight)
+        {
+            if (_arrowSprite == null || _arrowSprite.sprite == null ||
+                _arrowScaleAnchor == null || blockScaleX <= 0f || blockScaleY <= 0f || targetBlockHeight <= 0f)
+                return;
+
+            _arrowScaleAnchor.localScale = new Vector3(1f / blockScaleX, 1f / blockScaleY, 1f);
+
+            float spriteHeight = _arrowSprite.sprite.bounds.size.y;
+            if (spriteHeight <= 0f)
+                return;
+
+            float targetArrowHeight = targetBlockHeight * _arrowWorldHeightRatio;
+            float uniformScale = targetArrowHeight / spriteHeight;
             _arrowSprite.transform.localScale = new Vector3(
-                inverseCompensation / blockScaleX,
-                inverseCompensation / blockScaleY,
-                1f);
+                Mathf.Sign(_arrowBaseLocalScale.x) * uniformScale,
+                Mathf.Sign(_arrowBaseLocalScale.y) * uniformScale,
+                _arrowBaseLocalScale.z);
         }
 
         private void OnBlockFeedbackRequested(BlockFeedbackPayload payload)

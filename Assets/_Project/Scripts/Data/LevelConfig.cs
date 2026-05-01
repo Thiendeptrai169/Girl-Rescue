@@ -22,11 +22,13 @@ namespace DragonRescue.Data
 
         [Header("Dragon")]
         public DragonMovementType dragonMovementType = DragonMovementType.Linear;
-        [Tooltip("Viewport coords (0 to 1). X=0 is left, Y=0 is bottom.")]
+        [Tooltip("Viewport coords for the dragon's initial spawn. Values may extend slightly outside 0..1 for hidden offscreen entry.")]
+        public Vector2 dragonSpawnViewport = new Vector2(1.2f, 0.88f);
+        [Tooltip("Viewport coords. X=0 is left, Y=0 is bottom. Dragon values may extend slightly outside 0..1 for offscreen entry/exit.")]
         public Vector2 dragonStartViewport = new Vector2(0.88f, 0.68f);
-        [Tooltip("Viewport coords (0 to 1). X=0 is left, Y=0 is bottom.")]
+        [Tooltip("Viewport coords. X=0 is left, Y=0 is bottom. Dragon values may extend slightly outside 0..1 for offscreen entry/exit.")]
         public Vector2 dragonEndViewport = new Vector2(0.22f, 0.68f);
-        [Tooltip("Viewport coords (0 to 1). Used when movement type is Waypoint.")]
+        [Tooltip("Viewport coords. Used when movement type is Waypoint. Values may extend slightly outside 0..1 for offscreen entry/exit.")]
         public Vector2[] dragonPathWaypointsViewport;
         public float dragonMoveSpeed = 0.05f;
         public float loseDistance = 0.5f;
@@ -79,15 +81,18 @@ namespace DragonRescue.Data
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            // Restrict viewport values to be between 0 (bottom/left) and 1 (top/right)
+            // Dragon viewport values can extend slightly outside the camera for offscreen entry.
             princessViewport.x = Mathf.Clamp01(princessViewport.x);
             princessViewport.y = Mathf.Clamp01(princessViewport.y);
 
-            dragonStartViewport.x = Mathf.Clamp01(dragonStartViewport.x);
-            dragonStartViewport.y = Mathf.Clamp01(dragonStartViewport.y);
+            dragonSpawnViewport.x = Mathf.Clamp(dragonSpawnViewport.x, -0.25f, 1.25f);
+            dragonSpawnViewport.y = Mathf.Clamp(dragonSpawnViewport.y, -0.25f, 1.25f);
 
-            dragonEndViewport.x = Mathf.Clamp01(dragonEndViewport.x);
-            dragonEndViewport.y = Mathf.Clamp01(dragonEndViewport.y);
+            dragonStartViewport.x = Mathf.Clamp(dragonStartViewport.x, -0.25f, 1.25f);
+            dragonStartViewport.y = Mathf.Clamp(dragonStartViewport.y, -0.25f, 1.25f);
+
+            dragonEndViewport.x = Mathf.Clamp(dragonEndViewport.x, -0.25f, 1.25f);
+            dragonEndViewport.y = Mathf.Clamp(dragonEndViewport.y, -0.25f, 1.25f);
             dragonRecoilProgress = Mathf.Max(0f, dragonRecoilProgress);
             dragonRecoilPauseSeconds = Mathf.Max(0f, dragonRecoilPauseSeconds);
             boardViewport.x = Mathf.Clamp01(boardViewport.x);
@@ -100,8 +105,8 @@ namespace DragonRescue.Data
             {
                 for (int i = 0; i < dragonPathWaypointsViewport.Length; i++)
                 {
-                    dragonPathWaypointsViewport[i].x = Mathf.Clamp01(dragonPathWaypointsViewport[i].x);
-                    dragonPathWaypointsViewport[i].y = Mathf.Clamp01(dragonPathWaypointsViewport[i].y);
+                    dragonPathWaypointsViewport[i].x = Mathf.Clamp(dragonPathWaypointsViewport[i].x, -0.25f, 1.25f);
+                    dragonPathWaypointsViewport[i].y = Mathf.Clamp(dragonPathWaypointsViewport[i].y, -0.25f, 1.25f);
                 }
             }
 

@@ -59,6 +59,12 @@ namespace DragonRescue.Booster
 
             if (ActiveSelectionMode == type)
             {
+                if (type == BoosterType.Remove)
+                {
+                    DebugSystem.Log(DebugCategory.Booster, "Remove selection is committed until a block is selected.", this);
+                    return;
+                }
+
                 // Toggle off if already selected
                 ActiveSelectionMode = null;
                 GameEvents.FireBoosterSelectionModeChanged(null);

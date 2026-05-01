@@ -27,8 +27,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.04, y: 0.04, z: 0.04}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4998146978930493442}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 6
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: -765150924802650856, guid: dbe891ecce76e3d4ebfd7bea58aa1707, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -244,7 +244,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07133f55b52423f4488e34c59e40e990, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Board.BlockIdentity
-  _visual: {fileID: 5534917057129164911}
 --- !u!114 &5534917057129164911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,5 +256,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4928408d9bd4636489a724346b4c0fb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Board.BlockVisual
+  _identity: {fileID: 0}
   _blockSprite: {fileID: 8714044186241358933}
   _arrowSprite: {fileID: 487796077780413049}
+  _blockedFeedbackDuration: 0.15
+  _singleHorizontalFill: {x: 0.95, y: 0.68}
+  _singleVerticalFill: {x: 0.68, y: 0.95}
+  _singleDiagonalFill: {x: 0.82, y: 0.82}
