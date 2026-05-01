@@ -12,6 +12,8 @@ namespace DragonRescue.Entities.Cannon
         public static SlotBarManager Instance { get; private set; }
 
         private CannonSlot[] _slots;
+        private float _lastSlotFullWarningTime = -999f;
+        private const float SlotFullWarningCooldown = 1f;
 
         private void Awake()
         {
@@ -50,22 +52,34 @@ namespace DragonRescue.Entities.Cannon
         {
             GameEvents.OnBlockEscaped -= OnBlockEscaped;
             GameEvents.RequestSlotCapacity -= CanAcceptBlock;
+
+            if (Instance == this)
+                Instance = null;
         }
 
         private void OnBlockEscaped(BlockEscapedPayload payload)
         {
             if (payload.Ammo <= 0) return;
 
+            if (!TryLoadBlock(payload.Color, payload.Ammo))
+                LogSlotFullWarning("No empty unlocked cannon slot available.");
+        }
+
+        public bool TryLoadBlock(CannonColor color, int ammo)
+        {
+            if (ammo <= 0) return true;
+
             CannonSlot targetSlot = FindEmptyUnlockedSlot();
 
             if (targetSlot != null)
             {
-                targetSlot.LoadCannon(payload.Color, payload.Ammo);
+                DebugSystem.Log(DebugCategory.Cannon, $"TryLoadBlock accepted color={color} ammo={ammo} slot={targetSlot.Index}", targetSlot);
+                targetSlot.LoadCannon(color, ammo);
+                return true;
             }
-            else
-            {
-                Debug.LogWarning("[SlotBarManager] No empty slots available! Block wasted.");
-            }
+
+            LogSlotFullWarning($"TryLoadBlock failed no empty unlocked slot for color={color} ammo={ammo}. slots={BuildDebugState()}");
+            return false;
         }
 
         public bool CanAcceptBlock(int ammo)
@@ -86,6 +100,30 @@ namespace DragonRescue.Entities.Cannon
             }
 
             return null;
+        }
+
+        public string BuildDebugState()
+        {
+            if (_slots == null)
+                return "slots=null";
+
+            string result = "";
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                CannonSlot slot = _slots[i];
+                if (result.Length > 0)
+                    result += " | ";
+
+                if (slot == null)
+                {
+                    result += $"{i}:null";
+                    continue;
+                }
+
+                result += $"{i}:unlocked={slot.IsUnlocked},loaded={slot.IsLoaded},color={slot.CurrentColor},ammo={slot.RemainingAmmo}";
+            }
+
+            return result;
         }
 
         public void ClearAllSlots()
@@ -110,6 +148,15 @@ namespace DragonRescue.Entities.Cannon
                 }
             }
             return false;
+        }
+
+        private void LogSlotFullWarning(string message)
+        {
+            if (Time.unscaledTime - _lastSlotFullWarningTime < SlotFullWarningCooldown)
+                return;
+
+            _lastSlotFullWarningTime = Time.unscaledTime;
+            DebugSystem.Warning(DebugCategory.Cannon, message, this);
         }
     }
 }

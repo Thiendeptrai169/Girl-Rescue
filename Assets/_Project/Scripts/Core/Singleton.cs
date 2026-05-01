@@ -17,7 +17,7 @@ namespace DragonRescue.Core
         {
             if (Instance != null && Instance != this)
             {
-                Debug.LogWarning($"[Singleton] Duplicate instance of {typeof(T).Name} detected. Destroying duplicate.");
+                DebugSystem.Warning(DebugCategory.Game, $"Duplicate instance of {typeof(T).Name} detected. Destroying duplicate.", this);
                 Destroy(gameObject);
                 return;
             }

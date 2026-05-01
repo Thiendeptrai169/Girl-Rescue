@@ -17,17 +17,23 @@ namespace DragonRescue.Entities.Dragon
         private DragonSegmentIdentity[] _segments;
         private float _spacing;
         private bool _isMoving;
+        private DragonEndpointVisual _endpointVisual;
 
         // ── Public API ───────────────────────────────────────────────────────
         public override void Init(LevelConfig config, WorldLayout worldLayout, DragonSegmentIdentity[] segments, float spacing)
         {
-            _startPos  = worldLayout.ViewportToWorld(config.dragonStartViewport);
+            _startPos  = worldLayout.ViewportToWorld(config.dragonSpawnViewport);
             _endPos    = worldLayout.ViewportToWorld(config.dragonEndViewport);
             _moveSpeed = config.dragonMoveSpeed;
             _segments  = segments;
             _spacing   = spacing;
             Progress   = 0f;
             _isMoving  = true;
+            _endpointVisual = GetComponent<DragonEndpointVisual>();
+            if (_endpointVisual == null)
+                _endpointVisual = gameObject.AddComponent<DragonEndpointVisual>();
+            _endpointVisual.Init(_spacing);
+            ConfigureRecoil(config);
 
             transform.position = _startPos;
             UpdateSegmentOffsets();
@@ -36,20 +42,33 @@ namespace DragonRescue.Entities.Dragon
         public override void StopMoving()   => _isMoving = false;
         public override void ResumeMoving() => _isMoving = true;
 
+        public override void RefreshVisuals()
+        {
+            UpdateRootPosition();
+            UpdateSegmentOffsets();
+        }
+
         // ── Lifecycle ────────────────────────────────────────────────────────
         private void Update()
         {
             if (!_isMoving) return;
 
+            if (IsRecoilPausing())
+            {
+                UpdateRootPosition();
+                UpdateSegmentOffsets();
+                return;
+            }
+
             Progress += _moveSpeed * Time.deltaTime;
-            transform.position = Vector3.Lerp(_startPos, _endPos, Progress);
+            UpdateRootPosition();
             UpdateSegmentOffsets();
 
             if (HasAliveSegmentReachedEnd())
             {
                 Progress = 1f;
                 _isMoving = false;
-                Debug.Log("[LinearDragonMovement] Dragon reached princess!");
+                DebugSystem.Log(DebugCategory.Dragon, "Dragon reached princess!", this);
                 GameEvents.FireLevelLose();
             }
         }
@@ -66,6 +85,15 @@ namespace DragonRescue.Entities.Dragon
                 _segments[i].transform.localPosition = Vector3.right * (aliveIndex * _spacing);
                 aliveIndex++;
             }
+
+            Vector3 direction = (_endPos - _startPos).normalized;
+            _endpointVisual.SetHeadPosition(transform.position, direction);
+            _endpointVisual.SetTailPosition(transform.TransformPoint(Vector3.right * (aliveIndex * _spacing)), direction);
+        }
+
+        private void UpdateRootPosition()
+        {
+            transform.position = Vector3.Lerp(_startPos, _endPos, Progress);
         }
 
         private bool HasAliveSegmentReachedEnd()
@@ -90,7 +118,7 @@ namespace DragonRescue.Entities.Dragon
         [ContextMenu("Debug / Log Dragon Progress")]
         private void DebugLogProgress()
         {
-            Debug.Log($"[LinearDragonMovement] Progress: {Progress:P1} | Moving: {_isMoving}");
+            DebugSystem.Log(DebugCategory.Dragon, $"Linear progress: {Progress:P1} | Moving: {_isMoving}", this);
         }
     }
 }

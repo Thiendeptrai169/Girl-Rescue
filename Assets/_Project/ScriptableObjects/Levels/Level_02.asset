@@ -1,0 +1,283 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e487e467fd366114085005aba2166a71, type: 3}
+  m_Name: Level_02
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
+  levelId: level_02
+  levelNumber: 2
+  princessViewport: {x: 0.18, y: 0.66}
+  princessHearts: 1
+  dragonMovementType: 1
+  dragonSpawnViewport: {x: 1.2, y: 0.88}
+  dragonStartViewport: {x: 0.9, y: 0.7}
+  dragonEndViewport: {x: 0.2, y: 0.65}
+  dragonPathWaypointsViewport:
+  - {x: 0.98, y: 0.88}
+  - {x: 0.08, y: 0.88}
+  - {x: 0.08, y: 0.76}
+  - {x: 0.92, y: 0.76}
+  - {x: 0.92, y: 0.66}
+  - {x: 0.18, y: 0.66}
+  dragonMoveSpeed: 0.03
+  loseDistance: 0.5
+  dragonSegments:
+  - color: 5
+    count: 4
+  - color: 1
+    count: 4
+  - color: 5
+    count: 4
+  - color: 4
+    count: 4
+  - color: 5
+    count: 4
+  - color: 7
+    count: 4
+  - color: 1
+    count: 4
+  - color: 4
+    count: 4
+  - color: 5
+    count: 4
+  - color: 7
+    count: 4
+  - color: 1
+    count: 4
+  - color: 4
+    count: 4
+  - color: 5
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 5
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 1
+    count: 6
+  - color: 2
+    count: 5
+  - color: 3
+    count: 4
+  - color: 4
+    count: 3
+  - color: 5
+    count: 5
+  - color: 6
+    count: 3
+  - color: 7
+    count: 3
+  dragonRecoilProgress: 0.025
+  dragonRecoilPauseSeconds: 0.08
+  totalSlotCount: 6
+  unlockedSlotCount: 4
+  boardViewport: {x: 0.5, y: 0.348125}
+  boardWidthRatio: 0.84
+  boardHeightRatio: 0.34375
+  boardSize: {x: 12, y: 5}
+  blocks:
+  - id: L02_B_0_0
+    position: {x: 0, y: 0}
+    size: {x: 3, y: 1}
+    color: 5
+    direction: 2
+    ammo: 6
+  - id: L02_B_1_0
+    position: {x: 3, y: 0}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 2
+    ammo: 5
+  - id: L02_B_3_0
+    position: {x: 5, y: 0}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 4
+  - id: L02_B_5_0
+    position: {x: 7, y: 0}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 2
+    ammo: 3
+  - id: L02_B_1_1
+    position: {x: 8, y: 0}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 5
+  - id: L02_B_3_1
+    position: {x: 10, y: 0}
+    size: {x: 2, y: 1}
+    color: 6
+    direction: 2
+    ammo: 5
+  - id: L02_B_5_1
+    position: {x: 0, y: 1}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 3
+    ammo: 5
+  - id: L02_B_1_2
+    position: {x: 2, y: 1}
+    size: {x: 2, y: 1}
+    color: 5
+    direction: 3
+    ammo: 5
+  - id: L02_B_3_2
+    position: {x: 4, y: 1}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 3
+    ammo: 5
+  - id: L02_B_5_2
+    position: {x: 6, y: 1}
+    size: {x: 1, y: 1}
+    color: 5
+    direction: 3
+    ammo: 3
+  - id: L02_B_1_3
+    position: {x: 7, y: 1}
+    size: {x: 3, y: 1}
+    color: 4
+    direction: 3
+    ammo: 6
+  - id: L02_B_3_3
+    position: {x: 10, y: 1}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 3
+    ammo: 5
+  - id: L02_B_5_3
+    position: {x: 0, y: 2}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 2
+    ammo: 3
+  - id: L02_B_0_4
+    position: {x: 1, y: 2}
+    size: {x: 2, y: 1}
+    color: 2
+    direction: 2
+    ammo: 4
+  - id: L02_B_2_4
+    position: {x: 3, y: 2}
+    size: {x: 2, y: 1}
+    color: 5
+    direction: 2
+    ammo: 4
+  - id: L02_B_4_4
+    position: {x: 5, y: 2}
+    size: {x: 3, y: 1}
+    color: 6
+    direction: 2
+    ammo: 6
+  - id: L02_B_6_4
+    position: {x: 8, y: 2}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 4
+  - id: L02_B_1_5
+    position: {x: 10, y: 2}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 2
+    ammo: 3
+  - id: L02_B_3_5
+    position: {x: 0, y: 3}
+    size: {x: 2, y: 1}
+    color: 5
+    direction: 3
+    ammo: 5
+  - id: L02_B_6_5
+    position: {x: 2, y: 3}
+    size: {x: 3, y: 1}
+    color: 7
+    direction: 3
+    ammo: 6
+  - id: L02_B_1_6
+    position: {x: 5, y: 3}
+    size: {x: 3, y: 1}
+    color: 5
+    direction: 3
+    ammo: 6
+  - id: L02_B_3_6
+    position: {x: 8, y: 3}
+    size: {x: 2, y: 1}
+    color: 3
+    direction: 3
+    ammo: 5
+  - id: L02_B_5_6
+    position: {x: 10, y: 3}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 3
+    ammo: 4
+  - id: L02_B_2_7
+    position: {x: 0, y: 4}
+    size: {x: 2, y: 1}
+    color: 4
+    direction: 2
+    ammo: 5
+  - id: L02_B_5_7
+    position: {x: 2, y: 4}
+    size: {x: 2, y: 1}
+    color: 1
+    direction: 2
+    ammo: 5
+  slotBarViewportY: 0.55
+  slotBarBottomPaddingViewport: 0.03
+  boosterBarHeightPixels: 300
+  uiReferenceHeightPixels: 1920
+  boosterBarTopPaddingViewport: 0.02
+  defaultFireRate: 0.95
+  defaultDamage: 1
+  defaultProjectileSpeed: 5.5
+  defaultFireRange: 7.8
+  boosters:
+  - type: 0
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 1
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 2
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 3
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 8
+    multiplier: 1.6

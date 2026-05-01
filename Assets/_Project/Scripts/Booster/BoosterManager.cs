@@ -53,12 +53,18 @@ namespace DragonRescue.Booster
         {
             if (!_charges.ContainsKey(type) || _charges[type] <= 0)
             {
-                Debug.LogWarning($"[BoosterManager] No charges left for {type}");
+                DebugSystem.Warning(DebugCategory.Booster, $"No charges left for {type}", this);
                 return;
             }
 
             if (ActiveSelectionMode == type)
             {
+                if (type == BoosterType.Remove)
+                {
+                    DebugSystem.Log(DebugCategory.Booster, "Remove selection is committed until a block is selected.", this);
+                    return;
+                }
+
                 // Toggle off if already selected
                 ActiveSelectionMode = null;
                 GameEvents.FireBoosterSelectionModeChanged(null);
@@ -80,7 +86,7 @@ namespace DragonRescue.Booster
                     }
                     else
                     {
-                        Debug.Log("[BoosterManager] No locked slots available to unlock. Charge saved.");
+                        DebugSystem.Log(DebugCategory.Booster, "No locked slots available to unlock. Charge saved.", this);
                     }
                     break;
 
@@ -92,7 +98,7 @@ namespace DragonRescue.Booster
                     }
                     else
                     {
-                         Debug.Log("[BoosterManager] Sorting did not apply (e.g. only 1 color left). Charge saved.");
+                        DebugSystem.Log(DebugCategory.Booster, "Sorting did not apply (e.g. only 1 color left). Charge saved.", this);
                     }
                     break;
 
@@ -144,7 +150,7 @@ namespace DragonRescue.Booster
             StopFurtherEffect();
             _furtherCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
 
-            Debug.Log($"[BoosterManager] Further activated: Range x{multiplier} for {duration}s");
+            DebugSystem.Log(DebugCategory.Booster, $"Further activated: Range x{multiplier} for {duration}s", this);
             FireRangeMultiplier = multiplier;
 
             try
@@ -156,7 +162,7 @@ namespace DragonRescue.Booster
                 return;
             }
 
-            Debug.Log("[BoosterManager] Further expired: Range back to normal");
+            DebugSystem.Log(DebugCategory.Booster, "Further expired: Range back to normal", this);
             FireRangeMultiplier = 1f;
         }
 

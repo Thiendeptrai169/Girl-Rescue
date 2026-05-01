@@ -5,6 +5,8 @@ using DragonRescue.Data;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Entities.Board;
 using DragonRescue.Entities.Cannon;
+using DragonRescue.Entities.Princess;
+using DragonRescue.Entities.Projectile;
 using DragonRescue.Booster;
 
 namespace DragonRescue.Core
@@ -43,22 +45,42 @@ namespace DragonRescue.Core
         // ── Public API ────────────────────────────────────────────────────────
         public void InitLevel(LevelConfig config)
         {
+            if (config == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "InitLevel failed: LevelConfig is null.", this);
+                return;
+            }
+
+            DebugSystem.Log(DebugCategory.Level, $"InitLevel requested levelNumber={config.levelNumber} id={config.levelId}", this);
             InitLevelAsync(config, this.GetCancellationTokenOnDestroy()).Forget();
         }
 
         public void ClearLevel()
         {
+            DebugSystem.Log(
+                DebugCategory.Level,
+                $"ClearLevel begin segments={_activeSegments.Count} hasBoard={_boardInstance != null} hasSlotBar={_slotBarInstance != null} hasDragon={_dragonInstance != null} hasPrincess={_princessInstance != null}",
+                this);
+
             // Release pooled segments
             foreach (var seg in _activeSegments)
             {
                 if (seg != null)
+                {
+                    DebugSystem.Log(DebugCategory.Pooling, $"Release dragon segment {seg.name}", seg);
                     PoolManager.Instance.Release(_dragonSegmentPrefab, seg);
+                }
             }
             _activeSegments.Clear();
             // Clear Board
             if (_boardInstance != null)
             {
-                _boardInstance.GetComponent<BoardManager>().ClearBoard();
+                DebugSystem.Log(DebugCategory.Level, "Clearing board instance.", _boardInstance);
+                if (_boardInstance.TryGetComponent(out BoardManager boardManager))
+                    boardManager.ClearBoard();
+                else
+                    DebugSystem.AlwaysError(DebugCategory.Level, "ClearLevel found board instance without BoardManager. Check for missing script on board prefab.", _boardInstance);
+
                 Destroy(_boardInstance);
                 _boardInstance = null;
             }
@@ -66,7 +88,12 @@ namespace DragonRescue.Core
             // Clear Slot Bar
             if (_slotBarInstance != null)
             {
-                _slotBarInstance.GetComponent<SlotBarManager>().ClearAllSlots();
+                DebugSystem.Log(DebugCategory.Level, "Clearing slot bar instance.", _slotBarInstance);
+                if (_slotBarInstance.TryGetComponent(out SlotBarManager slotBarManager))
+                    slotBarManager.ClearAllSlots();
+                else
+                    DebugSystem.AlwaysError(DebugCategory.Level, "ClearLevel found slot bar instance without SlotBarManager. Check for missing script on slot bar prefab.", _slotBarInstance);
+
                 Destroy(_slotBarInstance);
                 _slotBarInstance = null;
             }
@@ -74,6 +101,7 @@ namespace DragonRescue.Core
             // Destroy dragon root
             if (_dragonInstance != null)
             {
+                DebugSystem.Log(DebugCategory.Level, "Destroying dragon instance.", _dragonInstance);
                 Destroy(_dragonInstance);
                 _dragonInstance = null;
             }
@@ -81,20 +109,28 @@ namespace DragonRescue.Core
             // Destroy princess
             if (_princessInstance != null)
             {
+                DebugSystem.Log(DebugCategory.Level, "Destroying princess instance.", _princessInstance);
                 Destroy(_princessInstance);
                 _princessInstance = null;
             }
 
             // Clear stale event subscriptions
+            DebugSystem.Log(DebugCategory.Level, "Clearing level-scoped GameEvents.", this);
             GameEvents.ClearLevelEvents();
 
-            Debug.Log("[LevelManager] Level cleared.");
+            DebugSystem.Log(DebugCategory.Level, "Level cleared.", this);
         }
 
         // ── Private — Async Init ──────────────────────────────────────────────
         private async UniTask InitLevelAsync(LevelConfig config, System.Threading.CancellationToken ct)
         {
-            Debug.Log($"[LevelManager] Loading Level {config.levelNumber}: {config.levelId}");
+            DebugSystem.Log(DebugCategory.Level, $"Loading Level {config.levelNumber}: {config.levelId}", this);
+
+            if (!ValidateLevelSetup())
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, $"Level {config.levelNumber} load aborted because required scene/prefab references are invalid.", this);
+                return;
+            }
 
             SpawnPrincess(config);
             SpawnDragon(config);
@@ -104,8 +140,9 @@ namespace DragonRescue.Core
 
             await UniTask.Yield(ct);
 
-            Debug.Log($"[LevelManager] Level {config.levelNumber} ready.");
+            DebugSystem.Log(DebugCategory.Level, $"Level {config.levelNumber} ready.", this);
             OnLevelReady?.Invoke(config);
+            GameEvents.FireLevelStarted(config);
         }
 
         // ── Private — Spawning ────────────────────────────────────────────────
@@ -113,6 +150,7 @@ namespace DragonRescue.Core
         {
             if (_worldLayout == null) return;
             Vector3 pos = _worldLayout.ViewportToWorld(config.princessViewport);
+            DebugSystem.Log(DebugCategory.Level, $"SpawnPrincess viewport={config.princessViewport} world={pos}", this);
             _princessInstance = Instantiate(_princessPrefab, pos, Quaternion.identity);
             _princessInstance.name = "Princess";
         }
@@ -121,11 +159,17 @@ namespace DragonRescue.Core
         {
             if (_worldLayout == null) return;
             // Spawn dragon root GO with DragonManager
-            Vector3 startPos = _worldLayout.ViewportToWorld(config.dragonStartViewport);
-            _dragonInstance = Instantiate(_dragonPrefab, startPos, Quaternion.identity);
+            Vector3 spawnPos = _worldLayout.ViewportToWorld(config.dragonSpawnViewport);
+            DebugSystem.Log(DebugCategory.Level, $"SpawnDragon spawnViewport={config.dragonSpawnViewport} world={spawnPos} movement={config.dragonMovementType}", this);
+            _dragonInstance = Instantiate(_dragonPrefab, spawnPos, Quaternion.identity);
             _dragonInstance.name = "Dragon";
 
             var dragonManager = _dragonInstance.GetComponent<DragonManager>();
+            if (dragonManager == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "Dragon prefab instance is missing DragonManager. Level load cannot continue.", _dragonInstance);
+                return;
+            }
 
             DragonMovementBase movementStrategy = config.dragonMovementType switch
             {
@@ -151,10 +195,17 @@ namespace DragonRescue.Core
                     segGO.name = $"Segment_{globalIndex}_{segData.color}";
 
                     var identity = segGO.GetComponent<DragonSegmentIdentity>();
+                    if (identity == null)
+                    {
+                        DebugSystem.AlwaysError(DebugCategory.Level, "Dragon segment prefab instance is missing DragonSegmentIdentity. Check for missing script on the segment prefab.", segGO);
+                        continue;
+                    }
+
                     identity.Init(segData.color, 1);
 
                     segmentIdentities.Add(identity);
                     _activeSegments.Add(segGO);
+                    DebugSystem.Log(DebugCategory.Level, $"SpawnDragonSegment index={globalIndex} color={segData.color}", segGO);
 
                     globalIndex++;
                 }
@@ -175,11 +226,18 @@ namespace DragonRescue.Core
                 config.boardWidthRatio,
                 config.boardHeightRatio
             );
+            DebugSystem.Log(DebugCategory.Level, $"SpawnBoard viewport={config.boardViewport} size={config.boardSize} cellSize={boardLayout.CellSize:0.###} origin={boardLayout.Origin}", this);
 
             _boardInstance = Instantiate(_boardPrefab, Vector3.zero, Quaternion.identity);
             _boardInstance.name = "BoardManager";
 
             var boardManager = _boardInstance.GetComponent<BoardManager>();
+            if (boardManager == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "Board prefab instance is missing BoardManager. Board input will not work until this prefab is fixed.", _boardInstance);
+                return;
+            }
+
             boardManager.Init(config, boardLayout, _worldLayout.MainCamera);
         }
 
@@ -189,8 +247,15 @@ namespace DragonRescue.Core
 
             _slotBarInstance = Instantiate(_slotBarPrefab, Vector3.zero, Quaternion.identity);
             _slotBarInstance.name = "SlotBarManager";
+            DebugSystem.Log(DebugCategory.Level, $"SpawnSlotBar totalSlots={config.totalSlotCount} unlocked={config.unlockedSlotCount}", _slotBarInstance);
 
             var slotBarManager = _slotBarInstance.GetComponent<SlotBarManager>();
+            if (slotBarManager == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "Slot bar prefab instance is missing SlotBarManager. Cannon slots will not work until this prefab is fixed.", _slotBarInstance);
+                return;
+            }
+
             slotBarManager.Init(config, _worldLayout, _projectilePrefab);
         }
 
@@ -198,10 +263,12 @@ namespace DragonRescue.Core
         {
             if (BoosterManager.Instance == null)
             {
+                DebugSystem.Log(DebugCategory.Level, "Creating BoosterManager runtime object.", this);
                 var boosterGO = new GameObject("BoosterManager");
                 boosterGO.AddComponent<BoosterManager>();
             }
 
+            DebugSystem.Log(DebugCategory.Level, $"SetupBoosters count={(config.boosters != null ? config.boosters.Count : 0)}", this);
             BoosterManager.Instance.Init(config);
         }
 
@@ -209,7 +276,53 @@ namespace DragonRescue.Core
         [ContextMenu("Debug / Log Pool Counts")]
         private void DebugLogCounts()
         {
-            Debug.Log($"[LevelManager] Segments: {_activeSegments.Count}");
+            DebugSystem.Log(DebugCategory.Level, $"Segments: {_activeSegments.Count}", this);
+        }
+
+        private bool ValidateLevelSetup()
+        {
+            bool isValid = true;
+
+            if (_worldLayout == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "LevelManager missing WorldLayout reference.", this);
+                isValid = false;
+            }
+            else if (_worldLayout.MainCamera == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, "WorldLayout missing MainCamera reference.", _worldLayout);
+                isValid = false;
+            }
+
+            isValid &= ValidatePrefabComponent<PrincessIdentity>(_princessPrefab, "Princess Prefab");
+            isValid &= ValidatePrefabComponent<DragonManager>(_dragonPrefab, "Dragon Prefab");
+            isValid &= ValidatePrefabComponent<DragonSegmentIdentity>(_dragonSegmentPrefab, "Dragon Segment Prefab");
+            isValid &= ValidatePrefabComponent<DragonSegmentVisual>(_dragonSegmentPrefab, "Dragon Segment Prefab");
+            isValid &= ValidatePrefabComponent<BoardManager>(_boardPrefab, "Board Prefab");
+            if (_boardPrefab != null && _boardPrefab.TryGetComponent(out BoardManager boardManager))
+                isValid &= boardManager.ValidateSetup();
+
+            isValid &= ValidatePrefabComponent<SlotBarManager>(_slotBarPrefab, "Slot Bar Prefab");
+            isValid &= ValidatePrefabComponent<ProjectileIdentity>(_projectilePrefab, "Projectile Prefab");
+            isValid &= ValidatePrefabComponent<ProjectileMovement>(_projectilePrefab, "Projectile Prefab");
+            isValid &= ValidatePrefabComponent<ProjectileHitResolver>(_projectilePrefab, "Projectile Prefab");
+
+            return isValid;
+        }
+
+        private bool ValidatePrefabComponent<T>(GameObject prefab, string label) where T : Component
+        {
+            if (prefab == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Level, $"{label} is not assigned on LevelManager.", this);
+                return false;
+            }
+
+            if (prefab.GetComponent<T>() != null)
+                return true;
+
+            DebugSystem.AlwaysError(DebugCategory.Level, $"{label} is missing required component {typeof(T).Name}. Check for missing script on prefab '{prefab.name}'.", prefab);
+            return false;
         }
     }
 }

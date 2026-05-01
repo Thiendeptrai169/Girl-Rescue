@@ -1,0 +1,467 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e487e467fd366114085005aba2166a71, type: 3}
+  m_Name: Level_05
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
+  levelId: level_05
+  levelNumber: 5
+  princessViewport: {x: 0.15, y: 0.66}
+  princessHearts: 1
+  dragonMovementType: 1
+  dragonSpawnViewport: {x: 1.2, y: 0.88}
+  dragonStartViewport: {x: 0.96, y: 0.72}
+  dragonEndViewport: {x: 0.15, y: 0.66}
+  dragonPathWaypointsViewport:
+  - {x: 0.98, y: 0.88}
+  - {x: 0.05, y: 0.88}
+  - {x: 0.05, y: 0.76}
+  - {x: 0.95, y: 0.76}
+  - {x: 0.95, y: 0.7}
+  - {x: 0.15, y: 0.66}
+  dragonMoveSpeed: 0.03
+  loseDistance: 0.38
+  dragonSegments:
+  - color: 4
+    count: 4
+  - color: 1
+    count: 4
+  - color: 4
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 4
+  - color: 2
+    count: 4
+  - color: 3
+    count: 4
+  - color: 4
+    count: 4
+  - color: 6
+    count: 4
+  - color: 7
+    count: 4
+  - color: 0
+    count: 4
+  - color: 1
+    count: 5
+  - color: 2
+    count: 4
+  - color: 3
+    count: 6
+  - color: 4
+    count: 5
+  - color: 6
+    count: 3
+  - color: 7
+    count: 3
+  dragonRecoilProgress: 0.025
+  dragonRecoilPauseSeconds: 0.08
+  totalSlotCount: 6
+  unlockedSlotCount: 4
+  boardViewport: {x: 0.5, y: 0.348125}
+  boardWidthRatio: 0.84
+  boardHeightRatio: 0.34375
+  boardSize: {x: 8, y: 7}
+  blocks:
+  - id: L05_B_0_0_0
+    position: {x: 0, y: 0}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 2
+    ammo: 4
+  - id: L05_B_1_0_1
+    position: {x: 1, y: 0}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 4
+    ammo: 4
+  - id: L05_B_2_0_2
+    position: {x: 2, y: 0}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 4
+    ammo: 5
+  - id: L05_B_3_0_3
+    position: {x: 3, y: 0}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 4
+    ammo: 4
+  - id: L05_B_4_0_4
+    position: {x: 4, y: 0}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 5
+    ammo: 4
+  - id: L05_B_5_0_5
+    position: {x: 5, y: 0}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 5
+    ammo: 5
+  - id: L05_B_6_0_6
+    position: {x: 6, y: 0}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 5
+    ammo: 3
+  - id: L05_B_0_1_7
+    position: {x: 0, y: 1}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 6
+    ammo: 5
+  - id: L05_B_1_1_8
+    position: {x: 1, y: 1}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 5
+    ammo: 4
+  - id: L05_B_2_1_9
+    position: {x: 2, y: 1}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 6
+    ammo: 4
+  - id: L05_B_3_1_10
+    position: {x: 3, y: 1}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 3
+    ammo: 3
+  - id: L05_B_4_1_11
+    position: {x: 4, y: 1}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 5
+    ammo: 5
+  - id: L05_B_5_1_12
+    position: {x: 5, y: 1}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 4
+    ammo: 5
+  - id: L05_B_6_1_13
+    position: {x: 6, y: 1}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 4
+    ammo: 4
+  - id: L05_B_7_1_14
+    position: {x: 7, y: 1}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 5
+    ammo: 3
+  - id: L05_B_0_2_15
+    position: {x: 0, y: 2}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 4
+    ammo: 4
+  - id: L05_B_1_2_16
+    position: {x: 1, y: 2}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 0
+    ammo: 3
+  - id: L05_B_2_2_17
+    position: {x: 2, y: 2}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 5
+    ammo: 5
+  - id: L05_B_5_2_18
+    position: {x: 5, y: 2}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 4
+    ammo: 4
+  - id: L05_B_6_2_19
+    position: {x: 6, y: 2}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 4
+    ammo: 5
+  - id: L05_B_7_2_20
+    position: {x: 7, y: 2}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 7
+    ammo: 4
+  - id: L05_B_0_3_21
+    position: {x: 0, y: 3}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 5
+    ammo: 5
+  - id: L05_B_1_3_22
+    position: {x: 1, y: 3}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 0
+    ammo: 3
+  - id: L05_B_2_3_23
+    position: {x: 2, y: 3}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 3
+    ammo: 3
+  - id: L05_B_5_3_24
+    position: {x: 5, y: 3}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 6
+    ammo: 4
+  - id: L05_B_6_3_25
+    position: {x: 6, y: 3}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 5
+    ammo: 5
+  - id: L05_B_7_3_26
+    position: {x: 7, y: 3}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 3
+    ammo: 3
+  - id: L05_B_0_4_27
+    position: {x: 0, y: 4}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 2
+    ammo: 3
+  - id: L05_B_1_4_28
+    position: {x: 1, y: 4}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 5
+    ammo: 4
+  - id: L05_B_2_4_29
+    position: {x: 2, y: 4}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 2
+    ammo: 3
+  - id: L05_B_3_4_30
+    position: {x: 3, y: 4}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 5
+    ammo: 5
+  - id: L05_B_4_4_31
+    position: {x: 4, y: 4}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 4
+    ammo: 4
+  - id: L05_B_5_4_32
+    position: {x: 5, y: 4}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 2
+    ammo: 3
+  - id: L05_B_6_4_33
+    position: {x: 6, y: 4}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 4
+    ammo: 5
+  - id: L05_B_0_5_34
+    position: {x: 0, y: 5}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 2
+    ammo: 3
+  - id: L05_B_1_5_35
+    position: {x: 1, y: 5}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 5
+    ammo: 5
+  - id: L05_B_2_5_36
+    position: {x: 2, y: 5}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 4
+    ammo: 4
+  - id: L05_B_3_5_37
+    position: {x: 3, y: 5}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 7
+    ammo: 4
+  - id: L05_B_4_5_38
+    position: {x: 4, y: 5}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 5
+    ammo: 5
+  - id: L05_B_5_5_39
+    position: {x: 5, y: 5}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 3
+    ammo: 3
+  - id: L05_B_6_5_40
+    position: {x: 6, y: 5}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 5
+    ammo: 4
+  - id: L05_B_7_5_41
+    position: {x: 7, y: 5}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 5
+    ammo: 5
+  - id: L05_B_1_6_42
+    position: {x: 1, y: 6}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 5
+    ammo: 4
+  - id: L05_B_2_6_43
+    position: {x: 2, y: 6}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 4
+    ammo: 5
+  - id: L05_B_3_6_44
+    position: {x: 3, y: 6}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 2
+    ammo: 3
+  - id: L05_B_4_6_45
+    position: {x: 4, y: 6}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 3
+    ammo: 3
+  - id: L05_B_5_6_46
+    position: {x: 5, y: 6}
+    size: {x: 1, y: 1}
+    color: 3
+    direction: 7
+    ammo: 4
+  - id: L05_B_6_6_47
+    position: {x: 6, y: 6}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 5
+    ammo: 5
+  - id: L05_B_7_6_48
+    position: {x: 7, y: 6}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 5
+    ammo: 4
+  slotBarViewportY: 0.57
+  slotBarBottomPaddingViewport: 0.03
+  boosterBarHeightPixels: 300
+  uiReferenceHeightPixels: 1920
+  boosterBarTopPaddingViewport: 0.02
+  defaultFireRate: 0.8
+  defaultDamage: 1
+  defaultProjectileSpeed: 7
+  defaultFireRange: 6.8
+  boosters:
+  - type: 0
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 1
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 2
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 0
+    multiplier: 0
+  - type: 3
+    charges: 3
+    enabled: 1
+    amount: 1
+    duration: 10
+    multiplier: 2

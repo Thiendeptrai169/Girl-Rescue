@@ -1,6 +1,7 @@
-using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using DragonRescue.Data;
+using DragonRescue.UI;
 
 namespace DragonRescue.Core
 {
@@ -14,6 +15,8 @@ namespace DragonRescue.Core
         // ── Inspector ────────────────────────────────────────────────────────
         [Header("Level Progression")]
         [SerializeField] private LevelConfig[] _allLevels;
+        [SerializeField] private ResultPopupView _resultPopup;
+        [SerializeField] private string _homeSceneName;
 
         // ── State ─────────────────────────────────────────────────────────────
         public GameState CurrentState { get; private set; } = GameState.Loading;
@@ -24,9 +27,12 @@ namespace DragonRescue.Core
         // ── Lifecycle ─────────────────────────────────────────────────────────
         private void Start()
         {
+            if (_resultPopup != null)
+                _resultPopup.Init(HomeLevel);
+
             if (_allLevels == null || _allLevels.Length == 0)
             {
-                Debug.LogError("[GameManager] No LevelConfig assets assigned!");
+                DebugSystem.Error(DebugCategory.Game, "No LevelConfig assets assigned!", this);
                 return;
             }
 
@@ -50,6 +56,8 @@ namespace DragonRescue.Core
         public void StartLevel()
         {
             CurrentLevelConfig = _allLevels[_currentLevelIndex];
+            DebugSystem.Log(DebugCategory.Game, $"StartLevel index={_currentLevelIndex} levelNumber={CurrentLevelConfig.levelNumber} id={CurrentLevelConfig.levelId}", this);
+            HideResultScreen();
             SetState(GameState.Playing);
             LevelManager.Instance.InitLevel(CurrentLevelConfig);
         }
@@ -57,29 +65,47 @@ namespace DragonRescue.Core
         public void WinLevel()
         {
             if (CurrentState != GameState.Playing) return;
+            DebugSystem.Log(DebugCategory.Game, $"WinLevel index={_currentLevelIndex}", this);
             SetState(GameState.Won);
+            ShowResultScreen(true);
         }
 
         public void LoseLevel()
         {
             if (CurrentState != GameState.Playing) return;
+            DebugSystem.Log(DebugCategory.Game, $"LoseLevel index={_currentLevelIndex}", this);
             SetState(GameState.Lost);
+            ShowResultScreen(false);
         }
 
         public void NextLevel()
         {
+            int previousIndex = _currentLevelIndex;
             _currentLevelIndex++;
             if (_currentLevelIndex >= _allLevels.Length)
             {
-                Debug.Log("[GameManager] All levels completed — looping.");
+                DebugSystem.Log(DebugCategory.Game, "All levels completed — looping.", this);
                 _currentLevelIndex = 0;
             }
+            DebugSystem.Log(DebugCategory.Game, $"NextLevel previousIndex={previousIndex} nextIndex={_currentLevelIndex}", this);
             LevelManager.Instance.ClearLevel();
             StartLevel();
         }
 
+        public void HomeLevel()
+        {
+            if (!string.IsNullOrWhiteSpace(_homeSceneName))
+            {
+                SceneManager.LoadScene(_homeSceneName);
+                return;
+            }
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
         public void RetryLevel()
         {
+            DebugSystem.Log(DebugCategory.Game, $"RetryLevel index={_currentLevelIndex}", this);
             LevelManager.Instance.ClearLevel();
             StartLevel();
         }
@@ -101,8 +127,31 @@ namespace DragonRescue.Core
         {
             if (CurrentState == newState) return;
             CurrentState = newState;
-            Debug.Log($"[GameManager] State → {newState}");
+            DebugSystem.Log(DebugCategory.Game, $"State → {newState}", this);
             GameEvents.FireGameStateChanged(newState);
+        }
+
+        private void ShowResultScreen(bool won)
+        {
+            if (_resultPopup == null)
+            {
+                DebugSystem.Warning(DebugCategory.Game, "Cannot show result screen: no ResultPopupView assigned.", this);
+                return;
+            }
+
+            if (won)
+                _resultPopup.ShowWin(NextLevel);
+            else
+                _resultPopup.ShowLose(RetryLevel);
+        }
+
+        private void HideResultScreen()
+        {
+            if (_resultPopup != null)
+            {
+                DebugSystem.Log(DebugCategory.UI, "Hide result screen.", this);
+                _resultPopup.Hide();
+            }
         }
 
         // ── Debug ─────────────────────────────────────────────────────────────

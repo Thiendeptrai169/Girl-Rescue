@@ -10,12 +10,13 @@ namespace DragonRescue.Entities.Cannon
 {
     public class CannonSlot : MonoBehaviour
     {
-        [SerializeField] private CannonVisual _visual;
         [SerializeField] private Transform _firePoint; // Optional: specific spawn point
 
         public bool IsUnlocked { get; private set; }
         public bool IsLoaded { get; private set; }
         public CannonColor CurrentColor { get; private set; }
+        public int RemainingAmmo => _remainingAmmo;
+        public int Index => _index;
 
         private int _index;
         private int _remainingAmmo;
@@ -25,6 +26,8 @@ namespace DragonRescue.Entities.Cannon
         private float _fireRange;
         private GameObject _projectilePrefab;
         private CancellationTokenSource _fireCts;
+        private float _lastNoTargetLogTime = -999f;
+        private const float NoTargetLogCooldown = 1f;
 
         public void Init(int index, bool isUnlocked, LevelConfig config, GameObject projectilePrefab)
         {
@@ -38,18 +41,25 @@ namespace DragonRescue.Entities.Cannon
             _projSpeed = config.defaultProjectileSpeed;
             _fireRange = config.defaultFireRange;
 
-            _visual.SetUnlockedState(isUnlocked);
+            FireStateChanged();
+            FireAmmoChanged();
         }
 
         public void LoadCannon(CannonColor color, int ammo)
         {
-            if (!IsUnlocked || IsLoaded || ammo <= 0) return;
+            if (!IsUnlocked || IsLoaded || ammo <= 0)
+            {
+                DebugSystem.Log(DebugCategory.Cannon, $"Load rejected slot={_index} unlocked={IsUnlocked} loaded={IsLoaded} requestedColor={color} requestedAmmo={ammo}", this);
+                return;
+            }
 
             CurrentColor = color;
             _remainingAmmo = ammo;
             IsLoaded = true;
+            DebugSystem.Log(DebugCategory.Cannon, $"Load slot={_index} color={color} ammo={ammo}", this);
 
-            _visual.SetLoadedState(color);
+            FireStateChanged();
+            FireAmmoChanged();
             GameEvents.FireCannonLoaded(new CannonLoadedPayload { Color = color, SlotIndex = _index });
 
             StartFiring();
@@ -57,17 +67,20 @@ namespace DragonRescue.Entities.Cannon
 
         public void ClearCannon()
         {
+            DebugSystem.Log(DebugCategory.Cannon, $"Clear slot={_index} wasLoaded={IsLoaded} color={CurrentColor} ammo={_remainingAmmo}", this);
             StopFiring();
             IsLoaded = false;
             _remainingAmmo = 0;
-            _visual.SetEmptyState();
+            FireStateChanged();
+            FireAmmoChanged();
         }
 
         public void Unlock()
         {
             if (IsUnlocked) return;
             IsUnlocked = true;
-            _visual.SetUnlockedState(true);
+            FireStateChanged();
+            FireAmmoChanged();
         }
 
         private void StartFiring()
@@ -107,11 +120,13 @@ namespace DragonRescue.Entities.Cannon
                     }
 
                     _remainingAmmo--;
+                    FireAmmoChanged();
 
                     if (_remainingAmmo <= 0)
                     {
-                        GameEvents.FireCannonDepleted(new CannonDepletedPayload { SlotIndex = _index });
+                        DebugSystem.Log(DebugCategory.Cannon, $"Slot {_index} depleted color={CurrentColor}", this);
                         ClearCannon();
+                        GameEvents.FireCannonDepleted(new CannonDepletedPayload { SlotIndex = _index });
                         break;
                     }
 
@@ -126,6 +141,27 @@ namespace DragonRescue.Entities.Cannon
             }
         }
 
+        private void FireStateChanged()
+        {
+            GameEvents.FireCannonSlotStateChanged(new CannonSlotStatePayload
+            {
+                SlotIndex = _index,
+                IsUnlocked = IsUnlocked,
+                IsLoaded = IsLoaded,
+                Color = CurrentColor
+            });
+        }
+
+        private void FireAmmoChanged()
+        {
+            GameEvents.FireCannonAmmoChanged(new CannonAmmoChangedPayload
+            {
+                SlotIndex = _index,
+                Ammo = _remainingAmmo,
+                IsLoaded = IsLoaded
+            });
+        }
+
         private DragonSegmentIdentity FindTarget()
         {
             if (DragonManager.Instance != null)
@@ -135,11 +171,28 @@ namespace DragonRescue.Entities.Cannon
                 {
                     currentRange *= DragonRescue.Booster.BoosterManager.Instance.FireRangeMultiplier;
                 }
-                return DragonManager.Instance.FindTargetByColor(CurrentColor, _damage, transform.position, currentRange);
+                DragonSegmentIdentity target = DragonManager.Instance.FindTargetByColor(CurrentColor, _damage, transform.position, currentRange);
+                if (target == null)
+                    LogNoTarget(currentRange);
+
+                return target;
             }
 
-            Debug.LogWarning($"[CannonSlot {_index}] Cannot fire {CurrentColor}: DragonManager.Instance is null.");
+            DebugSystem.Warning(DebugCategory.Cannon, $"Slot {_index} cannot fire {CurrentColor}: DragonManager.Instance is null.", this);
             return null;
+        }
+
+        private void LogNoTarget(float currentRange)
+        {
+            if (Time.unscaledTime - _lastNoTargetLogTime < NoTargetLogCooldown)
+                return;
+
+            _lastNoTargetLogTime = Time.unscaledTime;
+            string targetSummary = DragonManager.Instance != null
+                ? DragonManager.Instance.BuildTargetDebugSummary(CurrentColor, _damage, transform.position, currentRange)
+                : "dragon=null";
+
+            DebugSystem.Log(DebugCategory.Cannon, $"Slot {_index} no target ammo={_remainingAmmo} pos={transform.position} {targetSummary}", this);
         }
 
         private bool FireAt(DragonSegmentIdentity target)
@@ -184,7 +237,7 @@ namespace DragonRescue.Entities.Cannon
             }
             else
             {
-                Debug.LogWarning($"[CannonSlot {_index}] Cannot fire {CurrentColor}: projectile prefab is missing.");
+                DebugSystem.Warning(DebugCategory.Cannon, $"Slot {_index} cannot fire {CurrentColor}: projectile prefab is missing.", this);
                 target.ReleaseIncomingDamage(_damage);
                 return false;
             }

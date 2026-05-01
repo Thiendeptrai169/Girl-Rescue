@@ -71,6 +71,38 @@ namespace DragonRescue.Entities.Dragon
             return null;
         }
 
+        public string BuildTargetDebugSummary(CannonColor color, int damage, Vector3 position, float range)
+        {
+            int aliveMatching = 0;
+            int inRange = 0;
+            int blockedByIncoming = 0;
+            float nearestDistance = float.PositiveInfinity;
+            float rangeSq = range * range;
+
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment == null || !segment.IsAlive || segment.Color != color)
+                    continue;
+
+                aliveMatching++;
+
+                float sqrDistance = (segment.transform.position - position).sqrMagnitude;
+                nearestDistance = Mathf.Min(nearestDistance, Mathf.Sqrt(sqrDistance));
+
+                if (sqrDistance <= rangeSq)
+                {
+                    inRange++;
+
+                    if (!segment.CanAcceptIncomingDamage(damage))
+                        blockedByIncoming++;
+                }
+            }
+
+            string nearest = float.IsPositiveInfinity(nearestDistance) ? "none" : nearestDistance.ToString("0.###");
+            return $"color={color} aliveMatching={aliveMatching} inRange={inRange} blockedByIncoming={blockedByIncoming} nearest={nearest} range={range:0.###}";
+        }
+
         public bool AreAllSegmentsDestroyed()
         {
             for (int i = 0; i < _segments.Count; i++)
@@ -82,6 +114,11 @@ namespace DragonRescue.Entities.Dragon
 
         public bool SortSegmentsByColor()
         {
+            return SortLeadingSegmentsByColor(4);
+        }
+
+        public bool SortLeadingSegmentsByColor(int maxSegmentCount)
+        {
             List<DragonSegmentIdentity> aliveSegments = new();
             HashSet<CannonColor> uniqueColors = new();
 
@@ -92,6 +129,9 @@ namespace DragonRescue.Entities.Dragon
 
                 aliveSegments.Add(segment);
                 uniqueColors.Add(segment.Color);
+
+                if (aliveSegments.Count >= maxSegmentCount)
+                    break;
             }
 
             if (aliveSegments.Count <= 1 || uniqueColors.Count <= 1)
@@ -120,16 +160,51 @@ namespace DragonRescue.Entities.Dragon
             return changed;
         }
 
+        public int DestroyLeadingSegmentsByColor(CannonColor color, int count)
+        {
+            if (count <= 0)
+                return 0;
+
+            int destroyed = 0;
+
+            for (int i = 0; i < _segments.Count && destroyed < count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment == null || !segment.IsAlive || segment.Color != color)
+                    continue;
+
+                segment.TakeDamage(999);
+                destroyed++;
+            }
+
+            if (destroyed > 0)
+                RecalculateProgress();
+
+            DebugSystem.Log(DebugCategory.Dragon, $"Remove booster destroyed {destroyed}/{count} {color} dragon segments.", this);
+            return destroyed;
+        }
+
         public void StopDragon()   => _movement.StopMoving();
         public void ResumeDragon() => _movement.ResumeMoving();
 
         // ── Private ──────────────────────────────────────────────────────────
         private void OnSegmentDestroyed(SegmentDestroyedPayload payload)
         {
-            if (!AreAllSegmentsDestroyed()) return;
+            if (!AreAllSegmentsDestroyed())
+            {
+                if (_movement != null)
+                    _movement.ApplyRecoil();
 
-            Debug.Log("[DragonManager] All segments destroyed — WIN!");
-            _movement.StopMoving();
+                RecalculateProgress();
+                return;
+            }
+
+            DebugSystem.Log(DebugCategory.Dragon, "All segments destroyed — WIN!", this);
+            if (_movement != null)
+                _movement.RefreshVisuals();
+
+            if (_movement != null)
+                _movement.StopMoving();
             GameEvents.FireLevelWin();
         }
 
@@ -179,7 +254,7 @@ namespace DragonRescue.Entities.Dragon
             for (int i = 0; i < _segments.Count; i++)
             {
                 var s = _segments[i];
-                Debug.Log($"Segment {i}: {s.Color} | Count: {s.Count}/{s.MaxHp} | Incoming: {s.IncomingDamage} | Alive: {s.IsAlive}");
+                DebugSystem.Log(DebugCategory.Dragon, $"Segment {i}: {s.Color} | Count: {s.Count}/{s.MaxHp} | Incoming: {s.IncomingDamage} | Alive: {s.IsAlive}", this);
             }
         }
     }
