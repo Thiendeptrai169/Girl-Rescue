@@ -154,7 +154,7 @@ MonoBehaviour:
   _debugCannon: 0
   _debugProjectile: 0
   _debugDragon: 0
-  _debugBooster: 1
+  _debugBooster: 0
   _debugInput: 0
   _debugUI: 0
   _debugPooling: 0

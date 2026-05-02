@@ -21,6 +21,7 @@ namespace DragonRescue.Entities.Board
         private Color _originalColor;
         private Vector3 _arrowBaseLocalScale = Vector3.one;
         private Transform _arrowScaleAnchor;
+        private float _directionAngle;
 
         private void Awake()
         {
@@ -73,8 +74,7 @@ namespace DragonRescue.Entities.Board
             if (_blockSprite != null)
                 _blockSprite.color = _originalColor;
 
-            // Rotate arrow based on direction
-            float angle = direction switch
+            _directionAngle = direction switch
             {
                 Direction.Up => 180f,
                 Direction.Right => 90f,
@@ -87,8 +87,23 @@ namespace DragonRescue.Entities.Board
                 _ => 0f
             };
 
+            SetArrowLocalAngle(_directionAngle);
+        }
+
+        public void MatchArrowToWorldAngle(float worldAngle)
+        {
+            SetArrowLocalAngle(worldAngle - transform.eulerAngles.z);
+        }
+
+        public void RestoreArrowDirection()
+        {
+            SetArrowLocalAngle(_directionAngle);
+        }
+
+        private void SetArrowLocalAngle(float angle)
+        {
             if (_arrowSprite != null)
-                _arrowSprite.transform.localRotation = Quaternion.Euler(0, 0, angle);
+                _arrowSprite.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
         }
 
         private void FitToCells(Vector2Int size, float cellSize, Direction direction)

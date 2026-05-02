@@ -94,7 +94,6 @@ namespace DragonRescue.Entities.Dragon
 
             Vector3 direction = (_endPos - _startPos).normalized;
             _endpointVisual.SetHeadPosition(transform.position, direction);
-            _endpointVisual.SetTailPosition(transform.TransformPoint(Vector3.right * (aliveIndex * _spacing)), direction);
         }
 
         private void UpdateRootPosition()

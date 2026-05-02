@@ -272,6 +272,38 @@ namespace DragonRescue.Entities.Board
             return isValid;
         }
 
+        public bool CanActivateRemoveBooster(out string rejectionMessage)
+        {
+            rejectionMessage = null;
+
+            if (!_acceptsInput || ActiveInstance != this || _grid == null)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (_boardState == BoardInputState.LevelEnding)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (_boardState != BoardInputState.Ready &&
+                _boardState != BoardInputState.BoosterSelecting)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (!HasRegisteredBlocks())
+            {
+                rejectionMessage = "No block available to remove";
+                return false;
+            }
+
+            return true;
+        }
+
         private bool CanAcceptTapNow()
         {
             if (Time.unscaledTime < _nextInputAllowedTime)
@@ -631,6 +663,27 @@ namespace DragonRescue.Entities.Board
                     }
                 }
             }
+        }
+
+        private bool HasRegisteredBlocks()
+        {
+            if (_grid == null) return false;
+
+            for (int x = 0; x < _boardSize.x; x++)
+            {
+                for (int y = 0; y < _boardSize.y; y++)
+                {
+                    BlockIdentity block = _grid[x, y];
+                    if (block != null &&
+                        block.Owner == this &&
+                        block.gameObject.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private async UniTask TryMoveBlockAsync(BlockIdentity block, CancellationToken ct)

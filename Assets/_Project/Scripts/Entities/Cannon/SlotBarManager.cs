@@ -160,6 +160,20 @@ namespace DragonRescue.Entities.Cannon
             return false;
         }
 
+        public int GetLockedSlotCount()
+        {
+            if (_slots == null) return 0;
+
+            int lockedCount = 0;
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                if (_slots[i] != null && !_slots[i].IsUnlocked)
+                    lockedCount++;
+            }
+
+            return lockedCount;
+        }
+
         private CannonSlot FindEmptyUnlockedSlot()
         {
             if (_slots == null) return null;

@@ -4,28 +4,37 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using DragonRescue.Entities.Board;
 
 namespace DragonRescue.Animation
 {
     public class BlockMoveAnimator : MonoBehaviour
     {
-        [SerializeField] private float _escapeBoardCellsPerSecond = 5.5f;
-        [SerializeField] private float _escapeToSlotSpeed = 7f;
-        [SerializeField] private float _blockedCellsPerSecond = 6.5f;
-        [SerializeField] private float _returnCellsPerSecond = 10f;
-        [SerializeField] private float _minimumSegmentDuration = 0.08f;
+        [SerializeField] private float _escapeBoardCellsPerSecond = 7.5f;
+        [SerializeField] private float _escapeToSlotSpeed = 9.5f;
+        [SerializeField] private float _blockedCellsPerSecond = 8.5f;
+        [SerializeField] private float _returnCellsPerSecond = 13f;
+        [SerializeField] private float _minimumSegmentDuration = 0.06f;
         [SerializeField] private float _slotArrivalScale = 0.35f;
+        [SerializeField] private float _rotationDuration = 0.08f;
 
         private Sequence _activeSequence;
         private Vector3 _baseScale;
+        private Quaternion _baseLocalRotation;
         private bool _hasBaseScale;
+        private BlockVisual _blockVisual;
+        private BlockIdentity _identity;
 
         private void OnDisable()
         {
             KillActiveTween();
 
             if (_hasBaseScale)
+            {
                 transform.localScale = _baseScale;
+                transform.localRotation = _baseLocalRotation;
+                RestoreArrowDirection();
+            }
         }
 
         public async UniTask PlayEscapeToSlotAsync(
@@ -40,22 +49,10 @@ namespace DragonRescue.Animation
             Sequence sequence = DOTween.Sequence();
             sequence.SetUpdate(false);
 
-            Vector3[] path = BuildPath(boardPath, slotPosition);
-            if (path.Length > 0)
-            {
-                float boardDistance = CalculateDistance(transform.position, boardPath);
-                Vector3 lastBoardPosition = boardPath != null && boardPath.Count > 0
-                    ? boardPath[boardPath.Count - 1]
-                    : transform.position;
-                float slotDistance = Vector3.Distance(lastBoardPosition, slotPosition);
-                float duration = CalculateDuration(boardDistance, cellSize, _escapeBoardCellsPerSecond) +
-                                 CalculateDuration(slotDistance, cellSize, _escapeToSlotSpeed);
+            AppendMovementPath(sequence, boardPath, slotPosition, cellSize);
 
-                sequence.Append(transform.DOPath(path, duration, PathType.Linear, PathMode.Full3D)
-                    .SetEase(Ease.InOutSine));
-            }
-
-            sequence.Join(transform.DOScale(_baseScale * _slotArrivalScale, sequence.Duration())
+            float totalDuration = sequence.Duration();
+            sequence.Insert(0f, transform.DOScale(_baseScale * _slotArrivalScale, totalDuration)
                 .SetEase(Ease.InQuad));
 
             _activeSequence = sequence;
@@ -90,7 +87,11 @@ namespace DragonRescue.Animation
             KillActiveTween();
 
             if (_hasBaseScale)
+            {
                 transform.localScale = _baseScale;
+                transform.localRotation = _baseLocalRotation;
+                RestoreArrowDirection();
+            }
         }
 
         private void CacheBaseScale()
@@ -99,37 +100,59 @@ namespace DragonRescue.Animation
                 return;
 
             _baseScale = transform.localScale;
+            _baseLocalRotation = transform.localRotation;
             _hasBaseScale = true;
         }
 
-        private Vector3[] BuildPath(IReadOnlyList<Vector3> boardPath, Vector3 slotPosition)
+        private void AppendMovementPath(Sequence sequence, IReadOnlyList<Vector3> boardPath, Vector3 slotPosition, float cellSize)
         {
             int boardCount = boardPath != null ? boardPath.Count : 0;
-            var points = new List<Vector3>(boardCount + 1);
+            Vector3 previousPosition = transform.position;
 
             for (int i = 0; i < boardCount; i++)
             {
-                points.Add(WithCurrentZ(boardPath[i]));
+                Vector3 target = WithCurrentZ(boardPath[i]);
+                float duration = CalculateDuration(Vector3.Distance(previousPosition, target), cellSize, _escapeBoardCellsPerSecond);
+                AppendMoveWithFacing(sequence, previousPosition, target, duration, Ease.InOutSine);
+                previousPosition = target;
             }
 
-            points.Add(WithCurrentZ(slotPosition));
-            return points.ToArray();
+            Vector3 slotTarget = WithCurrentZ(slotPosition);
+            float slotDuration = CalculateDuration(Vector3.Distance(previousPosition, slotTarget), cellSize, _escapeToSlotSpeed);
+            AppendMoveWithFacing(sequence, previousPosition, slotTarget, slotDuration, Ease.InOutSine);
         }
 
-        private float CalculateDistance(Vector3 startPosition, IReadOnlyList<Vector3> path)
+        private void AppendMoveWithFacing(
+            Sequence sequence,
+            Vector3 startPosition,
+            Vector3 targetPosition,
+            float moveDuration,
+            Ease moveEase)
         {
-            if (path == null || path.Count == 0)
-                return 0f;
+            Tweener moveTween = transform.DOMove(targetPosition, moveDuration).SetEase(moveEase);
+            float facingAngle = CalculateFacingAngle(targetPosition - startPosition);
 
-            float distance = 0f;
-            Vector3 previous = startPosition;
-            for (int i = 0; i < path.Count; i++)
+            if (float.IsNaN(facingAngle))
             {
-                distance += Vector3.Distance(previous, path[i]);
-                previous = path[i];
+                sequence.Append(moveTween);
+                return;
             }
 
-            return distance;
+            float rotateDuration = Mathf.Min(Mathf.Max(0f, _rotationDuration), moveDuration);
+
+            sequence.AppendCallback(() => MatchArrowToWorldAngle(facingAngle));
+            sequence.Append(moveTween);
+
+            if (ShouldRotateBody())
+            {
+                Tweener rotateTween = transform.DOLocalRotate(
+                    new Vector3(_baseLocalRotation.eulerAngles.x, _baseLocalRotation.eulerAngles.y, facingAngle),
+                    rotateDuration)
+                    .SetEase(Ease.OutSine)
+                    .OnUpdate(() => MatchArrowToWorldAngle(facingAngle));
+
+                sequence.Join(rotateTween);
+            }
         }
 
         private float CalculateDuration(float distance, float cellSize, float cellsPerSecond)
@@ -138,6 +161,43 @@ namespace DragonRescue.Animation
                 return _minimumSegmentDuration;
 
             return Mathf.Max(_minimumSegmentDuration, distance / (cellSize * cellsPerSecond));
+        }
+
+        private float CalculateFacingAngle(Vector3 movement)
+        {
+            movement.z = 0f;
+            if (movement.sqrMagnitude <= 0.0001f)
+                return float.NaN;
+
+            float angle = Mathf.Atan2(movement.x, -movement.y) * Mathf.Rad2Deg;
+            return Mathf.Repeat(angle, 360f);
+        }
+
+        private void MatchArrowToWorldAngle(float worldAngle)
+        {
+            if (_blockVisual == null)
+                _blockVisual = GetComponent<BlockVisual>();
+
+            if (_blockVisual != null)
+                _blockVisual.MatchArrowToWorldAngle(worldAngle);
+        }
+
+        private bool ShouldRotateBody()
+        {
+            if (_identity == null)
+                _identity = GetComponent<BlockIdentity>();
+
+            return _identity == null ||
+                   _identity.Size.x == _identity.Size.y;
+        }
+
+        private void RestoreArrowDirection()
+        {
+            if (_blockVisual == null)
+                _blockVisual = GetComponent<BlockVisual>();
+
+            if (_blockVisual != null)
+                _blockVisual.RestoreArrowDirection();
         }
 
         private Vector3 WithCurrentZ(Vector3 position)

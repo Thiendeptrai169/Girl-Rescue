@@ -122,9 +122,6 @@ namespace DragonRescue.Entities.Dragon
                 aliveIndex++;
             }
 
-            float tailDist = headDist - ((aliveIndex + 1) * _spacing);
-            Vector3 tailPosition = aliveIndex > 0 ? EvaluatePath(tailDist) : headPosition;
-            _endpointVisual.SetTailPosition(tailPosition, GetPathDirection(tailDist));
         }
 
         private bool HasAliveSegmentReachedEnd()

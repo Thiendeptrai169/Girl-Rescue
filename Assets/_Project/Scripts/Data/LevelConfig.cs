@@ -99,6 +99,7 @@ namespace DragonRescue.Data
             boardViewport.y = Mathf.Clamp01(boardViewport.y);
             boardSize.x = Mathf.Max(1, boardSize.x);
             boardSize.y = Mathf.Max(1, boardSize.y);
+            ValidateSlotsAndBoosters();
             ValidateBoardViewportBand();
 
             if (dragonPathWaypointsViewport != null)
@@ -123,6 +124,34 @@ namespace DragonRescue.Data
             ValidateBlocks();
             ValidateBlockAmmoAgainstDragon();
             ValidateBoardHasReleaseSolution();
+        }
+
+        private void ValidateSlotsAndBoosters()
+        {
+            totalSlotCount = Mathf.Max(1, totalSlotCount);
+            unlockedSlotCount = Mathf.Clamp(unlockedSlotCount, 0, totalSlotCount);
+
+            if (boosters == null)
+                return;
+
+            int maxUnlockCharges = Mathf.Max(0, totalSlotCount - unlockedSlotCount);
+            for (int i = 0; i < boosters.Count; i++)
+            {
+                BoosterData booster = boosters[i];
+                if (booster == null)
+                    continue;
+
+                booster.charges = Mathf.Max(0, booster.charges);
+
+                if (booster.type != BoosterType.Unlock || booster.charges <= maxUnlockCharges)
+                    continue;
+
+                DebugSystem.Warning(
+                    DebugCategory.Data,
+                    $"Clamped Unlock booster charges from {booster.charges} to {maxUnlockCharges}. Unlock charges cannot exceed locked cannon slots.",
+                    this);
+                booster.charges = maxUnlockCharges;
+            }
         }
 
         private Dictionary<CannonColor, int> BuildDragonColorCounts()
