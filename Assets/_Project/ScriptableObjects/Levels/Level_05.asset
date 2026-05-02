@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
   levelId: level_05
   levelNumber: 5
+  tags: []
+  designerNotes: 
+  changelog: 
   princessViewport: {x: 0.15, y: 0.66}
   princessHearts: 1
   dragonMovementType: 1
@@ -201,7 +204,7 @@ MonoBehaviour:
     position: {x: 3, y: 1}
     size: {x: 1, y: 1}
     color: 3
-    direction: 3
+    direction: 0
     ammo: 3
   - id: L05_B_4_1_11
     position: {x: 4, y: 1}
@@ -442,7 +445,7 @@ MonoBehaviour:
   defaultFireRange: 5
   boosters:
   - type: 0
-    charges: 3
+    charges: 2
     enabled: 1
     amount: 1
     duration: 0

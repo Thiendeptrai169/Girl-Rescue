@@ -15,6 +15,11 @@ namespace DragonRescue.Data
         public string levelId;
         public int levelNumber;
 
+        [Header("Metadata")]
+        public string[] tags;
+        [TextArea(3, 8)] public string designerNotes;
+        [TextArea(3, 8)] public string changelog;
+
         [Header("Princess")]
         [Tooltip("Viewport coords (0 to 1). X=0 is left, Y=0 is bottom.")]
         public Vector2 princessViewport = new Vector2(0.18f, 0.66f);
@@ -79,8 +84,17 @@ namespace DragonRescue.Data
         public List<BoosterData> boosters = new();
 
 #if UNITY_EDITOR
+        public void EditorNormalize()
+        {
+            OnValidate();
+        }
+
         private void OnValidate()
         {
+            dragonSegments ??= new List<DragonSegmentData>();
+            blocks ??= new List<NormalArrowBlockData>();
+            boosters ??= new List<BoosterData>();
+
             // Dragon viewport values can extend slightly outside the camera for offscreen entry.
             princessViewport.x = Mathf.Clamp01(princessViewport.x);
             princessViewport.y = Mathf.Clamp01(princessViewport.y);
