@@ -11,8 +11,9 @@ namespace DragonRescue.Entities.Cannon
         [SerializeField] private SpriteRenderer _cannonSprite;
         
         [Header("Colors")]
-        [SerializeField] private Color _lockedColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-        [SerializeField] private Color _emptyUnlockedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        [SerializeField] private Color _lockedColor = new Color(0.12f, 0.12f, 0.12f, 1f);
+        [SerializeField] private Color _emptyUnlockedColor = new Color(0.9f, 0.96f, 1f, 1f);
+        [SerializeField] private Color _loadedBackgroundColor = new Color(1f, 1f, 1f, 1f);
 
         private void Awake()
         {
@@ -23,6 +24,7 @@ namespace DragonRescue.Entities.Cannon
         private void OnEnable()
         {
             GameEvents.OnCannonSlotStateChanged += OnCannonSlotStateChanged;
+            RefreshFromSlot();
         }
 
         private void OnDisable()
@@ -47,12 +49,13 @@ namespace DragonRescue.Entities.Cannon
         {
             if (_slotBackground != null)
                 _slotBackground.color = isUnlocked ? _emptyUnlockedColor : _lockedColor;
-            
-            SetEmptyState();
         }
 
         private void SetLoadedState(CannonColor color)
         {
+            if (_slotBackground != null)
+                _slotBackground.color = _loadedBackgroundColor;
+
             if (_cannonSprite != null)
             {
                 _cannonSprite.gameObject.SetActive(true);
@@ -66,6 +69,22 @@ namespace DragonRescue.Entities.Cannon
             {
                 _cannonSprite.gameObject.SetActive(false);
             }
+        }
+
+        private void RefreshFromSlot()
+        {
+            if (_slot == null)
+                _slot = GetComponentInParent<CannonSlot>();
+
+            if (_slot == null)
+                return;
+
+            SetUnlockedState(_slot.IsUnlocked);
+
+            if (_slot.IsLoaded)
+                SetLoadedState(_slot.CurrentColor);
+            else
+                SetEmptyState();
         }
     }
 }

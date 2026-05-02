@@ -431,7 +431,8 @@ namespace DragonRescue.Data
 
             for (int step = 0; step < guard; step++)
             {
-                if (IsDiagonalDirection(block.direction))
+                if (IsDiagonalDirection(block.direction) &&
+                    !IsDiagonalPointingOutFromEdge(block, currentPos))
                 {
                     GetDiagonalComponents(block.direction, out Direction horizontal, out Direction vertical);
 
@@ -523,6 +524,23 @@ namespace DragonRescue.Data
             }
 
             return true;
+        }
+
+        private bool IsDiagonalPointingOutFromEdge(NormalArrowBlockData block, Vector2Int candidatePos)
+        {
+            bool touchesTop = candidatePos.y <= 0;
+            bool touchesBottom = candidatePos.y + block.size.y >= boardSize.y;
+            bool touchesLeft = candidatePos.x <= 0;
+            bool touchesRight = candidatePos.x + block.size.x >= boardSize.x;
+
+            return block.direction switch
+            {
+                Direction.UpLeft => touchesTop || touchesLeft,
+                Direction.UpRight => touchesTop || touchesRight,
+                Direction.DownLeft => touchesBottom || touchesLeft,
+                Direction.DownRight => touchesBottom || touchesRight,
+                _ => false
+            };
         }
 
         private bool IsDiagonalDirection(Direction direction)

@@ -146,6 +146,20 @@ namespace DragonRescue.Entities.Cannon
             return colors;
         }
 
+        public bool HasLoadedCannon()
+        {
+            if (_slots == null) return false;
+
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                CannonSlot slot = _slots[i];
+                if (slot != null && slot.IsUnlocked && slot.IsLoaded)
+                    return true;
+            }
+
+            return false;
+        }
+
         private CannonSlot FindEmptyUnlockedSlot()
         {
             if (_slots == null) return null;

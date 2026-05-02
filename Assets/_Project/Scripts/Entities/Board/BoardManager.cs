@@ -12,6 +12,7 @@ using DragonRescue.Animation;
 
 namespace DragonRescue.Entities.Board
 {
+    [RequireComponent(typeof(BoardInputReceiver))]
     public class BoardManager : MonoBehaviour
     {
         private enum BoardInputState
@@ -125,9 +126,6 @@ namespace DragonRescue.Entities.Board
                         continue;
                     }
 
-                    if (blockGO.GetComponent<BlockMoveAnimator>() == null)
-                        blockGO.AddComponent<BlockMoveAnimator>();
-
                     identity.Init(blockData, blockData.position, this);
                     DebugSystem.Log(DebugCategory.Board, $"Spawn block id={blockData.id} color={blockData.color} ammo={blockData.ammo} pos={blockData.position} size={blockData.size} dir={blockData.direction}", identity);
                     GameEvents.FireBlockSpawned(new BlockSpawnedPayload
@@ -209,7 +207,11 @@ namespace DragonRescue.Entities.Board
                 _inputReceiver = GetComponent<BoardInputReceiver>();
 
             if (_inputReceiver == null)
-                _inputReceiver = gameObject.AddComponent<BoardInputReceiver>();
+            {
+                DebugSystem.AlwaysError(DebugCategory.Input, "BoardManager is missing BoardInputReceiver. Add BoardInputReceiver to the BoardManager prefab.", this);
+                _acceptsInput = false;
+                return;
+            }
 
             _inputReceiver.TapPressed -= OnBoardTapPressed;
             _inputReceiver.TapPressed += OnBoardTapPressed;
@@ -258,6 +260,12 @@ namespace DragonRescue.Entities.Board
             if (_blockPrefab.GetComponentInChildren<Collider2D>(true) == null)
             {
                 DebugSystem.AlwaysError(DebugCategory.Board, $"Block prefab '{_blockPrefab.name}' has no Collider2D in its hierarchy. Board raycasts cannot hit blocks.", _blockPrefab);
+                isValid = false;
+            }
+
+            if (_blockPrefab.GetComponent<BlockMoveAnimator>() == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Board, $"Block prefab '{_blockPrefab.name}' is missing BlockMoveAnimator. Add it to the root of the block prefab.", _blockPrefab);
                 isValid = false;
             }
 
@@ -769,8 +777,7 @@ namespace DragonRescue.Entities.Board
             if (block == null)
                 return null;
 
-            BlockMoveAnimator animator = block.GetComponent<BlockMoveAnimator>();
-            return animator != null ? animator : block.gameObject.AddComponent<BlockMoveAnimator>();
+            return block.GetComponent<BlockMoveAnimator>();
         }
 
         private List<Vector3> BuildWorldPath(Vector2Int startPos, Vector2Int endPos, Vector2Int blockSize, Direction direction, Vector3 slotPosition)
@@ -1046,6 +1053,12 @@ namespace DragonRescue.Entities.Board
             if (Time.unscaledTime - _lastSlotFullFeedbackTime >= SlotFullFeedbackCooldown)
             {
                 _lastSlotFullFeedbackTime = Time.unscaledTime;
+                GameEvents.FireGameplayPrompt(new GameplayPromptPayload
+                {
+                    Message = "Cannon slot is full",
+                    FlashScreen = true
+                });
+
                 GameEvents.FireBlockSlotFull(new BlockFeedbackPayload
                 {
                     Block = block,

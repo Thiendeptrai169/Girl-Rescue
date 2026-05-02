@@ -146,10 +146,28 @@ namespace DragonRescue.Booster
         {
             if (!_boosterData.TryGetValue(type, out var data)) return;
 
+            if (SlotBarManager.Instance == null || !SlotBarManager.Instance.HasLoadedCannon())
+            {
+                DebugSystem.Log(DebugCategory.Booster, "Further rejected: no loaded cannon is available.", this);
+                GameEvents.FireGameplayPrompt(new GameplayPromptPayload
+                {
+                    Message = "Cannon not available in the slot",
+                    FlashScreen = false
+                });
+                return;
+            }
+
             ConsumeCharge(type);
             
             float duration = data.duration > 0 ? data.duration : 10f; // Default to 10s if not set
             float multiplier = data.multiplier > 1f ? data.multiplier : 2f; // Default 2x range
+
+            GameEvents.FireFurtherBuffStarted(new FurtherBuffPayload
+            {
+                Duration = duration,
+                Multiplier = multiplier,
+                EndTime = Time.time + duration
+            });
 
             ApplyFurtherEffectAsync(duration, multiplier).Forget();
         }

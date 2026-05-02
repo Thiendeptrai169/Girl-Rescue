@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2234081603015488778}
   - component: {fileID: 1294500693760148337}
   - component: {fileID: 6587338895633009231}
+  - component: {fileID: 3772677622573827849}
   m_Layer: 0
   m_Name: DragonSegment
   m_TagString: Untagged
@@ -106,6 +107,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.DragonSegmentIdentity
   _visual: {fileID: 6587338895633009231}
+  _hitVFX: {fileID: 3772677622573827849}
 --- !u!114 &6587338895633009231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,3 +121,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Dragon.DragonSegmentVisual
   _sprite: {fileID: 2234081603015488778}
+--- !u!114 &3772677622573827849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6751022149907988061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be05a59b8c36ea8458a2af7ec64f52d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.VFX.DragonSegmentHitVFX
+  _sprite: {fileID: 2234081603015488778}
+  _hitDuration: 0.16
+  _destroyDuration: 0.24
+  _hitPunchScale: 0.18
+  _destroyPunchScale: 0.35
+  _shakeStrength: 0.06
+  _hitFlashColor: {r: 1, g: 1, b: 1, a: 1}

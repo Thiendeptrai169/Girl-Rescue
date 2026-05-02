@@ -5,6 +5,7 @@ using DragonRescue.Data;
 using DragonRescue.Core;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Entities.Projectile;
+using DragonRescue.SFX;
 
 namespace DragonRescue.Entities.Cannon
 {
@@ -233,6 +234,7 @@ namespace DragonRescue.Entities.Cannon
                 }
 
                 hitResolver.SetReservedTarget(target);
+                SoundManager.PlayFireProjectile();
                 return true;
             }
             else
