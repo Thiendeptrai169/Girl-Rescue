@@ -8,9 +8,11 @@ using DragonRescue.Core;
 using DragonRescue.Entities.Cannon;
 using DragonRescue.Entities.Dragon;
 using DragonRescue.Booster;
+using DragonRescue.Animation;
 
 namespace DragonRescue.Entities.Board
 {
+    [RequireComponent(typeof(BoardInputReceiver))]
     public class BoardManager : MonoBehaviour
     {
         private enum BoardInputState
@@ -19,6 +21,14 @@ namespace DragonRescue.Entities.Board
             ResolvingMove,
             BoosterSelecting,
             LevelEnding
+        }
+
+        private enum BoardEdgeSide
+        {
+            Top,
+            Right,
+            Bottom,
+            Left
         }
 
         [SerializeField] private GameObject _blockPrefab;
@@ -50,6 +60,9 @@ namespace DragonRescue.Entities.Board
         private const float BlockedFeedbackDuration = 0.15f;
         private const float SlotFullFeedbackCooldown = 0.22f;
         private const float SlotFullLogCooldown = 1f;
+        private const float EscapeLaneOffsetCells = 0.12f;
+        private const float SlotApproachOffsetCells = 0.18f;
+        private const float BlockedImpactOffsetCells = 0.08f;
         private const string DiagnosticVersion = "v3-input-receiver";
 
         public void Init(LevelConfig config, BoardWorldLayout layout, Camera mainCam)
@@ -194,7 +207,11 @@ namespace DragonRescue.Entities.Board
                 _inputReceiver = GetComponent<BoardInputReceiver>();
 
             if (_inputReceiver == null)
-                _inputReceiver = gameObject.AddComponent<BoardInputReceiver>();
+            {
+                DebugSystem.AlwaysError(DebugCategory.Input, "BoardManager is missing BoardInputReceiver. Add BoardInputReceiver to the BoardManager prefab.", this);
+                _acceptsInput = false;
+                return;
+            }
 
             _inputReceiver.TapPressed -= OnBoardTapPressed;
             _inputReceiver.TapPressed += OnBoardTapPressed;
@@ -246,7 +263,45 @@ namespace DragonRescue.Entities.Board
                 isValid = false;
             }
 
+            if (_blockPrefab.GetComponent<BlockMoveAnimator>() == null)
+            {
+                DebugSystem.AlwaysError(DebugCategory.Board, $"Block prefab '{_blockPrefab.name}' is missing BlockMoveAnimator. Add it to the root of the block prefab.", _blockPrefab);
+                isValid = false;
+            }
+
             return isValid;
+        }
+
+        public bool CanActivateRemoveBooster(out string rejectionMessage)
+        {
+            rejectionMessage = null;
+
+            if (!_acceptsInput || ActiveInstance != this || _grid == null)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (_boardState == BoardInputState.LevelEnding)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (_boardState != BoardInputState.Ready &&
+                _boardState != BoardInputState.BoosterSelecting)
+            {
+                rejectionMessage = "Remove booster not available now";
+                return false;
+            }
+
+            if (!HasRegisteredBlocks())
+            {
+                rejectionMessage = "No block available to remove";
+                return false;
+            }
+
+            return true;
         }
 
         private bool CanAcceptTapNow()
@@ -371,8 +426,8 @@ namespace DragonRescue.Entities.Board
             }
             finally
             {
-                bool canUnlockBlock = block != null && block.Owner == this && block.gameObject.activeInHierarchy;
-                if (block != null && block.Owner == this && block.gameObject.activeInHierarchy)
+                bool canUnlockBlock = block != null && IsValidOwnedBlock(block);
+                if (canUnlockBlock)
                     block.SetIsMoving(false);
 
                 if (_boardState != BoardInputState.LevelEnding && ActiveInstance == this)
@@ -589,6 +644,14 @@ namespace DragonRescue.Entities.Board
 
         private void RemoveBlock(BlockIdentity block)
         {
+            RemoveBlockFromGrid(block);
+
+            block.ResetData();
+            PoolManager.Instance.Release(_blockPrefab, block.gameObject);
+        }
+
+        private void RemoveBlockFromGrid(BlockIdentity block)
+        {
             for (int x = 0; x < block.Size.x; x++)
             {
                 for (int y = 0; y < block.Size.y; y++)
@@ -600,9 +663,27 @@ namespace DragonRescue.Entities.Board
                     }
                 }
             }
+        }
 
-            block.ResetData();
-            PoolManager.Instance.Release(_blockPrefab, block.gameObject);
+        private bool HasRegisteredBlocks()
+        {
+            if (_grid == null) return false;
+
+            for (int x = 0; x < _boardSize.x; x++)
+            {
+                for (int y = 0; y < _boardSize.y; y++)
+                {
+                    BlockIdentity block = _grid[x, y];
+                    if (block != null &&
+                        block.Owner == this &&
+                        block.gameObject.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private async UniTask TryMoveBlockAsync(BlockIdentity block, CancellationToken ct)
@@ -611,26 +692,57 @@ namespace DragonRescue.Entities.Board
             if (escapeResult.CanEscape)
             {
                 LogMovementTraceOnce($"Path clear block={block.name} dir={block.Direction} ammo={block.Ammo} lastPos={escapeResult.LastPosition}", block);
-                if (!TryCommitBlockToSlot(block))
+                if (!TryGetTargetSlot(block, out CannonSlot targetSlot))
                 {
                     LogSlotFullOnce($"[BoardManager] Slot commit failed block={block.name}; keeping on board.");
                     FireSlotFullFeedback(block);
                     return;
                 }
 
-                DebugSystem.Log(DebugCategory.Board, $"Slot commit success block={block.name}; removing from board.", block);
+                BlockMoveAnimator animator = GetBlockAnimator(block);
+                if (animator != null)
+                {
+                    Vector3 slotPosition = targetSlot != null
+                        ? targetSlot.transform.position
+                        : _layout.GetBlockCenter(escapeResult.LastPosition, block.Size);
+                    List<Vector3> escapePath = BuildWorldPath(block.GridPos, escapeResult.LastPosition, block.Size, block.Direction, slotPosition);
+
+                    RemoveBlockFromGrid(block);
+                    PlayEscapeAndLoadSlotAsync(block, animator, escapePath, slotPosition, targetSlot, ct).Forget();
+                    return;
+                }
+
+                if (!TryLoadTargetSlot(block, targetSlot))
+                {
+                    LogSlotFullOnce($"[BoardManager] Slot load failed after escape animation block={block.name}; returning block to original board position.");
+                    if (animator != null)
+                        animator.ResetVisualState();
+
+                    block.transform.position = _layout.GetBlockCenter(block.GridPos, block.Size);
+                    FireSlotFullFeedback(block);
+                    return;
+                }
+
+                DebugSystem.Log(DebugCategory.Board, $"Slot commit success block={block.name}; removing from board after animation.", block);
                 RemoveBlock(block);
             }
             else
             {
                 string blocker = escapeResult.BlockingBlock != null ? escapeResult.BlockingBlock.name : "none";
                 LogMovementTraceOnce($"Path blocked block={block.name} dir={block.Direction} checked={escapeResult.CheckedDirection} blocker={blocker} cell={escapeResult.BlockingCell}", block);
-                await FireBlockedFeedbackAsync(block, ct);
+                BlockMoveAnimator animator = GetBlockAnimator(block);
+                if (animator != null)
+                {
+                    Vector3 originalPosition = _layout.GetBlockCenter(block.GridPos, block.Size);
+                    Vector3 impactPosition = GetBlockedImpactPosition(block, escapeResult);
+                    await animator.PlayBlockedReturnAsync(impactPosition, originalPosition, _layout.CellSize, ct);
+                }
             }
         }
 
-        private bool TryCommitBlockToSlot(BlockIdentity block)
+        private bool TryGetTargetSlot(BlockIdentity block, out CannonSlot targetSlot)
         {
+            targetSlot = null;
             if (block.Ammo <= 0) return true;
 
             SlotBarManager slotBar = SlotBarManager.Instance;
@@ -640,28 +752,351 @@ namespace DragonRescue.Entities.Board
                 return false;
             }
 
-            if (!slotBar.CanAcceptBlock(block.Ammo))
+            if (!slotBar.TryReserveAvailableSlot(block.Ammo, out targetSlot))
             {
                 LogSlotFullOnce($"[BoardManager] Slot capacity precheck failed block={block.name} color={block.Color} ammo={block.Ammo}. Commit skipped; block stays on board.");
                 return false;
             }
 
-            bool loaded = slotBar.TryLoadBlock(block.Color, block.Ammo);
-            DebugSystem.Log(DebugCategory.Board, $"TryCommitBlockToSlot block={block.name} color={block.Color} ammo={block.Ammo} loaded={loaded}", block);
+            return true;
+        }
+
+        private bool TryLoadTargetSlot(BlockIdentity block, CannonSlot targetSlot)
+        {
+            if (block.Ammo <= 0) return true;
+
+            SlotBarManager slotBar = SlotBarManager.Instance;
+            if (slotBar == null)
+            {
+                LogSlotFullOnce("[BoardManager] Cannot load escaped block: SlotBarManager.Instance is null.");
+                return false;
+            }
+
+            bool loaded = slotBar.TryLoadReservedBlockIntoSlot(targetSlot, block.Color, block.Ammo);
+            DebugSystem.Log(DebugCategory.Board, $"TryLoadTargetSlot block={block.name} color={block.Color} ammo={block.Ammo} loaded={loaded}", block);
             if (!loaded)
-                LogSlotFullOnce($"[BoardManager] Slot commit failed after capacity precheck. SlotBar state: {slotBar.BuildDebugState()}");
+            {
+                loaded = slotBar.TryLoadBlock(block.Color, block.Ammo);
+                if (!loaded)
+                    LogSlotFullOnce($"[BoardManager] Slot commit failed after capacity precheck. SlotBar state: {slotBar.BuildDebugState()}");
+            }
+
             return loaded;
         }
 
-        private async UniTask FireBlockedFeedbackAsync(BlockIdentity block, CancellationToken ct)
+        private async UniTaskVoid PlayEscapeAndLoadSlotAsync(
+            BlockIdentity block,
+            BlockMoveAnimator animator,
+            List<Vector3> escapePath,
+            Vector3 slotPosition,
+            CannonSlot targetSlot,
+            CancellationToken ct)
         {
-            GameEvents.FireBlockBlocked(new BlockFeedbackPayload
+            try
             {
-                Block = block,
-                Duration = BlockedFeedbackDuration
-            });
+                await animator.PlayEscapeToSlotAsync(escapePath, slotPosition, _layout.CellSize, ct);
 
-            await UniTask.Delay(TimeSpan.FromSeconds(BlockedFeedbackDuration), ignoreTimeScale: true, cancellationToken: ct);
+                if (block == null || block.Owner != this)
+                    return;
+
+                if (!TryLoadTargetSlot(block, targetSlot))
+                {
+                    if (SlotBarManager.Instance != null)
+                        SlotBarManager.Instance.ReleaseSlotReservation(targetSlot);
+
+                    DebugSystem.Warning(DebugCategory.Board, $"Escaped block could not load after animation block={block.name}. Releasing it to avoid blocking the board.", block);
+                }
+
+                DebugSystem.Log(DebugCategory.Board, $"Slot commit success block={block.name}; removing visual after animation.", block);
+                block.ResetData();
+                PoolManager.Instance.Release(_blockPrefab, block.gameObject);
+            }
+            catch (OperationCanceledException)
+            {
+                if (SlotBarManager.Instance != null)
+                    SlotBarManager.Instance.ReleaseSlotReservation(targetSlot);
+            }
+            catch (Exception ex)
+            {
+                if (SlotBarManager.Instance != null)
+                    SlotBarManager.Instance.ReleaseSlotReservation(targetSlot);
+
+                DebugSystem.Exception(DebugCategory.Board, ex, this);
+            }
+        }
+
+        private BlockMoveAnimator GetBlockAnimator(BlockIdentity block)
+        {
+            if (block == null)
+                return null;
+
+            return block.GetComponent<BlockMoveAnimator>();
+        }
+
+        private List<Vector3> BuildWorldPath(Vector2Int startPos, Vector2Int endPos, Vector2Int blockSize, Direction direction, Vector3 slotPosition)
+        {
+            var path = new List<Vector3>();
+            Vector2Int current = startPos;
+            int guard = Mathf.Max(1, _boardSize.x + _boardSize.y + blockSize.x + blockSize.y + 4);
+
+            for (int i = 0; i < guard && current != endPos; i++)
+            {
+                current = BoardEscapeResolver.GetNextPos(current, direction);
+                path.Add(_layout.GetBlockCenter(current, blockSize));
+            }
+
+            if (path.Count == 0 || current != endPos)
+                path.Add(_layout.GetBlockCenter(endPos, blockSize));
+
+            AddOutsideLaneRoute(path, endPos, blockSize, direction, slotPosition);
+            return path;
+        }
+
+        private Vector3 GetBlockedImpactPosition(BlockIdentity block, BoardEscapeResult escapeResult)
+        {
+            Vector3 originalPosition = _layout.GetBlockCenter(block.GridPos, block.Size);
+            Vector2Int safePos = GetPreviousPos(escapeResult.LastPosition, escapeResult.CheckedDirection);
+            Vector3 safeCenter = _layout.GetBlockCenter(safePos, block.Size);
+            Vector3 candidateCenter = _layout.GetBlockCenter(escapeResult.LastPosition, block.Size);
+            Vector3 direction = candidateCenter - safeCenter;
+
+            if (direction.sqrMagnitude <= 0.0001f)
+                direction = GetWorldDirection(escapeResult.CheckedDirection);
+
+            if (direction.sqrMagnitude <= 0.0001f)
+                return originalPosition;
+
+            float nudgeDistance = _layout.CellSize * BlockedImpactOffsetCells;
+            return safeCenter + direction.normalized * nudgeDistance;
+        }
+
+        private Vector2Int GetPreviousPos(Vector2Int pos, Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Up => new Vector2Int(pos.x, pos.y + 1),
+                Direction.Down => new Vector2Int(pos.x, pos.y - 1),
+                Direction.Left => new Vector2Int(pos.x + 1, pos.y),
+                Direction.Right => new Vector2Int(pos.x - 1, pos.y),
+                Direction.UpLeft => new Vector2Int(pos.x + 1, pos.y + 1),
+                Direction.UpRight => new Vector2Int(pos.x - 1, pos.y + 1),
+                Direction.DownLeft => new Vector2Int(pos.x + 1, pos.y - 1),
+                Direction.DownRight => new Vector2Int(pos.x - 1, pos.y - 1),
+                _ => pos
+            };
+        }
+
+        private Vector3 GetWorldDirection(Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Up => Vector3.up,
+                Direction.Down => Vector3.down,
+                Direction.Left => Vector3.left,
+                Direction.Right => Vector3.right,
+                Direction.UpLeft => (Vector3.up + Vector3.left).normalized,
+                Direction.UpRight => (Vector3.up + Vector3.right).normalized,
+                Direction.DownLeft => (Vector3.down + Vector3.left).normalized,
+                Direction.DownRight => (Vector3.down + Vector3.right).normalized,
+                _ => Vector3.zero
+            };
+        }
+
+        private void AddOutsideLaneRoute(List<Vector3> path, Vector2Int escapedPos, Vector2Int blockSize, Direction direction, Vector3 slotPosition)
+        {
+            BoardEdgeSide escapeSide = GetEscapeSide(escapedPos, blockSize, direction);
+            BoardEdgeSide targetSide = GetSlotApproachSide(slotPosition);
+            GetLaneBounds(blockSize, out float left, out float right, out float top, out float bottom);
+
+            Vector3 escapeCenter = _layout.GetBlockCenter(escapedPos, blockSize);
+            Vector3 laneStart = ProjectToLane(escapeCenter, escapeSide, left, right, top, bottom);
+            Vector3 laneTarget = ProjectToLane(slotPosition, targetSide, left, right, top, bottom);
+            AddPointIfDifferent(path, laneStart);
+            AddPerimeterRoute(path, laneStart, escapeSide, laneTarget, targetSide, left, right, top, bottom);
+
+            Vector3 slotApproach = GetSlotApproachPoint(slotPosition, targetSide);
+            AddPointIfDifferent(path, slotApproach);
+        }
+
+        private BoardEdgeSide GetEscapeSide(Vector2Int escapedPos, Vector2Int blockSize, Direction direction)
+        {
+            bool outsideLeft = escapedPos.x + blockSize.x <= 0;
+            bool outsideRight = escapedPos.x >= _boardSize.x;
+            bool outsideTop = escapedPos.y + blockSize.y <= 0;
+            bool outsideBottom = escapedPos.y >= _boardSize.y;
+
+            if (outsideTop && !outsideBottom && !outsideLeft && !outsideRight) return BoardEdgeSide.Top;
+            if (outsideBottom && !outsideTop && !outsideLeft && !outsideRight) return BoardEdgeSide.Bottom;
+            if (outsideLeft && !outsideRight) return BoardEdgeSide.Left;
+            if (outsideRight && !outsideLeft) return BoardEdgeSide.Right;
+
+            return direction switch
+            {
+                Direction.Up => BoardEdgeSide.Top,
+                Direction.Down => BoardEdgeSide.Bottom,
+                Direction.Left => BoardEdgeSide.Left,
+                Direction.Right => BoardEdgeSide.Right,
+                Direction.UpLeft => BoardEdgeSide.Top,
+                Direction.UpRight => BoardEdgeSide.Top,
+                Direction.DownLeft => BoardEdgeSide.Bottom,
+                Direction.DownRight => BoardEdgeSide.Bottom,
+                _ => BoardEdgeSide.Bottom
+            };
+        }
+
+        private BoardEdgeSide GetSlotApproachSide(Vector3 slotPosition)
+        {
+            GetBoardBounds(out float boardLeft, out float boardRight, out float boardTop, out float boardBottom);
+
+            if (slotPosition.y <= boardBottom) return BoardEdgeSide.Bottom;
+            if (slotPosition.y >= boardTop) return BoardEdgeSide.Top;
+            if (slotPosition.x <= boardLeft) return BoardEdgeSide.Left;
+            if (slotPosition.x >= boardRight) return BoardEdgeSide.Right;
+
+            return BoardEdgeSide.Bottom;
+        }
+
+        private void GetBoardBounds(out float left, out float right, out float top, out float bottom)
+        {
+            left = _layout.Origin.x;
+            right = _layout.Origin.x + _boardSize.x * _layout.CellSize;
+            top = _layout.Origin.y;
+            bottom = _layout.Origin.y - _boardSize.y * _layout.CellSize;
+        }
+
+        private void GetLaneBounds(Vector2Int blockSize, out float left, out float right, out float top, out float bottom)
+        {
+            GetBoardBounds(out float boardLeft, out float boardRight, out float boardTop, out float boardBottom);
+
+            float halfWidth = blockSize.x * _layout.CellSize * 0.5f;
+            float halfHeight = blockSize.y * _layout.CellSize * 0.5f;
+            float clearance = _layout.CellSize * EscapeLaneOffsetCells;
+
+            left = boardLeft - halfWidth - clearance;
+            right = boardRight + halfWidth + clearance;
+            top = boardTop + halfHeight + clearance;
+            bottom = boardBottom - halfHeight - clearance;
+        }
+
+        private Vector3 ProjectToLane(Vector3 point, BoardEdgeSide side, float left, float right, float top, float bottom)
+        {
+            return side switch
+            {
+                BoardEdgeSide.Top => new Vector3(Mathf.Clamp(point.x, left, right), top, point.z),
+                BoardEdgeSide.Bottom => new Vector3(Mathf.Clamp(point.x, left, right), bottom, point.z),
+                BoardEdgeSide.Left => new Vector3(left, Mathf.Clamp(point.y, bottom, top), point.z),
+                BoardEdgeSide.Right => new Vector3(right, Mathf.Clamp(point.y, bottom, top), point.z),
+                _ => point
+            };
+        }
+
+        private void AddPerimeterRoute(
+            List<Vector3> path,
+            Vector3 start,
+            BoardEdgeSide startSide,
+            Vector3 target,
+            BoardEdgeSide targetSide,
+            float left,
+            float right,
+            float top,
+            float bottom)
+        {
+            if (startSide == targetSide)
+            {
+                AddPointIfDifferent(path, target);
+                return;
+            }
+
+            float clockwiseDistance = GetClockwiseDistance(start, startSide, target, targetSide, left, right, top, bottom);
+            int step = clockwiseDistance <= GetCounterClockwiseDistance(start, startSide, target, targetSide, left, right, top, bottom) ? 1 : -1;
+            BoardEdgeSide side = startSide;
+
+            for (int i = 0; i < 4 && side != targetSide; i++)
+            {
+                AddPointIfDifferent(path, GetCornerForExit(side, step, left, right, top, bottom));
+                side = StepSide(side, step);
+            }
+
+            AddPointIfDifferent(path, target);
+        }
+
+        private float GetClockwiseDistance(Vector3 start, BoardEdgeSide startSide, Vector3 target, BoardEdgeSide targetSide, float left, float right, float top, float bottom)
+        {
+            float distance = 0f;
+            Vector3 current = start;
+            BoardEdgeSide side = startSide;
+
+            for (int i = 0; i < 4 && side != targetSide; i++)
+            {
+                Vector3 corner = GetCornerForExit(side, 1, left, right, top, bottom);
+                distance += Vector3.Distance(current, corner);
+                current = corner;
+                side = StepSide(side, 1);
+            }
+
+            distance += Vector3.Distance(current, target);
+            return distance;
+        }
+
+        private float GetCounterClockwiseDistance(Vector3 start, BoardEdgeSide startSide, Vector3 target, BoardEdgeSide targetSide, float left, float right, float top, float bottom)
+        {
+            float distance = 0f;
+            Vector3 current = start;
+            BoardEdgeSide side = startSide;
+
+            for (int i = 0; i < 4 && side != targetSide; i++)
+            {
+                Vector3 corner = GetCornerForExit(side, -1, left, right, top, bottom);
+                distance += Vector3.Distance(current, corner);
+                current = corner;
+                side = StepSide(side, -1);
+            }
+
+            distance += Vector3.Distance(current, target);
+            return distance;
+        }
+
+        private BoardEdgeSide StepSide(BoardEdgeSide side, int step)
+        {
+            int count = 4;
+            int index = ((int)side + step + count) % count;
+            return (BoardEdgeSide)index;
+        }
+
+        private Vector3 GetCornerForExit(BoardEdgeSide side, int step, float left, float right, float top, float bottom)
+        {
+            return side switch
+            {
+                BoardEdgeSide.Top => step > 0 ? new Vector3(right, top, 0f) : new Vector3(left, top, 0f),
+                BoardEdgeSide.Right => step > 0 ? new Vector3(right, bottom, 0f) : new Vector3(right, top, 0f),
+                BoardEdgeSide.Bottom => step > 0 ? new Vector3(left, bottom, 0f) : new Vector3(right, bottom, 0f),
+                BoardEdgeSide.Left => step > 0 ? new Vector3(left, top, 0f) : new Vector3(left, bottom, 0f),
+                _ => Vector3.zero
+            };
+        }
+
+        private Vector3 GetSlotApproachPoint(Vector3 slotPosition, BoardEdgeSide targetSide)
+        {
+            float approach = _layout.CellSize * SlotApproachOffsetCells;
+
+            return targetSide switch
+            {
+                BoardEdgeSide.Top => slotPosition + Vector3.up * approach,
+                BoardEdgeSide.Right => slotPosition + Vector3.right * approach,
+                BoardEdgeSide.Bottom => slotPosition + Vector3.down * approach,
+                BoardEdgeSide.Left => slotPosition + Vector3.left * approach,
+                _ => slotPosition
+            };
+        }
+
+        private void AddPointIfDifferent(List<Vector3> path, Vector3 point)
+        {
+            point.z = 0f;
+
+            if (path.Count > 0 && Vector3.SqrMagnitude(path[path.Count - 1] - point) < 0.0001f)
+                return;
+
+            path.Add(point);
         }
 
         private void FireSlotFullFeedback(BlockIdentity block)
@@ -671,6 +1106,12 @@ namespace DragonRescue.Entities.Board
             if (Time.unscaledTime - _lastSlotFullFeedbackTime >= SlotFullFeedbackCooldown)
             {
                 _lastSlotFullFeedbackTime = Time.unscaledTime;
+                GameEvents.FireGameplayPrompt(new GameplayPromptPayload
+                {
+                    Message = "Cannon slot is full",
+                    FlashScreen = true
+                });
+
                 GameEvents.FireBlockSlotFull(new BlockFeedbackPayload
                 {
                     Block = block,

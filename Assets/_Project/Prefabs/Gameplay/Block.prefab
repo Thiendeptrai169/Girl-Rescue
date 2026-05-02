@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingOrder: 6
   m_MaskInteraction: 0
   m_Sprite: {fileID: -765150924802650856, guid: dbe891ecce76e3d4ebfd7bea58aa1707, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 2474690735191280669}
   - component: {fileID: 6168789118992436260}
   - component: {fileID: 5534917057129164911}
+  - component: {fileID: -8703547741245841074}
   m_Layer: 0
   m_Name: Block
   m_TagString: Untagged
@@ -260,6 +261,26 @@ MonoBehaviour:
   _blockSprite: {fileID: 8714044186241358933}
   _arrowSprite: {fileID: 487796077780413049}
   _blockedFeedbackDuration: 0.15
-  _singleHorizontalFill: {x: 0.95, y: 0.68}
-  _singleVerticalFill: {x: 0.68, y: 0.95}
-  _singleDiagonalFill: {x: 0.82, y: 0.82}
+  _singleHorizontalFill: {x: 1, y: 1}
+  _singleVerticalFill: {x: 1, y: 1}
+  _singleDiagonalFill: {x: 1, y: 1}
+  _multiCellFill: {x: 0.94, y: 0.9}
+  _arrowWorldHeightRatio: 0.5
+--- !u!114 &-8703547741245841074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8781721400062794811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef31a3b1b22cdec43872581e6d438d18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Animation.BlockMoveAnimator
+  _escapeBoardCellsPerSecond: 5.5
+  _escapeToSlotSpeed: 7
+  _blockedCellsPerSecond: 6.5
+  _returnCellsPerSecond: 10
+  _minimumSegmentDuration: 0.08
+  _slotArrivalScale: 0.35

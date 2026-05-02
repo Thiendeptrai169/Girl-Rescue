@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Data.LevelConfig
   levelId: level_05
   levelNumber: 5
+  tags: []
+  designerNotes: 
+  changelog: 
   princessViewport: {x: 0.15, y: 0.66}
   princessHearts: 1
   dragonMovementType: 1
@@ -132,9 +135,9 @@ MonoBehaviour:
   dragonRecoilPauseSeconds: 0.08
   totalSlotCount: 6
   unlockedSlotCount: 4
-  boardViewport: {x: 0.5, y: 0.348125}
+  boardViewport: {x: 0.5, y: 0.261}
   boardWidthRatio: 0.84
-  boardHeightRatio: 0.34375
+  boardHeightRatio: 0.44
   boardSize: {x: 8, y: 7}
   blocks:
   - id: L05_B_0_0_0
@@ -201,7 +204,7 @@ MonoBehaviour:
     position: {x: 3, y: 1}
     size: {x: 1, y: 1}
     color: 3
-    direction: 3
+    direction: 0
     ammo: 3
   - id: L05_B_4_1_11
     position: {x: 4, y: 1}
@@ -433,16 +436,16 @@ MonoBehaviour:
     ammo: 4
   slotBarViewportY: 0.57
   slotBarBottomPaddingViewport: 0.03
-  boosterBarHeightPixels: 300
+  boosterBarHeightPixels: 40
   uiReferenceHeightPixels: 1920
   boosterBarTopPaddingViewport: 0.02
   defaultFireRate: 0.8
   defaultDamage: 1
   defaultProjectileSpeed: 7
-  defaultFireRange: 6.8
+  defaultFireRange: 5
   boosters:
   - type: 0
-    charges: 3
+    charges: 2
     enabled: 1
     amount: 1
     duration: 0

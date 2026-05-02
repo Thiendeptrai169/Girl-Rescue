@@ -28,11 +28,17 @@ namespace DragonRescue.Core
         public static event Action<float> OnProgressUpdated;
         public static void FireProgressUpdated(float percent) => OnProgressUpdated?.Invoke(percent);
 
+        public static event Action<GameplayPromptPayload> OnGameplayPromptRequested;
+        public static void FireGameplayPrompt(GameplayPromptPayload payload) => OnGameplayPromptRequested?.Invoke(payload);
+
         // ── Dragon Events ────────────────────────────────────────────────────
         public static event Action<SegmentDestroyedPayload> OnSegmentDestroyed;
+        public static event Action<DragonSegmentsSortedPayload> OnDragonSegmentsSorted;
 
         public static void FireSegmentDestroyed(SegmentDestroyedPayload payload)
             => OnSegmentDestroyed?.Invoke(payload);
+        public static void FireDragonSegmentsSorted(DragonSegmentsSortedPayload payload)
+            => OnDragonSegmentsSorted?.Invoke(payload);
 
         public static event Action<BlockEscapedPayload> OnBlockEscaped;
         public static event Action<BlockSpawnedPayload> OnBlockSpawned;
@@ -68,9 +74,11 @@ namespace DragonRescue.Core
         // ── Booster Events ───────────────────────────────────────────────────
         public static event Action<BoosterType, int> OnBoosterChargeChanged;
         public static event Action<BoosterType?> OnBoosterSelectionModeChanged;
+        public static event Action<FurtherBuffPayload> OnFurtherBuffStarted;
 
         public static void FireBoosterChargeChanged(BoosterType type, int charges) => OnBoosterChargeChanged?.Invoke(type, charges);
         public static void FireBoosterSelectionModeChanged(BoosterType? type) => OnBoosterSelectionModeChanged?.Invoke(type);
+        public static void FireFurtherBuffStarted(FurtherBuffPayload payload) => OnFurtherBuffStarted?.Invoke(payload);
 
         // ── Cleanup ──────────────────────────────────────────────────────────
         /// <summary>
@@ -80,6 +88,7 @@ namespace DragonRescue.Core
         public static void ClearLevelEvents()
         {
             OnSegmentDestroyed = null;
+            OnDragonSegmentsSorted = null;
             OnBlockEscaped    = null;
             OnBlockSpawned    = null;
             OnBlockBlocked    = null;
@@ -89,6 +98,7 @@ namespace DragonRescue.Core
             OnCannonSlotStateChanged = null;
             OnCannonAmmoChanged = null;
             OnProjectileHit   = null;
+            OnFurtherBuffStarted = null;
             RequestSlotCapacity = null;
         }
     }
@@ -98,6 +108,12 @@ namespace DragonRescue.Core
     {
         public CannonColor Color;
         public Vector3 Position;
+    }
+
+    public class DragonSegmentsSortedPayload
+    {
+        public DragonRescue.Entities.Dragon.DragonManager Manager;
+        public DragonRescue.Entities.Dragon.DragonSegmentIdentity[] OrderedSegments;
     }
 
     public class BlockEscapedPayload
@@ -153,5 +169,18 @@ namespace DragonRescue.Core
         public CannonColor Color;
         public int Damage;
         public Vector3 HitPosition;
+    }
+
+    public class GameplayPromptPayload
+    {
+        public string Message;
+        public bool FlashScreen;
+    }
+
+    public class FurtherBuffPayload
+    {
+        public float Duration;
+        public float Multiplier;
+        public float EndTime;
     }
 }

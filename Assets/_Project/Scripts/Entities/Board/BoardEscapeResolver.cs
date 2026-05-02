@@ -39,6 +39,7 @@ namespace DragonRescue.Entities.Board
             for (int step = 0; step < guard; step++)
             {
                 if (IsDiagonal(block.Direction) &&
+                    !IsDiagonalPointingOutFromEdge(currentPos, block.Size, block.Direction, boardSize) &&
                     TryGetDiagonalComponents(block.Direction, out Direction horizontal, out Direction vertical))
                 {
                     Vector2Int horizontalPos = GetNextPos(currentPos, horizontal);
@@ -155,6 +156,23 @@ namespace DragonRescue.Entities.Board
             }
 
             return true;
+        }
+
+        private static bool IsDiagonalPointingOutFromEdge(Vector2Int pos, Vector2Int size, Direction direction, Vector2Int boardSize)
+        {
+            bool touchesTop = pos.y <= 0;
+            bool touchesBottom = pos.y + size.y >= boardSize.y;
+            bool touchesLeft = pos.x <= 0;
+            bool touchesRight = pos.x + size.x >= boardSize.x;
+
+            return direction switch
+            {
+                Direction.UpLeft => touchesTop || touchesLeft,
+                Direction.UpRight => touchesTop || touchesRight,
+                Direction.DownLeft => touchesBottom || touchesLeft,
+                Direction.DownRight => touchesBottom || touchesRight,
+                _ => false
+            };
         }
 
         private static bool IsCellWithinBounds(Vector2Int pos, Vector2Int boardSize)

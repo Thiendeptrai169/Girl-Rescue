@@ -81,8 +81,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b7dd41c91db4ed49b0b7f6cc8dcbf8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.UI.CannonAmmoBadgeView
+  _slot: {fileID: 0}
   _ammoText: {fileID: 7827817341563174068}
   _root: {fileID: 3108154270053609395}
+  _canvasGroup: {fileID: 0}
 --- !u!23 &8304071858000165282
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -237,6 +239,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6392467346834694277}
   - component: {fileID: 6490316114204662006}
+  - component: {fileID: 2505115410420288640}
   m_Layer: 0
   m_Name: Cannon
   m_TagString: Untagged
@@ -318,6 +321,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &2505115410420288640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5417526490536248727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e3ee94a912a6346ad790c558cea5e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.VFX.CannonFurtherBuffVFX
+  _slot: {fileID: 1395492050805385720}
+  _pulseScale: 0.14
+  _pulseInterval: 0.28
 --- !u!1 &6156019526265982296
 GameObject:
   m_ObjectHideFlags: 0
@@ -458,9 +476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64401ba892bf8644e8e812ef75c4d39b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Cannon.CannonSlot
-  _visual: {fileID: 1812408555996403277}
   _firePoint: {fileID: 5711126057160024533}
-  _ammoBadge: {fileID: 543195545672098573}
 --- !u!114 &1812408555996403277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -473,7 +489,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3581db964c52c3149b010f38d0811d73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Cannon.CannonVisual
+  _slot: {fileID: 0}
   _slotBackground: {fileID: 6366324634622338520}
   _cannonSprite: {fileID: 6490316114204662006}
-  _lockedColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  _emptyUnlockedColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  _lockedColor: {r: 0.12, g: 0.12, b: 0.12, a: 1}
+  _emptyUnlockedColor: {r: 0.9, g: 0.96, b: 1, a: 1}
+  _loadedBackgroundColor: {r: 1, g: 1, b: 1, a: 1}

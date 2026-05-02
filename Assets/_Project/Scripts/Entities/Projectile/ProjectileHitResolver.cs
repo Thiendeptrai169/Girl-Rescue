@@ -1,6 +1,7 @@
 using UnityEngine;
 using DragonRescue.Core;
 using DragonRescue.Entities.Dragon;
+using DragonRescue.SFX;
 
 namespace DragonRescue.Entities.Projectile
 {
@@ -41,6 +42,7 @@ namespace DragonRescue.Entities.Projectile
                 if (_reservedTarget.IsAlive)
                 {
                     _reservedTarget.TakeDamage(_identity.Damage);
+                    SoundManager.PlayProjectileHitTarget();
 
                     GameEvents.FireProjectileHit(new ProjectileHitPayload
                     {

@@ -115,7 +115,7 @@ namespace DragonRescue.EditorScripts
             text.alignment = TextAlignmentOptions.Center;
             text.color = new Color(0.43f, 0.25f, 0.13f, 1f);
             text.raycastTarget = false;
-            text.enableWordWrapping = false;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             text.overflowMode = TextOverflowModes.Ellipsis;
             Stretch(text.rectTransform);
             prompt.transform.SetAsLastSibling();

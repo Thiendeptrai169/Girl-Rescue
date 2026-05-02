@@ -1,6 +1,7 @@
 using UnityEngine;
 using DragonRescue.Data;
 using DragonRescue.Core;
+using DragonRescue.VFX;
 
 namespace DragonRescue.Entities.Dragon
 {
@@ -14,6 +15,7 @@ namespace DragonRescue.Entities.Dragon
     {
         // ── Sibling Wiring (EC) ──────────────────────────────────────────────
         [SerializeField] private DragonSegmentVisual _visual;
+        [SerializeField] private DragonSegmentHitVFX _hitVFX;
 
         // ── Runtime State ────────────────────────────────────────────────────
         public CannonColor Color     { get; private set; }
@@ -33,6 +35,9 @@ namespace DragonRescue.Entities.Dragon
 
             if (_visual != null)
                 _visual.Init(Color);
+
+            if (_hitVFX != null)
+                _hitVFX.CaptureBaseState(ColorPalette.GetColor(Color));
         }
 
         public void SetColor(CannonColor color)
@@ -41,6 +46,9 @@ namespace DragonRescue.Entities.Dragon
 
             if (_visual != null)
                 _visual.Init(Color);
+
+            if (_hitVFX != null)
+                _hitVFX.CaptureBaseState(ColorPalette.GetColor(Color));
         }
 
         public bool IsTargetable(int damage)
@@ -68,12 +76,21 @@ namespace DragonRescue.Entities.Dragon
             if (!IsAlive) return;
 
             CurrentHp -= damage;
+            bool destroyed = CurrentHp <= 0;
 
-            if (CurrentHp <= 0)
+            if (destroyed)
             {
                 CurrentHp = 0;
-                Die();
+                if (_hitVFX != null)
+                    _hitVFX.PlayHit(true, Die);
+                else
+                    Die();
+
+                return;
             }
+
+            if (_hitVFX != null)
+                _hitVFX.PlayHit(false);
         }
 
         public void ResetData()

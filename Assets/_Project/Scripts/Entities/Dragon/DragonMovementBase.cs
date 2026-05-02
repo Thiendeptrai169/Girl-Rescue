@@ -21,6 +21,20 @@ namespace DragonRescue.Entities.Dragon
         public abstract void StopMoving();
         public abstract void ResumeMoving();
 
+        protected virtual void OnEnable()
+        {
+            GameEvents.OnDragonSegmentsSorted += OnDragonSegmentsSorted;
+        }
+
+        protected virtual void OnDisable()
+        {
+            GameEvents.OnDragonSegmentsSorted -= OnDragonSegmentsSorted;
+        }
+
+        public virtual void SetSegmentOrder(DragonSegmentIdentity[] segments)
+        {
+        }
+
         public virtual void RefreshVisuals()
         {
         }
@@ -46,6 +60,17 @@ namespace DragonRescue.Entities.Dragon
 
             _recoilPauseTimer -= Time.deltaTime;
             return true;
+        }
+
+        private void OnDragonSegmentsSorted(DragonSegmentsSortedPayload payload)
+        {
+            if (payload == null || payload.Manager == null || payload.OrderedSegments == null)
+                return;
+
+            if (payload.Manager != GetComponent<DragonManager>())
+                return;
+
+            SetSegmentOrder(payload.OrderedSegments);
         }
     }
 }

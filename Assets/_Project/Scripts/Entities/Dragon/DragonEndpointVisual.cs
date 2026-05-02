@@ -5,13 +5,10 @@ namespace DragonRescue.Entities.Dragon
     public class DragonEndpointVisual : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer _headRenderer;
-        [SerializeField] private SpriteRenderer _tailRenderer;
         [SerializeField] private float _visualHeightMultiplier = 0.9f;
 
         private Vector3 _lastHeadPosition;
-        private Vector3 _lastTailPosition;
         private bool _hasHeadPosition;
-        private bool _hasTailPosition;
 
         public void Init(float spacing)
         {
@@ -19,17 +16,12 @@ namespace DragonRescue.Entities.Dragon
 
             float targetHeight = Mathf.Max(0.01f, spacing * _visualHeightMultiplier);
             FitRendererHeight(_headRenderer, targetHeight);
-            FitRendererHeight(_tailRenderer, targetHeight);
+            HideLegacyTail();
         }
 
         public void SetHeadPosition(Vector3 position, Vector3 fallbackDirection)
         {
             SetEndpoint(_headRenderer, position, fallbackDirection, ref _lastHeadPosition, ref _hasHeadPosition);
-        }
-
-        public void SetTailPosition(Vector3 position, Vector3 fallbackDirection)
-        {
-            SetEndpoint(_tailRenderer, position, fallbackDirection, ref _lastTailPosition, ref _hasTailPosition);
         }
 
         private void ResolveRenderers()
@@ -40,13 +32,13 @@ namespace DragonRescue.Entities.Dragon
                 if (head != null)
                     _headRenderer = head.GetComponent<SpriteRenderer>();
             }
+        }
 
-            if (_tailRenderer == null)
-            {
-                Transform tail = transform.Find("DragonTailVisual");
-                if (tail != null)
-                    _tailRenderer = tail.GetComponent<SpriteRenderer>();
-            }
+        private void HideLegacyTail()
+        {
+            Transform tail = transform.Find("DragonTailVisual");
+            if (tail != null)
+                tail.gameObject.SetActive(false);
         }
 
         private void FitRendererHeight(SpriteRenderer renderer, float targetHeight)
@@ -75,9 +67,9 @@ namespace DragonRescue.Entities.Dragon
             Transform target = renderer.transform;
             target.position = position;
 
-            Vector3 direction = hasPosition ? position - lastPosition : fallbackDirection;
-            if (direction.sqrMagnitude <= 0.0001f)
-                direction = fallbackDirection;
+            Vector3 direction = fallbackDirection;
+            if (direction.sqrMagnitude <= 0.0001f && hasPosition)
+                direction = position - lastPosition;
 
             if (direction.sqrMagnitude > 0.0001f)
             {

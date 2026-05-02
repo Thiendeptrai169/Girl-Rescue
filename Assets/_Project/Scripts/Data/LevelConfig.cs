@@ -15,6 +15,11 @@ namespace DragonRescue.Data
         public string levelId;
         public int levelNumber;
 
+        [Header("Metadata")]
+        public string[] tags;
+        [TextArea(3, 8)] public string designerNotes;
+        [TextArea(3, 8)] public string changelog;
+
         [Header("Princess")]
         [Tooltip("Viewport coords (0 to 1). X=0 is left, Y=0 is bottom.")]
         public Vector2 princessViewport = new Vector2(0.18f, 0.66f);
@@ -73,14 +78,23 @@ namespace DragonRescue.Data
         public float defaultFireRate = 1f;
         public int defaultDamage = 1;
         public float defaultProjectileSpeed = 8f;
-        public float defaultFireRange = 10f;
+        public float defaultFireRange = 5f;
 
         [Header("Boosters")]
         public List<BoosterData> boosters = new();
 
 #if UNITY_EDITOR
+        public void EditorNormalize()
+        {
+            OnValidate();
+        }
+
         private void OnValidate()
         {
+            dragonSegments ??= new List<DragonSegmentData>();
+            blocks ??= new List<NormalArrowBlockData>();
+            boosters ??= new List<BoosterData>();
+
             // Dragon viewport values can extend slightly outside the camera for offscreen entry.
             princessViewport.x = Mathf.Clamp01(princessViewport.x);
             princessViewport.y = Mathf.Clamp01(princessViewport.y);
@@ -99,6 +113,7 @@ namespace DragonRescue.Data
             boardViewport.y = Mathf.Clamp01(boardViewport.y);
             boardSize.x = Mathf.Max(1, boardSize.x);
             boardSize.y = Mathf.Max(1, boardSize.y);
+            ValidateSlotsAndBoosters();
             ValidateBoardViewportBand();
 
             if (dragonPathWaypointsViewport != null)
@@ -123,6 +138,34 @@ namespace DragonRescue.Data
             ValidateBlocks();
             ValidateBlockAmmoAgainstDragon();
             ValidateBoardHasReleaseSolution();
+        }
+
+        private void ValidateSlotsAndBoosters()
+        {
+            totalSlotCount = Mathf.Max(1, totalSlotCount);
+            unlockedSlotCount = Mathf.Clamp(unlockedSlotCount, 0, totalSlotCount);
+
+            if (boosters == null)
+                return;
+
+            int maxUnlockCharges = Mathf.Max(0, totalSlotCount - unlockedSlotCount);
+            for (int i = 0; i < boosters.Count; i++)
+            {
+                BoosterData booster = boosters[i];
+                if (booster == null)
+                    continue;
+
+                booster.charges = Mathf.Max(0, booster.charges);
+
+                if (booster.type != BoosterType.Unlock || booster.charges <= maxUnlockCharges)
+                    continue;
+
+                DebugSystem.Warning(
+                    DebugCategory.Data,
+                    $"Clamped Unlock booster charges from {booster.charges} to {maxUnlockCharges}. Unlock charges cannot exceed locked cannon slots.",
+                    this);
+                booster.charges = maxUnlockCharges;
+            }
         }
 
         private Dictionary<CannonColor, int> BuildDragonColorCounts()
@@ -431,7 +474,8 @@ namespace DragonRescue.Data
 
             for (int step = 0; step < guard; step++)
             {
-                if (IsDiagonalDirection(block.direction))
+                if (IsDiagonalDirection(block.direction) &&
+                    !IsDiagonalPointingOutFromEdge(block, currentPos))
                 {
                     GetDiagonalComponents(block.direction, out Direction horizontal, out Direction vertical);
 
@@ -523,6 +567,23 @@ namespace DragonRescue.Data
             }
 
             return true;
+        }
+
+        private bool IsDiagonalPointingOutFromEdge(NormalArrowBlockData block, Vector2Int candidatePos)
+        {
+            bool touchesTop = candidatePos.y <= 0;
+            bool touchesBottom = candidatePos.y + block.size.y >= boardSize.y;
+            bool touchesLeft = candidatePos.x <= 0;
+            bool touchesRight = candidatePos.x + block.size.x >= boardSize.x;
+
+            return block.direction switch
+            {
+                Direction.UpLeft => touchesTop || touchesLeft,
+                Direction.UpRight => touchesTop || touchesRight,
+                Direction.DownLeft => touchesBottom || touchesLeft,
+                Direction.DownRight => touchesBottom || touchesRight,
+                _ => false
+            };
         }
 
         private bool IsDiagonalDirection(Direction direction)

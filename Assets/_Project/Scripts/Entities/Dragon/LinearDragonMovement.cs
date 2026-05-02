@@ -42,6 +42,12 @@ namespace DragonRescue.Entities.Dragon
         public override void StopMoving()   => _isMoving = false;
         public override void ResumeMoving() => _isMoving = true;
 
+        public override void SetSegmentOrder(DragonSegmentIdentity[] segments)
+        {
+            _segments = segments;
+            RefreshVisuals();
+        }
+
         public override void RefreshVisuals()
         {
             UpdateRootPosition();
@@ -88,7 +94,6 @@ namespace DragonRescue.Entities.Dragon
 
             Vector3 direction = (_endPos - _startPos).normalized;
             _endpointVisual.SetHeadPosition(transform.position, direction);
-            _endpointVisual.SetTailPosition(transform.TransformPoint(Vector3.right * (aliveIndex * _spacing)), direction);
         }
 
         private void UpdateRootPosition()

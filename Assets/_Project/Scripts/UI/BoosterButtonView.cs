@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DragonRescue.Data;
+using DragonRescue.SFX;
 
 namespace DragonRescue.UI
 {
@@ -68,6 +69,7 @@ namespace DragonRescue.UI
 
         private void HandleClick()
         {
+            SoundManager.PlayBooster(_type);
             Clicked?.Invoke(_type);
         }
 

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4177418214981173949}
   - component: {fileID: 7342396416287600860}
+  - component: {fileID: 5077774376473647766}
   m_Layer: 0
   m_Name: BroadManager
   m_TagString: Untagged
@@ -45,3 +46,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Board.BoardManager
   _blockPrefab: {fileID: 8781721400062794811, guid: 32e1e4c30468271429a2e41cb065e2a2, type: 3}
+  _inputReceiver: {fileID: 5077774376473647766}
+--- !u!114 &5077774376473647766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8591611143654311469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5272e38970a042fca83c1ef746a46284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DragonRescue.Entities.Board.BoardInputReceiver

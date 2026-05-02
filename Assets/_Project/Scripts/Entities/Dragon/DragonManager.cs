@@ -13,6 +13,12 @@ namespace DragonRescue.Entities.Dragon
     /// </summary>
     public class DragonManager : MonoBehaviour
     {
+        private sealed class DragonSegmentGroup
+        {
+            public CannonColor Color;
+            public readonly List<DragonSegmentIdentity> Members = new();
+        }
+
         // ── Runtime State ────────────────────────────────────────────────────
         public static DragonManager Instance { get; private set; }
 
@@ -112,52 +118,19 @@ namespace DragonRescue.Entities.Dragon
             return true;
         }
 
-        public bool SortSegmentsByColor()
+        public bool SortSegmentsByCannonPriority(IReadOnlyList<CannonColor> loadedSlotColors)
         {
-            return SortLeadingSegmentsByColor(4);
-        }
-
-        public bool SortLeadingSegmentsByColor(int maxSegmentCount)
-        {
-            List<DragonSegmentIdentity> aliveSegments = new();
-            HashSet<CannonColor> uniqueColors = new();
-
-            for (int i = 0; i < _segments.Count; i++)
-            {
-                var segment = _segments[i];
-                if (!segment.IsAlive) continue;
-
-                aliveSegments.Add(segment);
-                uniqueColors.Add(segment.Color);
-
-                if (aliveSegments.Count >= maxSegmentCount)
-                    break;
-            }
-
-            if (aliveSegments.Count <= 1 || uniqueColors.Count <= 1)
-            {
+            List<DragonSegmentGroup> leadingGroups = GetLeadingAliveGroups(4);
+            if (leadingGroups.Count <= 1)
                 return false;
-            }
 
-            List<CannonColor> sortedColors = new(aliveSegments.Count);
-            for (int i = 0; i < aliveSegments.Count; i++)
-            {
-                sortedColors.Add(aliveSegments[i].Color);
-            }
+            List<DragonSegmentGroup> priorityGroups = BuildCannonPriorityGroups(leadingGroups, loadedSlotColors);
+            if (priorityGroups.Count == 0)
+                priorityGroups = BuildFallbackSortIllusionGroups(leadingGroups);
 
-            sortedColors.Sort();
-
-            bool changed = false;
-            for (int i = 0; i < aliveSegments.Count; i++)
-            {
-                if (aliveSegments[i].Color != sortedColors[i])
-                {
-                    changed = true;
-                    aliveSegments[i].SetColor(sortedColors[i]);
-                }
-            }
-
-            return changed;
+            bool sorted = MoveGroupsToFront(priorityGroups);
+            DebugSystem.Log(DebugCategory.Booster, $"Sort applied loadedSlots={FormatColors(loadedSlotColors)} groups={FormatGroups(priorityGroups)} sorted={sorted}.", this);
+            return sorted;
         }
 
         public int DestroyLeadingSegmentsByColor(CannonColor color, int count)
@@ -186,6 +159,160 @@ namespace DragonRescue.Entities.Dragon
 
         public void StopDragon()   => _movement.StopMoving();
         public void ResumeDragon() => _movement.ResumeMoving();
+
+        private List<DragonSegmentGroup> GetLeadingAliveGroups(int maxGroupCount)
+        {
+            var result = new List<DragonSegmentGroup>();
+            DragonSegmentGroup currentGroup = null;
+
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment == null || !segment.IsAlive)
+                    continue;
+
+                if (currentGroup == null || currentGroup.Color != segment.Color)
+                {
+                    if (result.Count >= maxGroupCount)
+                        break;
+
+                    currentGroup = new DragonSegmentGroup { Color = segment.Color };
+                    result.Add(currentGroup);
+                }
+
+                currentGroup.Members.Add(segment);
+            }
+
+            return result;
+        }
+
+        private List<DragonSegmentGroup> BuildCannonPriorityGroups(
+            List<DragonSegmentGroup> leadingGroups,
+            IReadOnlyList<CannonColor> loadedSlotColors)
+        {
+            var result = new List<DragonSegmentGroup>();
+            if (loadedSlotColors == null || loadedSlotColors.Count == 0)
+                return result;
+
+            var usedGroups = new HashSet<DragonSegmentGroup>();
+            for (int slotIndex = 0; slotIndex < loadedSlotColors.Count; slotIndex++)
+            {
+                CannonColor color = loadedSlotColors[slotIndex];
+
+                for (int i = 0; i < leadingGroups.Count; i++)
+                {
+                    DragonSegmentGroup group = leadingGroups[i];
+                    if (group.Color == color && usedGroups.Add(group))
+                        result.Add(group);
+                }
+            }
+
+            if (result.Count == 0)
+                return result;
+
+            for (int i = 0; i < leadingGroups.Count; i++)
+            {
+                if (!usedGroups.Contains(leadingGroups[i]))
+                    result.Add(leadingGroups[i]);
+            }
+
+            return result;
+        }
+
+        private List<DragonSegmentGroup> BuildFallbackSortIllusionGroups(List<DragonSegmentGroup> leadingGroups)
+        {
+            var result = new List<DragonSegmentGroup>();
+
+            if (leadingGroups.Count >= 4)
+            {
+                result.Add(leadingGroups[3]);
+                result.Add(leadingGroups[2]);
+                result.Add(leadingGroups[0]);
+                result.Add(leadingGroups[1]);
+            }
+            else
+            {
+                for (int i = leadingGroups.Count - 1; i >= 0; i--)
+                    result.Add(leadingGroups[i]);
+            }
+
+            return result;
+        }
+
+        private bool MoveGroupsToFront(List<DragonSegmentGroup> priorityGroups)
+        {
+            if (priorityGroups == null || priorityGroups.Count == 0)
+                return false;
+
+            var newOrder = new List<DragonSegmentIdentity>(_segments.Count);
+            var moved = new HashSet<DragonSegmentIdentity>();
+
+            for (int i = 0; i < priorityGroups.Count; i++)
+            {
+                DragonSegmentGroup group = priorityGroups[i];
+                for (int j = 0; j < group.Members.Count; j++)
+                {
+                    DragonSegmentIdentity member = group.Members[j];
+                    if (member != null && moved.Add(member))
+                        newOrder.Add(member);
+                }
+            }
+
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                DragonSegmentIdentity segment = _segments[i];
+                if (segment != null && !moved.Contains(segment))
+                    newOrder.Add(segment);
+            }
+
+            if (newOrder.Count != _segments.Count)
+                return false;
+
+            _segments.Clear();
+            _segments.AddRange(newOrder);
+
+            GameEvents.FireDragonSegmentsSorted(new DragonSegmentsSortedPayload
+            {
+                Manager = this,
+                OrderedSegments = _segments.ToArray()
+            });
+
+            return true;
+        }
+
+        private string FormatColors(IReadOnlyList<CannonColor> colors)
+        {
+            if (colors == null || colors.Count == 0)
+                return "none";
+
+            string result = "";
+            for (int i = 0; i < colors.Count; i++)
+            {
+                if (result.Length > 0)
+                    result += ",";
+
+                result += colors[i];
+            }
+
+            return result;
+        }
+
+        private string FormatGroups(List<DragonSegmentGroup> groups)
+        {
+            if (groups == null || groups.Count == 0)
+                return "none";
+
+            string result = "";
+            for (int i = 0; i < groups.Count; i++)
+            {
+                if (result.Length > 0)
+                    result += ",";
+
+                result += $"{groups[i].Color}x{groups[i].Members.Count}";
+            }
+
+            return result;
+        }
 
         // ── Private ──────────────────────────────────────────────────────────
         private void OnSegmentDestroyed(SegmentDestroyedPayload payload)
