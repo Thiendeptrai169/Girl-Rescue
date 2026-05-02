@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using DragonRescue.Data;
 using DragonRescue.UI;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace DragonRescue.Core
 {
@@ -33,20 +30,6 @@ namespace DragonRescue.Core
             if (_resultPopup != null)
                 _resultPopup.Init(HomeLevel);
 
-#if UNITY_EDITOR
-            LevelConfig playtestOverride = ConsumeEditorPlaytestOverride();
-            if (playtestOverride != null)
-            {
-                CurrentLevelConfig = playtestOverride;
-                _currentLevelIndex = -1;
-                DebugSystem.Log(DebugCategory.Game, $"Start editor playtest levelNumber={CurrentLevelConfig.levelNumber} id={CurrentLevelConfig.levelId}", this);
-                HideResultScreen();
-                SetState(GameState.Playing);
-                LevelManager.Instance.InitLevel(CurrentLevelConfig);
-                return;
-            }
-#endif
-
             if (_allLevels == null || _allLevels.Length == 0)
             {
                 DebugSystem.Error(DebugCategory.Game, "No LevelConfig assets assigned!", this);
@@ -72,17 +55,6 @@ namespace DragonRescue.Core
         // ── Public API ────────────────────────────────────────────────────────
         public void StartLevel()
         {
-#if UNITY_EDITOR
-            if (_currentLevelIndex < 0 && CurrentLevelConfig != null)
-            {
-                DebugSystem.Log(DebugCategory.Game, $"Restart editor playtest levelNumber={CurrentLevelConfig.levelNumber} id={CurrentLevelConfig.levelId}", this);
-                HideResultScreen();
-                SetState(GameState.Playing);
-                LevelManager.Instance.InitLevel(CurrentLevelConfig);
-                return;
-            }
-#endif
-
             CurrentLevelConfig = _allLevels[_currentLevelIndex];
             DebugSystem.Log(DebugCategory.Game, $"StartLevel index={_currentLevelIndex} levelNumber={CurrentLevelConfig.levelNumber} id={CurrentLevelConfig.levelId}", this);
             HideResultScreen();
@@ -108,15 +80,6 @@ namespace DragonRescue.Core
 
         public void NextLevel()
         {
-#if UNITY_EDITOR
-            if (_currentLevelIndex < 0)
-            {
-                DebugSystem.Log(DebugCategory.Game, "Editor playtest level completed. Reloading current scene instead of advancing production level list.", this);
-                HomeLevel();
-                return;
-            }
-#endif
-
             int previousIndex = _currentLevelIndex;
             _currentLevelIndex++;
             if (_currentLevelIndex >= _allLevels.Length)
@@ -203,24 +166,5 @@ namespace DragonRescue.Core
 
         [ContextMenu("Debug / Next Level")]
         private void DebugNextLevel() => NextLevel();
-
-#if UNITY_EDITOR
-        private const string EditorPlaytestLevelGuidKey = "DragonRescue.LevelEditor.PlaytestLevelGuid";
-
-        private static LevelConfig ConsumeEditorPlaytestOverride()
-        {
-            string guid = SessionState.GetString(EditorPlaytestLevelGuidKey, string.Empty);
-            SessionState.SetString(EditorPlaytestLevelGuidKey, string.Empty);
-
-            if (string.IsNullOrWhiteSpace(guid))
-                return null;
-
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            if (string.IsNullOrWhiteSpace(path))
-                return null;
-
-            return AssetDatabase.LoadAssetAtPath<LevelConfig>(path);
-        }
-#endif
     }
 }

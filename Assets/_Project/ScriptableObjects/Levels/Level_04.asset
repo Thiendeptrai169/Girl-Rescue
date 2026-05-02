@@ -181,7 +181,7 @@ MonoBehaviour:
     size: {x: 2, y: 1}
     color: 0
     direction: 3
-    ammo: 4
+    ammo: 5
   - id: L04_B_2_2
     position: {x: 8, y: 1}
     size: {x: 2, y: 1}
@@ -307,13 +307,13 @@ MonoBehaviour:
     size: {x: 2, y: 1}
     color: 3
     direction: 1
-    ammo: 5
+    ammo: 6
   - id: L04_B_8_4
     position: {x: 6, y: 4}
     size: {x: 2, y: 1}
     color: 3
     direction: 1
-    ammo: 4
+    ammo: 5
   - id: L04_B_0_5
     position: {x: 8, y: 4}
     size: {x: 2, y: 1}
@@ -374,6 +374,24 @@ MonoBehaviour:
     color: 6
     direction: 2
     ammo: 3
+  - id: Block_42
+    position: {x: 10, y: 0}
+    size: {x: 1, y: 1}
+    color: 6
+    direction: 0
+    ammo: 2
+  - id: Block_43
+    position: {x: 5, y: 6}
+    size: {x: 1, y: 1}
+    color: 4
+    direction: 7
+    ammo: 2
+  - id: Block_44
+    position: {x: 8, y: 6}
+    size: {x: 1, y: 1}
+    color: 1
+    direction: 3
+    ammo: 2
   slotBarViewportY: 0.56
   slotBarBottomPaddingViewport: 0.03
   boosterBarHeightPixels: 40

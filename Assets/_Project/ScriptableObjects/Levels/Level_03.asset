@@ -36,7 +36,7 @@ MonoBehaviour:
   - color: 2
     count: 6
   - color: 0
-    count: 6
+    count: 5
   - color: 2
     count: 4
   - color: 0
@@ -44,16 +44,12 @@ MonoBehaviour:
   - color: 2
     count: 4
   - color: 7
-    count: 6
-  - color: 0
-    count: 4
+    count: 25
   - color: 2
     count: 4
   - color: 6
     count: 6
   - color: 7
-    count: 4
-  - color: 0
     count: 4
   - color: 1
     count: 6
@@ -70,7 +66,7 @@ MonoBehaviour:
   - color: 2
     count: 4
   - color: 4
-    count: 5
+    count: 6
   - color: 6
     count: 4
   - color: 7
@@ -146,8 +142,6 @@ MonoBehaviour:
   - color: 4
     count: 4
   - color: 6
-    count: 4
-  - color: 7
     count: 4
   - color: 0
     count: 5
@@ -163,8 +157,6 @@ MonoBehaviour:
     count: 3
   - color: 6
     count: 6
-  - color: 7
-    count: 3
   dragonRecoilProgress: 0.025
   dragonRecoilPauseSeconds: 0.08
   totalSlotCount: 6
@@ -214,14 +206,14 @@ MonoBehaviour:
     position: {x: 10, y: 0}
     size: {x: 1, y: 1}
     color: 7
-    direction: 2
+    direction: 3
     ammo: 3
   - id: L03_B_7_0
     position: {x: 11, y: 0}
     size: {x: 2, y: 1}
     color: 1
     direction: 3
-    ammo: 4
+    ammo: 6
   - id: L03_B_8_0
     position: {x: 0, y: 1}
     size: {x: 2, y: 1}
@@ -430,13 +422,13 @@ MonoBehaviour:
     position: {x: 7, y: 6}
     size: {x: 1, y: 1}
     color: 0
-    direction: 2
+    direction: 1
     ammo: 3
   - id: L03_B_5_5
     position: {x: 8, y: 6}
     size: {x: 2, y: 1}
     color: 2
-    direction: 2
+    direction: 3
     ammo: 4
   - id: L03_B_6_5
     position: {x: 10, y: 6}
@@ -455,7 +447,7 @@ MonoBehaviour:
     size: {x: 3, y: 1}
     color: 0
     direction: 2
-    ammo: 6
+    ammo: 2
   - id: L03_B_1_6
     position: {x: 3, y: 7}
     size: {x: 2, y: 1}
@@ -478,26 +470,26 @@ MonoBehaviour:
     position: {x: 7, y: 7}
     size: {x: 3, y: 1}
     color: 4
-    direction: 3
+    direction: 1
     ammo: 6
   - id: L03_B_6_6
     position: {x: 10, y: 7}
     size: {x: 1, y: 1}
     color: 0
     direction: 1
-    ammo: 2
+    ammo: 0
   - id: L03_B_7_6
     position: {x: 11, y: 7}
     size: {x: 2, y: 1}
     color: 6
     direction: 3
-    ammo: 4
+    ammo: 6
   - id: L03_B_0_7
     position: {x: 13, y: 7}
     size: {x: 1, y: 1}
     color: 7
     direction: 3
-    ammo: 3
+    ammo: 5
   - id: L03_B_1_7
     position: {x: 0, y: 8}
     size: {x: 1, y: 1}
@@ -521,7 +513,7 @@ MonoBehaviour:
     size: {x: 2, y: 1}
     color: 4
     direction: 1
-    ammo: 4
+    ammo: 6
   - id: L03_B_5_7
     position: {x: 6, y: 8}
     size: {x: 1, y: 1}
@@ -532,7 +524,7 @@ MonoBehaviour:
     position: {x: 7, y: 8}
     size: {x: 1, y: 1}
     color: 5
-    direction: 3
+    direction: 1
     ammo: 3
   - id: L03_B_7_7
     position: {x: 8, y: 8}
@@ -540,6 +532,36 @@ MonoBehaviour:
     color: 2
     direction: 3
     ammo: 3
+  - id: Block_62
+    position: {x: 0, y: 5}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 2
+    ammo: 3
+  - id: Block_63
+    position: {x: 9, y: 8}
+    size: {x: 2, y: 1}
+    color: 7
+    direction: 3
+    ammo: 6
+  - id: Block_64
+    position: {x: 13, y: 0}
+    size: {x: 1, y: 1}
+    color: 7
+    direction: 0
+    ammo: 3
+  - id: Block_65
+    position: {x: 11, y: 8}
+    size: {x: 1, y: 1}
+    color: 0
+    direction: 1
+    ammo: 0
+  - id: Block_66
+    position: {x: 11, y: 4}
+    size: {x: 1, y: 1}
+    color: 2
+    direction: 3
+    ammo: 2
   slotBarViewportY: 0.55
   slotBarBottomPaddingViewport: 0.03
   boosterBarHeightPixels: 40
