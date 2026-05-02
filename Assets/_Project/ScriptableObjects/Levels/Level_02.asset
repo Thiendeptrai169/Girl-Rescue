@@ -255,7 +255,7 @@ MonoBehaviour:
   defaultFireRate: 0.95
   defaultDamage: 1
   defaultProjectileSpeed: 5.5
-  defaultFireRange: 7.8
+  defaultFireRange: 6
   boosters:
   - type: 0
     charges: 3

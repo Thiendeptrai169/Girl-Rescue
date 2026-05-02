@@ -1,6 +1,7 @@
 using UnityEngine;
 using DragonRescue.Data;
 using DragonRescue.Core;
+using System.Collections.Generic;
 
 namespace DragonRescue.Entities.Cannon
 {
@@ -12,6 +13,7 @@ namespace DragonRescue.Entities.Cannon
         public static SlotBarManager Instance { get; private set; }
 
         private CannonSlot[] _slots;
+        private readonly HashSet<int> _reservedSlotIndexes = new();
         private float _lastSlotFullWarningTime = -999f;
         private const float SlotFullWarningCooldown = 1f;
 
@@ -24,7 +26,7 @@ namespace DragonRescue.Entities.Cannon
         {
             // Position slot bar using viewport (e.g., center-bottom of play area)
             // Can be adjusted later if it overlaps HUD
-            transform.position = layout.ViewportToWorld(new Vector2(0.5f, 0.55f));
+            transform.position = layout.ViewportToWorld(new Vector2(0.5f, 0.5f));
 
             int totalSlots = config.totalSlotCount;
             _slots = new CannonSlot[totalSlots];
@@ -70,6 +72,18 @@ namespace DragonRescue.Entities.Cannon
             if (ammo <= 0) return true;
 
             CannonSlot targetSlot = FindEmptyUnlockedSlot();
+            return TryLoadBlockIntoSlot(targetSlot, color, ammo);
+        }
+
+        public bool TryGetAvailableSlot(int ammo, out CannonSlot targetSlot)
+        {
+            targetSlot = ammo <= 0 ? null : FindEmptyUnlockedSlot();
+            return ammo <= 0 || targetSlot != null;
+        }
+
+        public bool TryLoadBlockIntoSlot(CannonSlot targetSlot, CannonColor color, int ammo)
+        {
+            if (ammo <= 0) return true;
 
             if (targetSlot != null)
             {
@@ -82,9 +96,54 @@ namespace DragonRescue.Entities.Cannon
             return false;
         }
 
+        public bool TryReserveAvailableSlot(int ammo, out CannonSlot targetSlot)
+        {
+            targetSlot = null;
+            if (ammo <= 0) return true;
+
+            targetSlot = FindEmptyUnlockedSlot();
+            if (targetSlot == null)
+                return false;
+
+            _reservedSlotIndexes.Add(targetSlot.Index);
+            return true;
+        }
+
+        public void ReleaseSlotReservation(CannonSlot slot)
+        {
+            if (slot == null)
+                return;
+
+            _reservedSlotIndexes.Remove(slot.Index);
+        }
+
+        public bool TryLoadReservedBlockIntoSlot(CannonSlot targetSlot, CannonColor color, int ammo)
+        {
+            if (ammo <= 0) return true;
+            if (targetSlot == null) return false;
+
+            _reservedSlotIndexes.Remove(targetSlot.Index);
+            return TryLoadBlockIntoSlot(targetSlot, color, ammo);
+        }
+
         public bool CanAcceptBlock(int ammo)
         {
             return ammo <= 0 || FindEmptyUnlockedSlot() != null;
+        }
+
+        public List<CannonColor> GetLoadedColorsInSlotOrder()
+        {
+            var colors = new List<CannonColor>();
+            if (_slots == null) return colors;
+
+            for (int i = 0; i < _slots.Length; i++)
+            {
+                CannonSlot slot = _slots[i];
+                if (slot != null && slot.IsUnlocked && slot.IsLoaded)
+                    colors.Add(slot.CurrentColor);
+            }
+
+            return colors;
         }
 
         private CannonSlot FindEmptyUnlockedSlot()
@@ -93,7 +152,10 @@ namespace DragonRescue.Entities.Cannon
 
             for (int i = 0; i < _slots.Length; i++)
             {
-                if (_slots[i] != null && _slots[i].IsUnlocked && !_slots[i].IsLoaded)
+                if (_slots[i] != null &&
+                    _slots[i].IsUnlocked &&
+                    !_slots[i].IsLoaded &&
+                    !_reservedSlotIndexes.Contains(_slots[i].Index))
                 {
                     return _slots[i];
                 }

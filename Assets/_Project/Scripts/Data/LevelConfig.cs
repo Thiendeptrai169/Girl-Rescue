@@ -73,7 +73,7 @@ namespace DragonRescue.Data
         public float defaultFireRate = 1f;
         public int defaultDamage = 1;
         public float defaultProjectileSpeed = 8f;
-        public float defaultFireRange = 10f;
+        public float defaultFireRange = 5f;
 
         [Header("Boosters")]
         public List<BoosterData> boosters = new();

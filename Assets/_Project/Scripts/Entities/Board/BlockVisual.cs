@@ -11,10 +11,11 @@ namespace DragonRescue.Entities.Board
         [SerializeField] private SpriteRenderer _blockSprite;
         [SerializeField] private SpriteRenderer _arrowSprite;
         [SerializeField] private float _blockedFeedbackDuration = 0.15f;
-        [SerializeField] private Vector2 _singleHorizontalFill = new Vector2(0.95f, 0.68f);
-        [SerializeField] private Vector2 _singleVerticalFill = new Vector2(0.68f, 0.95f);
-        [SerializeField] private Vector2 _singleDiagonalFill = new Vector2(0.82f, 0.82f);
-        [SerializeField] private float _arrowWorldHeightRatio = 0.36f;
+        [SerializeField] private Vector2 _singleHorizontalFill = new Vector2(1f, 1f);
+        [SerializeField] private Vector2 _singleVerticalFill = new Vector2(1f, 1f);
+        [SerializeField] private Vector2 _singleDiagonalFill = new Vector2(1f, 1f);
+        [SerializeField] private Vector2 _multiCellFill = new Vector2(0.94f, 0.9f);
+        [SerializeField] private float _arrowWorldHeightRatio = 0.5f;
 
         private Coroutine _feedbackRoutine;
         private Color _originalColor;
@@ -110,7 +111,7 @@ namespace DragonRescue.Entities.Board
         private Vector2 GetVisualFill(Vector2Int size, Direction direction)
         {
             if (size.x > 1 || size.y > 1)
-                return new Vector2(0.95f, 0.95f);
+                return _multiCellFill;
 
             if (direction == Direction.Left || direction == Direction.Right)
                 return _singleHorizontalFill;

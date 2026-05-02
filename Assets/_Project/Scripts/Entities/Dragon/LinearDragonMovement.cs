@@ -42,6 +42,12 @@ namespace DragonRescue.Entities.Dragon
         public override void StopMoving()   => _isMoving = false;
         public override void ResumeMoving() => _isMoving = true;
 
+        public override void SetSegmentOrder(DragonSegmentIdentity[] segments)
+        {
+            _segments = segments;
+            RefreshVisuals();
+        }
+
         public override void RefreshVisuals()
         {
             UpdateRootPosition();

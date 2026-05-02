@@ -166,9 +166,9 @@ MonoBehaviour:
   dragonRecoilPauseSeconds: 0.08
   totalSlotCount: 6
   unlockedSlotCount: 4
-  boardViewport: {x: 0.5, y: 0.348125}
+  boardViewport: {x: 0.5, y: 0.261}
   boardWidthRatio: 0.84
-  boardHeightRatio: 0.34375
+  boardHeightRatio: 0.44
   boardSize: {x: 14, y: 9}
   blocks:
   - id: L03_B_0_0
@@ -539,13 +539,13 @@ MonoBehaviour:
     ammo: 3
   slotBarViewportY: 0.55
   slotBarBottomPaddingViewport: 0.03
-  boosterBarHeightPixels: 300
+  boosterBarHeightPixels: 40
   uiReferenceHeightPixels: 1920
   boosterBarTopPaddingViewport: 0.02
   defaultFireRate: 0.9
   defaultDamage: 1
   defaultProjectileSpeed: 6
-  defaultFireRange: 7.4
+  defaultFireRange: 5
   boosters:
   - type: 0
     charges: 3

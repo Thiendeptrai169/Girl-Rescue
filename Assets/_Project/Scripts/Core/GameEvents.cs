@@ -30,9 +30,12 @@ namespace DragonRescue.Core
 
         // ── Dragon Events ────────────────────────────────────────────────────
         public static event Action<SegmentDestroyedPayload> OnSegmentDestroyed;
+        public static event Action<DragonSegmentsSortedPayload> OnDragonSegmentsSorted;
 
         public static void FireSegmentDestroyed(SegmentDestroyedPayload payload)
             => OnSegmentDestroyed?.Invoke(payload);
+        public static void FireDragonSegmentsSorted(DragonSegmentsSortedPayload payload)
+            => OnDragonSegmentsSorted?.Invoke(payload);
 
         public static event Action<BlockEscapedPayload> OnBlockEscaped;
         public static event Action<BlockSpawnedPayload> OnBlockSpawned;
@@ -80,6 +83,7 @@ namespace DragonRescue.Core
         public static void ClearLevelEvents()
         {
             OnSegmentDestroyed = null;
+            OnDragonSegmentsSorted = null;
             OnBlockEscaped    = null;
             OnBlockSpawned    = null;
             OnBlockBlocked    = null;
@@ -98,6 +102,12 @@ namespace DragonRescue.Core
     {
         public CannonColor Color;
         public Vector3 Position;
+    }
+
+    public class DragonSegmentsSortedPayload
+    {
+        public DragonRescue.Entities.Dragon.DragonManager Manager;
+        public DragonRescue.Entities.Dragon.DragonSegmentIdentity[] OrderedSegments;
     }
 
     public class BlockEscapedPayload

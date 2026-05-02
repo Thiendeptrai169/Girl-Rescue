@@ -92,7 +92,16 @@ namespace DragonRescue.Booster
 
                 case BoosterType.Sort:
                     // Instant
-                    if (DragonManager.Instance != null && DragonManager.Instance.SortSegmentsByColor())
+                    List<CannonColor> loadedSlotColors = SlotBarManager.Instance != null
+                        ? SlotBarManager.Instance.GetLoadedColorsInSlotOrder()
+                        : new List<CannonColor>();
+
+                    DebugSystem.Log(
+                        DebugCategory.Booster,
+                        $"Sort requested loadedSlots={loadedSlotColors.Count} slotState={(SlotBarManager.Instance != null ? SlotBarManager.Instance.BuildDebugState() : "slotBar=null")}",
+                        this);
+
+                    if (DragonManager.Instance != null && DragonManager.Instance.SortSegmentsByCannonPriority(loadedSlotColors))
                     {
                         ConsumeCharge(type);
                     }

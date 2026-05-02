@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingOrder: 6
   m_MaskInteraction: 0
   m_Sprite: {fileID: -765150924802650856, guid: dbe891ecce76e3d4ebfd7bea58aa1707, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -260,6 +260,8 @@ MonoBehaviour:
   _blockSprite: {fileID: 8714044186241358933}
   _arrowSprite: {fileID: 487796077780413049}
   _blockedFeedbackDuration: 0.15
-  _singleHorizontalFill: {x: 0.95, y: 0.68}
-  _singleVerticalFill: {x: 0.68, y: 0.95}
-  _singleDiagonalFill: {x: 0.82, y: 0.82}
+  _singleHorizontalFill: {x: 1, y: 1}
+  _singleVerticalFill: {x: 1, y: 1}
+  _singleDiagonalFill: {x: 1, y: 1}
+  _multiCellFill: {x: 0.94, y: 0.9}
+  _arrowWorldHeightRatio: 0.5
